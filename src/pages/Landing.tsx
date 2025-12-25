@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Heart, Wind, Sparkles, BookOpen } from "lucide-react";
 import Logo from "@/components/Logo";
+import thriveMtIcon from "@/assets/thrive-mt-icon.png";
 
 const features = [
   {
@@ -125,8 +126,9 @@ const Landing = () => {
       <footer className="relative z-10 px-6 py-12 text-center">
         <div className="flex flex-col items-center gap-4">
           <Logo size="sm" />
-          <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">
+          <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground flex items-center gap-1.5">
             BY THRIVE MT
+            <img src={thriveMtIcon} alt="Thrive MT" className="w-4 h-4 object-contain" />
           </span>
           <div className="w-2 h-2 rounded-full bg-primary/30" />
           <p className="text-xs text-muted-foreground max-w-xs">
