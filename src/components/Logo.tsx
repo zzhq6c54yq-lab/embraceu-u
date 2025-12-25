@@ -9,9 +9,9 @@ interface LogoProps {
 
 const Logo = ({ className, showTagline = false, size = "md" }: LogoProps) => {
   const sizes = {
-    sm: { width: 120, height: 60 },
-    md: { width: 200, height: 100 },
-    lg: { width: 320, height: 160 },
+    sm: { width: 140, height: 70 },
+    md: { width: 240, height: 120 },
+    lg: { width: 400, height: 200 },
   };
 
   const s = sizes[size];
