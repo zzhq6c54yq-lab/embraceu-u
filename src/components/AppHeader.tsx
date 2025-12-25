@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
+import logoImage from "@/assets/logo-embrace.png";
+import thriveMtIcon from "@/assets/thrive-mt-icon.png";
 
 interface AppHeaderProps {
   className?: string;
@@ -61,60 +63,21 @@ const AppHeader = ({ className }: AppHeaderProps) => {
   return (
     <header className={cn("flex items-center justify-between px-4 py-3", className)}>
       <Link to="/daily" className="flex items-center gap-3">
-        {/* Refined mini logo */}
+        {/* AI-generated mini logo */}
         <div className="relative w-9 h-9">
-          <svg
-            viewBox="0 0 100 100"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-full"
-          >
-            <defs>
-              <linearGradient id="petalGradientMini" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="hsl(30, 60%, 58%)" />
-                <stop offset="100%" stopColor="hsl(25, 50%, 48%)" />
-              </linearGradient>
-              <linearGradient id="innerGradientMini" x1="50%" y1="0%" x2="50%" y2="100%">
-                <stop offset="0%" stopColor="hsl(20, 70%, 68%)" />
-                <stop offset="100%" stopColor="hsl(15, 60%, 55%)" />
-              </linearGradient>
-              <radialGradient id="centerGradientMini" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="hsl(35, 80%, 70%)" />
-                <stop offset="100%" stopColor="hsl(30, 60%, 55%)" />
-              </radialGradient>
-            </defs>
-            
-            {/* Left embracing arm */}
-            <path
-              d="M20 75 Q15 50, 35 30 Q45 20, 50 22"
-              stroke="url(#petalGradientMini)"
-              strokeWidth="5"
-              strokeLinecap="round"
-              fill="none"
-            />
-            
-            {/* Right embracing arm */}
-            <path
-              d="M80 75 Q85 50, 65 30 Q55 20, 50 22"
-              stroke="url(#petalGradientMini)"
-              strokeWidth="5"
-              strokeLinecap="round"
-              fill="none"
-            />
-            
-            {/* Center heart-lotus */}
-            <path
-              d="M50 60 Q40 48, 40 40 Q40 32, 50 42 Q60 32, 60 40 Q60 48, 50 60Z"
-              fill="url(#centerGradientMini)"
-            />
-          </svg>
+          <img
+            src={logoImage}
+            alt="embraceU logo"
+            className="w-full h-full object-contain"
+          />
         </div>
         <div className="flex flex-col">
           <span className="font-serif italic text-lg text-foreground leading-tight">
             embrace<span className="font-normal not-italic text-primary">U</span>
           </span>
-          <span className="text-[8px] tracking-[0.12em] uppercase text-muted-foreground font-medium">
+          <span className="text-[8px] tracking-[0.12em] uppercase text-muted-foreground font-medium flex items-center gap-1">
             BY THRIVE MT
+            <img src={thriveMtIcon} alt="Thrive MT" className="w-3 h-3 object-contain" />
           </span>
         </div>
       </Link>
