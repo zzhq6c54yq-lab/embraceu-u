@@ -1,131 +1,334 @@
-import { useState, useEffect } from "react";
-import { Wind } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Play, Pause, RotateCcw, Check } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
-type BreathPhase = "ready" | "inhale" | "hold" | "exhale";
+type BreathPhase = "inhale" | "hold" | "exhale" | "rest";
 
-const Breath = () => {
-  const [phase, setPhase] = useState<BreathPhase>("ready");
-  const [isActive, setIsActive] = useState(false);
-  const [seconds, setSeconds] = useState(0);
+interface BreathPattern {
+  name: string;
+  description: string;
+  inhale: number;
+  hold: number;
+  exhale: number;
+  rest: number;
+  cycles: number;
+}
 
-  const phaseLabels = {
-    ready: "READY",
-    inhale: "BREATHE IN",
-    hold: "HOLD",
-    exhale: "BREATHE OUT",
-  };
-
-  const phaseDurations = {
+const breathPatterns: BreathPattern[] = [
+  {
+    name: "Box Breathing",
+    description: "Equal parts inhale, hold, exhale, hold. Used by Navy SEALs for calm focus.",
     inhale: 4,
     hold: 4,
+    exhale: 4,
+    rest: 4,
+    cycles: 4,
+  },
+  {
+    name: "4-7-8 Relaxation",
+    description: "Dr. Andrew Weil's technique for deep relaxation and sleep.",
+    inhale: 4,
+    hold: 7,
+    exhale: 8,
+    rest: 0,
+    cycles: 4,
+  },
+  {
+    name: "Energizing Breath",
+    description: "Quick inhales with longer exhales to increase alertness.",
+    inhale: 2,
+    hold: 0,
+    exhale: 4,
+    rest: 1,
+    cycles: 6,
+  },
+  {
+    name: "Calm Breath",
+    description: "Extended exhale activates parasympathetic nervous system.",
+    inhale: 4,
+    hold: 2,
     exhale: 6,
+    rest: 2,
+    cycles: 5,
+  },
+  {
+    name: "Morning Awakening",
+    description: "Balanced breathing to gently energize for the day ahead.",
+    inhale: 3,
+    hold: 3,
+    exhale: 3,
+    rest: 1,
+    cycles: 8,
+  },
+];
+
+const phaseLabels: Record<BreathPhase, string> = {
+  inhale: "Breathe In",
+  hold: "Hold",
+  exhale: "Release",
+  rest: "Rest",
+};
+
+const allPhases: BreathPhase[] = ["inhale", "hold", "exhale", "rest"];
+
+const Breath = () => {
+  const { user } = useAuth();
+  const [selectedPattern, setSelectedPattern] = useState<BreathPattern>(breathPatterns[0]);
+  const [isActive, setIsActive] = useState(false);
+  const [phase, setPhase] = useState<BreathPhase>("inhale");
+  const [countdown, setCountdown] = useState(selectedPattern.inhale);
+  const [currentCycle, setCurrentCycle] = useState(1);
+  const [totalSeconds, setTotalSeconds] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const getNextPhase = (current: BreathPhase): BreathPhase => {
+    const currentIndex = allPhases.indexOf(current);
+    let nextIndex = (currentIndex + 1) % 4;
+    let nextPhase = allPhases[nextIndex];
+    
+    // Skip phases with 0 duration
+    while (selectedPattern[nextPhase] === 0) {
+      nextIndex = (nextIndex + 1) % 4;
+      nextPhase = allPhases[nextIndex];
+    }
+    
+    return nextPhase;
   };
 
   useEffect(() => {
-    if (!isActive || phase === "ready") return;
+    if (!isActive) return;
 
-    const interval = setInterval(() => {
-      setSeconds((s) => {
-        const duration = phaseDurations[phase as keyof typeof phaseDurations];
-        
-        if (s >= duration - 1) {
-          // Move to next phase
-          if (phase === "inhale") setPhase("hold");
-          else if (phase === "hold") setPhase("exhale");
-          else if (phase === "exhale") setPhase("inhale");
-          return 0;
+    intervalRef.current = setInterval(() => {
+      setTotalSeconds((s) => s + 1);
+      
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          const currentIndex = allPhases.indexOf(phase);
+          const nextPhase = getNextPhase(phase);
+          const nextIndex = allPhases.indexOf(nextPhase);
+
+          // Check if we completed a full cycle (back to inhale)
+          if (nextPhase === "inhale" || nextIndex <= currentIndex) {
+            if (currentCycle >= selectedPattern.cycles) {
+              handleComplete();
+              return 0;
+            }
+            setCurrentCycle((c) => c + 1);
+          }
+
+          setPhase(nextPhase);
+          return selectedPattern[nextPhase];
         }
-        return s + 1;
+        return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [isActive, phase]);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isActive, phase, currentCycle, selectedPattern]);
 
-  const startBreath = () => {
+  const handleStart = () => {
     setIsActive(true);
-    setPhase("inhale");
-    setSeconds(0);
+    setIsComplete(false);
   };
 
-  const stopBreath = () => {
+  const handlePause = () => {
     setIsActive(false);
-    setPhase("ready");
-    setSeconds(0);
+    if (intervalRef.current) clearInterval(intervalRef.current);
   };
+
+  const handleReset = () => {
+    setIsActive(false);
+    setPhase("inhale");
+    setCountdown(selectedPattern.inhale);
+    setCurrentCycle(1);
+    setTotalSeconds(0);
+    setIsComplete(false);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+  };
+
+  const handleComplete = async () => {
+    setIsActive(false);
+    setIsComplete(true);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    toast.success("Breathwork complete", {
+      description: `${selectedPattern.cycles} cycles of ${selectedPattern.name}`,
+    });
+
+    if (user) {
+      await supabase.from("rituals_completed").insert({
+        user_id: user.id,
+        ritual_type: selectedPattern.name,
+        duration_seconds: totalSeconds,
+      });
+    }
+  };
+
+  const handlePatternSelect = (pattern: BreathPattern) => {
+    if (isActive) {
+      handleReset();
+    }
+    setSelectedPattern(pattern);
+    setCountdown(pattern.inhale);
+    setPhase("inhale");
+  };
+
+  const progress = currentCycle / selectedPattern.cycles;
+  const circleScale = phase === "inhale" ? 1.2 : phase === "exhale" ? 0.85 : 1;
 
   return (
     <AppLayout>
       {/* Header */}
-      <div className="text-center mt-4 mb-12">
+      <div className="text-center mt-4 mb-8">
         <h1 className="font-serif italic text-3xl md:text-4xl text-foreground mb-2">
-          Breath Ritual
+          Breathwork
         </h1>
-        <p className="text-label">SYNC WITH THE UNIVERSE</p>
+        <p className="text-label">CONSCIOUS BREATHING FOR INNER CALM</p>
       </div>
 
-      {/* Breath circle */}
-      <div className="flex flex-col items-center">
-        <div className="relative">
-          {/* Outer glow ring */}
-          <div 
+      {/* Pattern selector */}
+      <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide mb-6">
+        {breathPatterns.map((pattern) => (
+          <button
+            key={pattern.name}
+            onClick={() => handlePatternSelect(pattern)}
             className={cn(
-              "absolute inset-0 rounded-full transition-all duration-1000",
-              isActive && "animate-pulse-soft",
-              phase === "inhale" && "scale-110",
-              phase === "exhale" && "scale-100"
+              "px-4 py-2 rounded-full text-xs font-semibold tracking-wider whitespace-nowrap transition-all",
+              selectedPattern.name === pattern.name
+                ? "bg-foreground text-background"
+                : "bg-card border border-border text-muted-foreground hover:border-primary/50"
             )}
-            style={{
-              background: "radial-gradient(circle, hsl(var(--primary) / 0.1) 0%, transparent 70%)",
-              transform: `scale(${phase === "inhale" ? 1.3 : phase === "hold" ? 1.3 : 1})`,
-              transition: "transform 4s ease-in-out",
-            }}
-          />
-          
-          {/* Main circle */}
-          <div 
-            className={cn(
-              "relative w-64 h-64 md:w-80 md:h-80 rounded-full flex flex-col items-center justify-center",
-              "border-4 border-border bg-card shadow-elevated",
-              "transition-all duration-1000"
-            )}
-            style={{
-              transform: isActive 
-                ? `scale(${phase === "inhale" ? 1.15 : phase === "hold" ? 1.15 : 1})`
-                : "scale(1)",
-              transition: `transform ${phase === "inhale" ? 4 : phase === "exhale" ? 6 : 0}s ease-in-out`,
-            }}
           >
-            <span className="text-label mb-2">{phaseLabels[phase]}</span>
-            <Wind className="w-10 h-10 text-muted-foreground/50 animate-pulse-soft" />
-            
-            {isActive && (
-              <span className="text-2xl font-sans text-muted-foreground mt-4">
-                {seconds + 1}
-              </span>
+            {pattern.name.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
+      {/* Pattern description */}
+      <div className="text-center mb-8">
+        <p className="text-muted-foreground font-serif italic text-sm">
+          {selectedPattern.description}
+        </p>
+        <div className="flex justify-center gap-4 mt-3 text-xs text-muted-foreground">
+          <span>In: {selectedPattern.inhale}s</span>
+          {selectedPattern.hold > 0 && <span>Hold: {selectedPattern.hold}s</span>}
+          <span>Out: {selectedPattern.exhale}s</span>
+          {selectedPattern.rest > 0 && <span>Rest: {selectedPattern.rest}s</span>}
+        </div>
+      </div>
+
+      {/* Breathing circle */}
+      <div className="flex flex-col items-center justify-center mb-8">
+        <div className="relative w-56 h-56 md:w-64 md:h-64 flex items-center justify-center">
+          {/* Outer ring progress */}
+          <svg className="absolute inset-0 w-full h-full -rotate-90">
+            <circle
+              cx="50%"
+              cy="50%"
+              r="45%"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="text-border"
+            />
+            <circle
+              cx="50%"
+              cy="50%"
+              r="45%"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeDasharray={`${2 * Math.PI * 45} ${2 * Math.PI * 45}`}
+              strokeDashoffset={2 * Math.PI * 45 * (1 - progress)}
+              className="text-primary transition-all duration-500"
+              strokeLinecap="round"
+            />
+          </svg>
+
+          {/* Breathing circle */}
+          <div
+            className={cn(
+              "w-40 h-40 md:w-48 md:h-48 rounded-full flex flex-col items-center justify-center transition-all duration-1000 ease-in-out",
+              phase === "inhale" && "bg-primary/20",
+              phase === "hold" && "bg-primary/30",
+              phase === "exhale" && "bg-secondary",
+              phase === "rest" && "bg-muted",
+              isComplete && "bg-success/30"
+            )}
+            style={{ transform: isActive ? `scale(${circleScale})` : "scale(1)" }}
+          >
+            {isComplete ? (
+              <>
+                <Check className="w-10 h-10 text-success-foreground mb-2" />
+                <span className="text-label">COMPLETE</span>
+              </>
+            ) : (
+              <>
+                <span className="text-4xl font-light text-foreground mb-2">
+                  {countdown}
+                </span>
+                <span className="text-label">{phaseLabels[phase].toUpperCase()}</span>
+              </>
             )}
           </div>
         </div>
 
-        {/* Control button */}
-        <button
-          onClick={isActive ? stopBreath : startBreath}
-          className="btn-embrace mt-12 min-w-[180px]"
-        >
-          {isActive ? "PAUSE BREATH" : "BEGIN BREATH"}
-        </button>
-
-        {/* Instructions */}
-        {!isActive && (
-          <div className="mt-12 text-center max-w-xs">
-            <p className="text-muted-foreground text-sm">
-              4 seconds inhale • 4 seconds hold • 6 seconds exhale
-            </p>
-          </div>
-        )}
+        {/* Cycle indicator */}
+        <div className="mt-6 flex gap-2">
+          {Array.from({ length: selectedPattern.cycles }).map((_, i) => (
+            <div
+              key={i}
+              className={cn(
+                "w-2 h-2 rounded-full transition-all",
+                i < currentCycle ? "bg-primary" : "bg-border"
+              )}
+            />
+          ))}
+        </div>
       </div>
+
+      {/* Controls */}
+      <div className="flex justify-center gap-4 mb-8">
+        {!isActive ? (
+          <button
+            onClick={handleStart}
+            disabled={isComplete}
+            className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-elevated hover:scale-105 transition-transform disabled:opacity-50"
+          >
+            <Play className="w-6 h-6 text-primary-foreground ml-1" />
+          </button>
+        ) : (
+          <button
+            onClick={handlePause}
+            className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center shadow-elevated hover:scale-105 transition-transform"
+          >
+            <Pause className="w-6 h-6 text-foreground" />
+          </button>
+        )}
+        <button
+          onClick={handleReset}
+          className="w-12 h-12 rounded-full border border-border flex items-center justify-center hover:bg-secondary transition-colors"
+        >
+          <RotateCcw className="w-5 h-5 text-muted-foreground" />
+        </button>
+      </div>
+
+      {/* Session stats */}
+      {totalSeconds > 0 && (
+        <div className="card-embrace text-center animate-fade-in">
+          <p className="text-label mb-2">SESSION TIME</p>
+          <p className="font-serif italic text-2xl text-foreground">
+            {Math.floor(totalSeconds / 60)}:{(totalSeconds % 60).toString().padStart(2, "0")}
+          </p>
+        </div>
+      )}
     </AppLayout>
   );
 };

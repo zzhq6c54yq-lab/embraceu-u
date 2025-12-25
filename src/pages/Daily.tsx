@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import MoodCheckModal from "@/components/MoodCheckModal";
 
 interface Pattern {
   id: string;
@@ -56,6 +57,7 @@ const Daily = () => {
   const [showAddQuality, setShowAddQuality] = useState(false);
   const [isDeconstructing, setIsDeconstructing] = useState(false);
   const [deconstructedSteps, setDeconstructedSteps] = useState<string[]>([]);
+  const [showMoodModal, setShowMoodModal] = useState(false);
 
   // Fetch daily quote
   useEffect(() => {
@@ -241,15 +243,19 @@ const Daily = () => {
   };
 
   const handleMoodCheck = () => {
-    toast.info("Mood check coming soon", {
-      description: "This feature will let you track your daily emotional state.",
-    });
+    if (!user) {
+      toast.error("Sign in to track your mood");
+      return;
+    }
+    setShowMoodModal(true);
   };
 
   const unreleased = patterns.filter(p => !p.is_released);
   const released = patterns.filter(p => p.is_released);
 
   return (
+    <>
+    <MoodCheckModal isOpen={showMoodModal} onClose={() => setShowMoodModal(false)} />
     <AppLayout>
       {/* Daily Focus Card */}
       <div className="mt-4">
@@ -502,6 +508,7 @@ const Daily = () => {
         )}
       </section>
     </AppLayout>
+    </>
   );
 };
 
