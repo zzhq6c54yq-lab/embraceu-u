@@ -2,20 +2,18 @@ import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
   Check, 
-  Calendar, 
   Wind, 
   RefreshCw, 
   Compass, 
-  BookOpen 
+  BarChart3
 } from "lucide-react";
 
 const navItems = [
   { path: "/daily", label: "Daily", icon: Check },
-  { path: "/space", label: "Space", icon: Calendar },
   { path: "/breath", label: "Breath", icon: Wind },
   { path: "/reframe", label: "Reframe", icon: RefreshCw },
   { path: "/explore", label: "Explore", icon: Compass },
-  { path: "/library", label: "Lib", icon: BookOpen },
+  { path: "/progress", label: "Progress", icon: BarChart3 },
 ];
 
 const BottomNav = () => {

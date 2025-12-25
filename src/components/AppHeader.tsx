@@ -1,18 +1,56 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Moon, X, LogOut } from "lucide-react";
+import { Moon, Sun, LogOut, Calendar, BookOpen, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AppHeaderProps {
-  showClose?: boolean;
-  onClose?: () => void;
   className?: string;
 }
 
-const AppHeader = ({ showClose = true, onClose, className }: AppHeaderProps) => {
+const AppHeader = ({ className }: AppHeaderProps) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useState(false);
+  const [nickname, setNickname] = useState("");
+
+  useEffect(() => {
+    const isDarkMode = document.documentElement.classList.contains("dark");
+    setIsDark(isDarkMode);
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchNickname = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("nickname")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (data) {
+        setNickname(data.nickname);
+      }
+    };
+
+    fetchNickname();
+  }, [user]);
+
+  const toggleTheme = () => {
+    const newIsDark = !isDark;
+    setIsDark(newIsDark);
+    document.documentElement.classList.toggle("dark", newIsDark);
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -66,28 +104,51 @@ const AppHeader = ({ showClose = true, onClose, className }: AppHeaderProps) => 
 
       <div className="flex items-center gap-2">
         <button 
+          onClick={toggleTheme}
           className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
           aria-label="Toggle theme"
         >
-          <Moon className="w-5 h-5 text-primary" />
+          {isDark ? (
+            <Sun className="w-5 h-5 text-primary" />
+          ) : (
+            <Moon className="w-5 h-5 text-primary" />
+          )}
         </button>
+
         {user && (
-          <button 
-            onClick={handleSignOut}
-            className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
-            aria-label="Sign out"
-          >
-            <LogOut className="w-5 h-5 text-muted-foreground" />
-          </button>
-        )}
-        {showClose && onClose && (
-          <button 
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5 text-muted-foreground" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button 
+                className="p-2 rounded-full hover:bg-secondary/50 transition-colors flex items-center gap-2"
+                aria-label="User menu"
+              >
+                <User className="w-5 h-5 text-primary" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {nickname && (
+                <>
+                  <div className="px-2 py-1.5 text-sm font-medium text-foreground">
+                    {nickname}
+                  </div>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+              <DropdownMenuItem onClick={() => navigate("/space")}>
+                <Calendar className="w-4 h-4 mr-2" />
+                Calendar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/library")}>
+                <BookOpen className="w-4 h-4 mr-2" />
+                Library
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
     </header>
