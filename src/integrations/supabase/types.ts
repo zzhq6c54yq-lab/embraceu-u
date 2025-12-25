@@ -68,22 +68,43 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          current_streak: number | null
           id: string
+          last_active_date: string | null
+          longest_streak: number | null
           nickname: string
+          total_insights_saved: number | null
+          total_moods_logged: number | null
+          total_patterns_released: number | null
+          total_rituals_completed: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          current_streak?: number | null
           id?: string
+          last_active_date?: string | null
+          longest_streak?: number | null
           nickname: string
+          total_insights_saved?: number | null
+          total_moods_logged?: number | null
+          total_patterns_released?: number | null
+          total_rituals_completed?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          current_streak?: number | null
           id?: string
+          last_active_date?: string | null
+          longest_streak?: number | null
           nickname?: string
+          total_insights_saved?: number | null
+          total_moods_logged?: number | null
+          total_patterns_released?: number | null
+          total_rituals_completed?: number | null
           updated_at?: string
           user_id?: string
         }
