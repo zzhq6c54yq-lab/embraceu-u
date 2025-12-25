@@ -98,9 +98,9 @@ export default {
         "scale-in": "scale-in 0.3s ease-out",
       },
       boxShadow: {
-        soft: "0 4px 20px -4px hsl(30 30% 70% / 0.25)",
-        card: "0 8px 32px -8px hsl(30 30% 70% / 0.2)",
-        elevated: "0 12px 48px -12px hsl(30 30% 60% / 0.3)",
+        soft: "0 4px 20px -4px hsl(210 30% 70% / 0.2)",
+        card: "0 8px 32px -8px hsl(210 30% 70% / 0.15)",
+        elevated: "0 12px 48px -12px hsl(210 30% 60% / 0.25)",
       },
     },
   },

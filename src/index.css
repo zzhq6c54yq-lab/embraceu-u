@@ -12,109 +12,117 @@
 
 @layer base {
   :root {
-    /* Warm wellness palette */
-    --background: 35 33% 97%;
-    --foreground: 25 10% 20%;
+    /* Refined blue & gold wellness palette */
+    --background: 210 25% 97%;
+    --foreground: 215 35% 20%;
 
-    --card: 35 40% 95%;
-    --card-foreground: 25 10% 20%;
+    --card: 210 30% 95%;
+    --card-foreground: 215 35% 20%;
 
-    --popover: 35 33% 97%;
-    --popover-foreground: 25 10% 20%;
+    --popover: 210 25% 97%;
+    --popover-foreground: 215 35% 20%;
 
-    /* Terracotta/Golden warmth */
-    --primary: 30 55% 55%;
-    --primary-foreground: 35 33% 97%;
+    /* Navy blue primary */
+    --primary: 210 45% 35%;
+    --primary-foreground: 210 25% 97%;
 
-    /* Soft cream secondary */
-    --secondary: 35 30% 92%;
-    --secondary-foreground: 25 10% 30%;
+    /* Soft blue-gray secondary */
+    --secondary: 210 20% 92%;
+    --secondary-foreground: 215 35% 30%;
 
-    /* Muted warm grays */
-    --muted: 35 20% 90%;
-    --muted-foreground: 25 10% 50%;
+    /* Muted cool grays */
+    --muted: 210 15% 90%;
+    --muted-foreground: 215 20% 50%;
 
-    /* Accent - soft coral/rose */
-    --accent: 15 70% 70%;
-    --accent-foreground: 25 10% 20%;
+    /* Gold accent */
+    --accent: 40 45% 55%;
+    --accent-foreground: 215 35% 20%;
 
-    /* Warm mint for success states */
+    /* Soft peachy rose for warmth */
+    --warm: 15 60% 75%;
+    --warm-foreground: 215 35% 20%;
+
+    /* Success states */
     --success: 150 40% 90%;
     --success-foreground: 150 40% 30%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 35 25% 88%;
-    --input: 35 25% 90%;
-    --ring: 30 55% 55%;
+    --border: 210 20% 88%;
+    --input: 210 20% 90%;
+    --ring: 210 45% 35%;
 
     --radius: 1rem;
 
     /* Custom tokens */
-    --gradient-warm: linear-gradient(180deg, hsl(35, 40%, 96%) 0%, hsl(30, 30%, 92%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(35, 40%, 97%) 0%, hsl(35, 35%, 94%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(30, 55%, 60%) 0%, hsl(25, 50%, 50%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(210, 25%, 97%) 0%, hsl(210, 20%, 94%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(210, 30%, 97%) 0%, hsl(210, 25%, 94%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(40, 45%, 60%) 0%, hsl(40, 50%, 45%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(210, 45%, 40%) 0%, hsl(200, 50%, 45%) 100%);
     
-    --shadow-soft: 0 4px 20px -4px hsl(30 30% 70% / 0.25);
-    --shadow-card: 0 8px 32px -8px hsl(30 30% 70% / 0.2);
-    --shadow-elevated: 0 12px 48px -12px hsl(30 30% 60% / 0.3);
+    --shadow-soft: 0 4px 20px -4px hsl(210 30% 70% / 0.2);
+    --shadow-card: 0 8px 32px -8px hsl(210 30% 70% / 0.15);
+    --shadow-elevated: 0 12px 48px -12px hsl(210 30% 60% / 0.25);
 
     /* Typography */
     --font-serif: 'Playfair Display', Georgia, serif;
     --font-sans: 'DM Sans', system-ui, sans-serif;
 
-    /* Sidebar (using warm theme) */
-    --sidebar-background: 35 33% 97%;
-    --sidebar-foreground: 25 10% 30%;
-    --sidebar-primary: 30 55% 55%;
-    --sidebar-primary-foreground: 35 33% 97%;
-    --sidebar-accent: 35 30% 92%;
-    --sidebar-accent-foreground: 25 10% 30%;
-    --sidebar-border: 35 25% 88%;
-    --sidebar-ring: 30 55% 55%;
+    /* Sidebar (using blue theme) */
+    --sidebar-background: 210 25% 97%;
+    --sidebar-foreground: 215 35% 30%;
+    --sidebar-primary: 210 45% 35%;
+    --sidebar-primary-foreground: 210 25% 97%;
+    --sidebar-accent: 210 20% 92%;
+    --sidebar-accent-foreground: 215 35% 30%;
+    --sidebar-border: 210 20% 88%;
+    --sidebar-ring: 210 45% 35%;
   }
 
   .dark {
-    --background: 25 15% 10%;
-    --foreground: 35 30% 92%;
+    --background: 215 30% 10%;
+    --foreground: 210 25% 92%;
 
-    --card: 25 15% 14%;
-    --card-foreground: 35 30% 92%;
+    --card: 215 30% 14%;
+    --card-foreground: 210 25% 92%;
 
-    --popover: 25 15% 12%;
-    --popover-foreground: 35 30% 92%;
+    --popover: 215 30% 12%;
+    --popover-foreground: 210 25% 92%;
 
-    --primary: 30 55% 55%;
-    --primary-foreground: 25 15% 10%;
+    --primary: 200 50% 50%;
+    --primary-foreground: 215 30% 10%;
 
-    --secondary: 25 15% 18%;
-    --secondary-foreground: 35 30% 85%;
+    --secondary: 215 25% 18%;
+    --secondary-foreground: 210 25% 85%;
 
-    --muted: 25 15% 20%;
-    --muted-foreground: 35 20% 60%;
+    --muted: 215 25% 20%;
+    --muted-foreground: 210 20% 60%;
 
-    --accent: 15 50% 50%;
-    --accent-foreground: 35 30% 92%;
+    --accent: 40 50% 50%;
+    --accent-foreground: 210 25% 92%;
+
+    --warm: 15 50% 55%;
+    --warm-foreground: 210 25% 92%;
 
     --success: 150 30% 25%;
     --success-foreground: 150 40% 80%;
 
     --destructive: 0 62.8% 40%;
-    --destructive-foreground: 35 30% 92%;
+    --destructive-foreground: 210 25% 92%;
 
-    --border: 25 15% 20%;
-    --input: 25 15% 18%;
-    --ring: 30 55% 55%;
+    --border: 215 25% 20%;
+    --input: 215 25% 18%;
+    --ring: 200 50% 50%;
 
-    --sidebar-background: 25 15% 12%;
-    --sidebar-foreground: 35 30% 85%;
-    --sidebar-primary: 30 55% 55%;
-    --sidebar-primary-foreground: 25 15% 10%;
-    --sidebar-accent: 25 15% 18%;
-    --sidebar-accent-foreground: 35 30% 85%;
-    --sidebar-border: 25 15% 20%;
-    --sidebar-ring: 30 55% 55%;
+    --sidebar-background: 215 30% 12%;
+    --sidebar-foreground: 210 25% 85%;
+    --sidebar-primary: 200 50% 50%;
+    --sidebar-primary-foreground: 215 30% 10%;
+    --sidebar-accent: 215 25% 18%;
+    --sidebar-accent-foreground: 210 25% 85%;
+    --sidebar-border: 215 25% 20%;
+    --sidebar-ring: 200 50% 50%;
   }
 }
 
@@ -241,10 +249,19 @@
 
 @keyframes float {
   0%, 100% {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
   50% {
-    transform: translateY(-8px);
+    transform: translateY(-10px) scale(1.02);
+  }
+}
+
+@keyframes logo-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    filter: drop-shadow(0 8px 24px hsl(210 45% 35% / 0.2));
   }
 }
 
@@ -257,7 +274,7 @@
 }
 
 .animate-float {
-  animation: float 4s ease-in-out infinite;
+  animation: float 4s ease-in-out infinite, logo-glow 4s ease-in-out infinite;
 }
 
 /* Smooth page transitions */
