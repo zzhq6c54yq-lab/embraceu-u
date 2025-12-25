@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Moon, Sun, LogOut, Calendar, BookOpen, User } from "lucide-react";
+import { Moon, Sun, LogOut, Calendar, BookOpen, User, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { usePremium } from "@/hooks/usePremium";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import {
@@ -14,6 +15,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import logoImage from "@/assets/logo-embrace.png";
 import thriveMtIcon from "@/assets/thrive-mt-icon.png";
+import ProBadge from "@/components/ProBadge";
+import UpgradeModal from "@/components/UpgradeModal";
 
 interface AppHeaderProps {
   className?: string;
@@ -21,9 +24,11 @@ interface AppHeaderProps {
 
 const AppHeader = ({ className }: AppHeaderProps) => {
   const { user, signOut } = useAuth();
+  const { isPremium } = usePremium();
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(false);
   const [nickname, setNickname] = useState("");
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
     const isDarkMode = document.documentElement.classList.contains("dark");
@@ -61,77 +66,109 @@ const AppHeader = ({ className }: AppHeaderProps) => {
   };
 
   return (
-    <header className={cn("flex items-center justify-between px-4 py-3", className)}>
-      <Link to="/daily" className="flex items-center gap-3">
-        {/* AI-generated mini logo */}
-        <div className="relative w-9 h-9">
-          <img
-            src={logoImage}
-            alt="embraceU logo"
-            className="w-full h-full object-contain"
-          />
-        </div>
-        <div className="flex flex-col">
-          <span className="font-serif italic text-lg text-foreground leading-tight">
-            embrace<span className="font-normal not-italic text-primary">U</span>
-          </span>
-          <span className="text-[8px] tracking-[0.12em] uppercase text-muted-foreground font-medium flex items-center gap-1">
-            BY THRIVE MT
-            <img src={thriveMtIcon} alt="Thrive MT" className="w-3 h-3 object-contain" />
-          </span>
-        </div>
-      </Link>
+    <>
+      <header className={cn(
+        "flex items-center justify-between px-4 py-3",
+        isPremium && "pro-header-glow",
+        className
+      )}>
+        <Link to="/daily" className="flex items-center gap-3">
+          {/* AI-generated mini logo */}
+          <div className="relative w-9 h-9">
+            <img
+              src={logoImage}
+              alt="embraceU logo"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="font-serif italic text-lg text-foreground leading-tight">
+                embrace<span className="font-normal not-italic text-primary">U</span>
+              </span>
+              <ProBadge showGlow={false} className="text-[9px] py-0.5 px-1.5" />
+            </div>
+            <span className="text-[8px] tracking-[0.12em] uppercase text-muted-foreground font-medium flex items-center gap-1">
+              BY THRIVE MT
+              <img src={thriveMtIcon} alt="Thrive MT" className="w-3 h-3 object-contain" />
+            </span>
+          </div>
+        </Link>
 
-      <div className="flex items-center gap-1">
-        <button 
-          onClick={toggleTheme}
-          className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
-          aria-label="Toggle theme"
-        >
-          {isDark ? (
-            <Sun className="w-5 h-5 text-primary" />
-          ) : (
-            <Moon className="w-5 h-5 text-primary" />
+        <div className="flex items-center gap-1">
+          {!isPremium && user && (
+            <button 
+              onClick={() => setShowUpgrade(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-gradient-to-r from-accent to-accent/80 text-accent-foreground hover:scale-[1.02] active:scale-[0.97] transition-all duration-200"
+              aria-label="Upgrade to Pro"
+            >
+              <Crown className="w-3.5 h-3.5" />
+              <span>Pro</span>
+            </button>
           )}
-        </button>
+          
+          <button 
+            onClick={toggleTheme}
+            className="p-2 rounded-full hover:bg-secondary/50 transition-all duration-200 active:scale-[0.95]"
+            aria-label="Toggle theme"
+          >
+            {isDark ? (
+              <Sun className="w-5 h-5 text-primary" />
+            ) : (
+              <Moon className="w-5 h-5 text-primary" />
+            )}
+          </button>
 
-        {user && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button 
-                className="p-2 rounded-full hover:bg-secondary/50 transition-colors flex items-center gap-2"
-                aria-label="User menu"
-              >
-                <User className="w-5 h-5 text-primary" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {nickname && (
-                <>
-                  <div className="px-2 py-1.5 text-sm font-medium text-foreground font-serif italic">
-                    {nickname}
-                  </div>
-                  <DropdownMenuSeparator />
-                </>
-              )}
-              <DropdownMenuItem onClick={() => navigate("/space")}>
-                <Calendar className="w-4 h-4 mr-2" />
-                Calendar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/library")}>
-                <BookOpen className="w-4 h-4 mr-2" />
-                Library
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-      </div>
-    </header>
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className="p-2 rounded-full hover:bg-secondary/50 transition-all duration-200 active:scale-[0.95] flex items-center gap-2"
+                  aria-label="User menu"
+                >
+                  <User className={cn("w-5 h-5", isPremium ? "text-accent" : "text-primary")} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {nickname && (
+                  <>
+                    <div className="px-2 py-1.5 text-sm font-medium text-foreground font-serif italic flex items-center gap-2">
+                      {nickname}
+                      <ProBadge showGlow={false} className="text-[8px] py-0 px-1.5" />
+                    </div>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                {!isPremium && (
+                  <>
+                    <DropdownMenuItem onClick={() => setShowUpgrade(true)} className="text-accent">
+                      <Crown className="w-4 h-4 mr-2" />
+                      Upgrade to Pro
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem onClick={() => navigate("/space")}>
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Calendar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/library")}>
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Library
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </header>
+      
+      <UpgradeModal open={showUpgrade} onOpenChange={setShowUpgrade} />
+    </>
   );
 };
 

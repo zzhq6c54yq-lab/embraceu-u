@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { PremiumProvider } from "@/hooks/usePremium";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Daily from "./pages/Daily";
@@ -21,25 +22,27 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner position="top-center" />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/daily" element={<Daily />} />
-            <Route path="/space" element={<Space />} />
-            <Route path="/breath" element={<Breath />} />
-            <Route path="/reframe" element={<Reframe />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/library" element={<Library />} />
-            <Route path="/progress" element={<Progress />} />
-            <Route path="/challenge" element={<Challenge />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <PremiumProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner position="top-center" />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/daily" element={<Daily />} />
+              <Route path="/space" element={<Space />} />
+              <Route path="/breath" element={<Breath />} />
+              <Route path="/reframe" element={<Reframe />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/library" element={<Library />} />
+              <Route path="/progress" element={<Progress />} />
+              <Route path="/challenge" element={<Challenge />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </PremiumProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
