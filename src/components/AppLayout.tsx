@@ -21,13 +21,16 @@ const AppLayout = ({
   const { isPremium } = usePremium();
   
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className={cn(
+      "min-h-screen bg-background flex flex-col relative",
+      isPremium && "theme-premium premium-ambient-glow"
+    )}>
       {showHeader && <AppHeader />}
       <main 
         className={cn(
-          "flex-1 px-4 animate-fade-in",
+          "flex-1 px-4 animate-fade-in relative z-10",
           !showHeader && "pt-4",
-          isPremium ? "pb-24" : "pb-32", // Extra space for ad banner
+          isPremium ? "pb-24" : "pb-32",
           className
         )}
       >

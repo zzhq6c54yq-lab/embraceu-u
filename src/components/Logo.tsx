@@ -4,7 +4,7 @@ import logoImage from "@/assets/logo-embrace.png";
 interface LogoProps {
   className?: string;
   showTagline?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 const Logo = ({ className, showTagline = false, size = "md" }: LogoProps) => {
@@ -12,6 +12,7 @@ const Logo = ({ className, showTagline = false, size = "md" }: LogoProps) => {
     sm: { width: 140, height: 70 },
     md: { width: 240, height: 120 },
     lg: { width: 400, height: 200 },
+    xl: { width: 600, height: 300 },
   };
 
   const s = sizes[size];

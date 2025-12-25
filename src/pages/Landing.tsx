@@ -36,8 +36,8 @@ const Landing = () => {
 
       {/* Hero Section */}
       <div className="relative z-10 flex flex-col items-center justify-center px-6 py-16 md:py-24 text-center">
-        {/* Logo with tagline */}
-        <Logo size="lg" showTagline />
+        {/* Logo with tagline - 3x larger */}
+        <Logo size="xl" showTagline />
 
         {/* By Thrive MT branding */}
         <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground flex items-center gap-1.5 mt-4">
