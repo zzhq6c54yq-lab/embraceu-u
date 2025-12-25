@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      challenge_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          day_number: number
+          id: string
+          reflection: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          day_number: number
+          id?: string
+          reflection?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          day_number?: number
+          id?: string
+          reflection?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_quotes: {
         Row: {
           author: string | null

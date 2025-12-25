@@ -5,7 +5,7 @@ import {
   Wind, 
   RefreshCw, 
   Compass, 
-  BarChart3
+  Heart
 } from "lucide-react";
 
 const navItems = [
@@ -13,7 +13,7 @@ const navItems = [
   { path: "/breath", label: "Breath", icon: Wind },
   { path: "/reframe", label: "Reframe", icon: RefreshCw },
   { path: "/explore", label: "Explore", icon: Compass },
-  { path: "/progress", label: "Progress", icon: BarChart3 },
+  { path: "/challenge", label: "Challenge", icon: Heart },
 ];
 
 const BottomNav = () => {
