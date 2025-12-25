@@ -19,6 +19,8 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+import ProCelebration from "@/components/ProCelebration";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -26,6 +28,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner position="top-center" />
+          <ProCelebration />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />

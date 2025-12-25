@@ -68,13 +68,16 @@ const AppHeader = ({ className }: AppHeaderProps) => {
   return (
     <>
       <header className={cn(
-        "flex items-center justify-between px-4 py-3",
-        isPremium && "pro-header-glow",
+        "flex items-center justify-between px-4 py-3 relative z-10",
+        isPremium && "pro-header-glow border-b border-accent/20",
         className
       )}>
         <Link to="/daily" className="flex items-center gap-3">
-          {/* AI-generated mini logo */}
-          <div className="relative w-9 h-9">
+          {/* Logo with premium glow */}
+          <div className={cn(
+            "relative w-9 h-9",
+            isPremium && "animate-pro-glow-subtle rounded-full"
+          )}>
             <img
               src={logoImage}
               alt="embraceU logo"
@@ -83,12 +86,21 @@ const AppHeader = ({ className }: AppHeaderProps) => {
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <span className="font-serif italic text-lg text-foreground leading-tight">
-                embrace<span className="font-normal not-italic text-primary">U</span>
+              <span className={cn(
+                "font-serif italic text-lg leading-tight",
+                isPremium ? "premium-gold-text" : "text-foreground"
+              )}>
+                embrace<span className={cn(
+                  "font-normal not-italic",
+                  isPremium ? "text-accent" : "text-primary"
+                )}>U</span>
               </span>
-              <ProBadge showGlow={false} className="text-[9px] py-0.5 px-1.5" />
+              <ProBadge showGlow={isPremium} className="text-[9px] py-0.5 px-1.5" />
             </div>
-            <span className="text-[8px] tracking-[0.12em] uppercase text-muted-foreground font-medium flex items-center gap-1">
+            <span className={cn(
+              "text-[8px] tracking-[0.12em] uppercase font-medium flex items-center gap-1",
+              isPremium ? "text-accent/70" : "text-muted-foreground"
+            )}>
               BY THRIVE MT
               <img src={thriveMtIcon} alt="Thrive MT" className="w-3 h-3 object-contain" />
             </span>
