@@ -26,7 +26,7 @@ const Logo = ({ className, showTagline = false, size = "md" }: LogoProps) => {
         <img
           src={logoImage}
           alt="embraceU logo - hands embracing a heart"
-          className="w-full h-full object-contain"
+          className="w-full h-full object-contain mix-blend-multiply"
         />
       </div>
 
