@@ -13,6 +13,7 @@ import Reframe from "./pages/Reframe";
 import Explore from "./pages/Explore";
 import Library from "./pages/Library";
 import Progress from "./pages/Progress";
+import Challenge from "./pages/Challenge";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/explore" element={<Explore />} />
             <Route path="/library" element={<Library />} />
             <Route path="/progress" element={<Progress />} />
+            <Route path="/challenge" element={<Challenge />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
