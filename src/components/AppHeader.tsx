@@ -61,48 +61,65 @@ const AppHeader = ({ className }: AppHeaderProps) => {
   return (
     <header className={cn("flex items-center justify-between px-4 py-3", className)}>
       <Link to="/daily" className="flex items-center gap-3">
-        {/* Mini logo */}
-        <div className="relative w-10 h-8">
+        {/* Refined mini logo */}
+        <div className="relative w-9 h-9">
           <svg
-            viewBox="0 0 100 75"
+            viewBox="0 0 100 100"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-full"
           >
             <defs>
-              <linearGradient id="archGradientMini" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="hsl(30, 55%, 55%)" />
-                <stop offset="100%" stopColor="hsl(25, 45%, 50%)" />
+              <linearGradient id="petalGradientMini" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="hsl(30, 60%, 58%)" />
+                <stop offset="100%" stopColor="hsl(25, 50%, 48%)" />
               </linearGradient>
-              <linearGradient id="heartGradientMini" x1="50%" y1="0%" x2="50%" y2="100%">
-                <stop offset="0%" stopColor="hsl(15, 70%, 70%)" />
-                <stop offset="100%" stopColor="hsl(15, 60%, 60%)" />
+              <linearGradient id="innerGradientMini" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stopColor="hsl(20, 70%, 68%)" />
+                <stop offset="100%" stopColor="hsl(15, 60%, 55%)" />
               </linearGradient>
+              <radialGradient id="centerGradientMini" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="hsl(35, 80%, 70%)" />
+                <stop offset="100%" stopColor="hsl(30, 60%, 55%)" />
+              </radialGradient>
             </defs>
+            
+            {/* Left embracing arm */}
             <path
-              d="M15 72 C15 30, 35 10, 50 10 C65 10, 85 30, 85 72"
-              stroke="url(#archGradientMini)"
-              strokeWidth="10"
+              d="M20 75 Q15 50, 35 30 Q45 20, 50 22"
+              stroke="url(#petalGradientMini)"
+              strokeWidth="5"
               strokeLinecap="round"
               fill="none"
             />
+            
+            {/* Right embracing arm */}
             <path
-              d="M50 55 C50 55, 38 45, 38 38 C38 32, 43 28, 50 35 C57 28, 62 32, 62 38 C62 45, 50 55, 50 55Z"
-              fill="url(#heartGradientMini)"
+              d="M80 75 Q85 50, 65 30 Q55 20, 50 22"
+              stroke="url(#petalGradientMini)"
+              strokeWidth="5"
+              strokeLinecap="round"
+              fill="none"
+            />
+            
+            {/* Center heart-lotus */}
+            <path
+              d="M50 60 Q40 48, 40 40 Q40 32, 50 42 Q60 32, 60 40 Q60 48, 50 60Z"
+              fill="url(#centerGradientMini)"
             />
           </svg>
         </div>
         <div className="flex flex-col">
           <span className="font-serif italic text-lg text-foreground leading-tight">
-            embraceU
+            embrace<span className="font-normal not-italic text-primary">U</span>
           </span>
-          <span className="text-[9px] tracking-[0.15em] uppercase text-muted-foreground">
+          <span className="text-[8px] tracking-[0.12em] uppercase text-muted-foreground font-medium">
             BY THRIVE MT
           </span>
         </div>
       </Link>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <button 
           onClick={toggleTheme}
           className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
@@ -128,7 +145,7 @@ const AppHeader = ({ className }: AppHeaderProps) => {
             <DropdownMenuContent align="end" className="w-48">
               {nickname && (
                 <>
-                  <div className="px-2 py-1.5 text-sm font-medium text-foreground">
+                  <div className="px-2 py-1.5 text-sm font-medium text-foreground font-serif italic">
                     {nickname}
                   </div>
                   <DropdownMenuSeparator />
@@ -143,7 +160,7 @@ const AppHeader = ({ className }: AppHeaderProps) => {
                 Library
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
+              <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </DropdownMenuItem>
