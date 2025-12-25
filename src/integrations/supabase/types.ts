@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_quotes: {
+        Row: {
+          author: string | null
+          category: string | null
+          created_at: string
+          id: string
+          quote_text: string
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          quote_text: string
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          quote_text?: string
+        }
+        Relationships: []
+      }
       mood_entries: {
         Row: {
           created_at: string
@@ -116,6 +140,87 @@ export type Database = {
           insight_text?: string
           insight_type?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_patterns: {
+        Row: {
+          created_at: string
+          id: string
+          is_released: boolean | null
+          pattern_name: string
+          released_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_released?: boolean | null
+          pattern_name: string
+          released_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_released?: boolean | null
+          pattern_name?: string
+          released_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_qualities: {
+        Row: {
+          created_at: string
+          id: string
+          is_cultivated: boolean | null
+          progress: number | null
+          quality_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_cultivated?: boolean | null
+          progress?: number | null
+          quality_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_cultivated?: boolean | null
+          progress?: number | null
+          quality_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_visions: {
+        Row: {
+          created_at: string
+          deconstructed_steps: Json | null
+          id: string
+          is_completed: boolean | null
+          user_id: string
+          vision_text: string
+        }
+        Insert: {
+          created_at?: string
+          deconstructed_steps?: Json | null
+          id?: string
+          is_completed?: boolean | null
+          user_id: string
+          vision_text: string
+        }
+        Update: {
+          created_at?: string
+          deconstructed_steps?: Json | null
+          id?: string
+          is_completed?: boolean | null
+          user_id?: string
+          vision_text?: string
         }
         Relationships: []
       }

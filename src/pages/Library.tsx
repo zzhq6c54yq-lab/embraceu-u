@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-const filters = ["ALL", "INSIGHT", "GUIDANCE"];
+const filters = ["ALL", "INSIGHT", "REFRAME"];
 
 interface SavedItem {
   id: string;
