@@ -6,7 +6,7 @@ const Landing = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-start pt-4 md:pt-8">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-start pt-0">
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 
