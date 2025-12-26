@@ -7,7 +7,9 @@ import {
   BookOpen, 
   Wind,
   Award,
-  Calendar
+  Calendar,
+  LogOut,
+  Settings
 } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +19,8 @@ import { usePremium } from "@/hooks/usePremium";
 import PremiumThemes from "@/components/PremiumThemes";
 import ExclusiveContent from "@/components/ExclusiveContent";
 import UpgradeModal from "@/components/UpgradeModal";
+import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import { Button } from "@/components/ui/button";
 
 interface ProfileStats {
   nickname: string;
@@ -40,7 +44,7 @@ interface ActivitySummary {
 }
 
 const Progress = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { isPremium } = usePremium();
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [activity, setActivity] = useState<ActivitySummary>({
@@ -325,9 +329,25 @@ const Progress = () => {
         </div>
       </section>
 
-      <section className="pb-20">
+      <section className="pb-8">
         <div className="card-embrace">
           <ExclusiveContent onUpgradeClick={() => setShowUpgradeModal(true)} />
+        </div>
+      </section>
+
+      {/* Account Settings Section */}
+      <section className="pb-20">
+        <h2 className="text-label mb-4">ACCOUNT SETTINGS</h2>
+        <div className="card-embrace space-y-3">
+          <Button
+            variant="outline"
+            className="w-full justify-start"
+            onClick={() => signOut()}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+          <DeleteAccountDialog />
         </div>
       </section>
 
