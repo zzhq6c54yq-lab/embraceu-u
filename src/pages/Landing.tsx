@@ -11,7 +11,7 @@ const Landing = () => {
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 
       {/* Hero Section */}
-      <div className="relative z-10 flex flex-col items-center px-6 py-4 text-center">
+      <div className="relative z-10 flex flex-col items-center px-6 py-0 text-center">
         {/* Logo with tagline - doubled size */}
         <Logo size="2xl" showTagline />
 
