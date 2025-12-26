@@ -6,12 +6,12 @@ const Landing = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-start pt-8 md:pt-12">
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 
       {/* Hero Section */}
-      <div className="relative z-10 flex flex-col items-center justify-center px-6 py-16 md:py-24 text-center">
+      <div className="relative z-10 flex flex-col items-center px-6 py-4 text-center">
         {/* Logo with tagline - doubled size */}
         <Logo size="2xl" showTagline />
 
