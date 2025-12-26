@@ -294,6 +294,36 @@
   animation: float 4s ease-in-out infinite, logo-glow 4s ease-in-out infinite;
 }
 
+/* Text shimmer animation */
+@keyframes text-shimmer {
+  0%, 100% {
+    text-shadow: 0 2px 12px hsl(210 30% 50% / 0.3), 0 0 24px hsl(210 30% 70% / 0.2);
+    opacity: 0.85;
+  }
+  50% {
+    text-shadow: 0 2px 20px hsl(210 40% 60% / 0.5), 0 0 40px hsl(210 40% 80% / 0.4);
+    opacity: 1;
+  }
+}
+
+.animate-text-shimmer {
+  animation: text-shimmer 3s ease-in-out infinite;
+}
+
+/* Spin once animation for exit */
+@keyframes spin-once {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-once {
+  animation: spin-once 0.6s ease-in-out;
+}
+
 /* Pro tier animations */
 @keyframes pro-glow {
   0%, 100% {
