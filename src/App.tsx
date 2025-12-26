@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PremiumProvider } from "@/hooks/usePremium";
 import Landing from "./pages/Landing";
+import Intro from "./pages/Intro";
 import Auth from "./pages/Auth";
 import Daily from "./pages/Daily";
 import Space from "./pages/Space";
@@ -32,6 +33,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
+              <Route path="/intro" element={<Intro />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/daily" element={<Daily />} />
               <Route path="/space" element={<Space />} />
