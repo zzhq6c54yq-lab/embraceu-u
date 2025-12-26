@@ -3,7 +3,7 @@ import AppLayout from "@/components/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Heart, Check, Sparkles, Trophy, Calendar } from "lucide-react";
+import { Heart, Check, Sparkles, Trophy, Calendar, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import ShareKindnessCard from "@/components/ShareKindnessCard";
 
 const kindnessActs = [
   { day: 1, title: "Compliment a Stranger", description: "Give a genuine compliment to someone you don't know. Notice how it brightens both your days." },
@@ -63,6 +64,14 @@ const Challenge = () => {
   const [reflection, setReflection] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareData, setShareData] = useState<{
+    dayNumber: number;
+    title: string;
+    description: string;
+    reflection?: string | null;
+    completedAt?: string;
+  } | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -136,6 +145,22 @@ const Challenge = () => {
 
     setIsLoading(false);
     setShowModal(false);
+  };
+
+  const handleShare = (dayNumber: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const act = kindnessActs.find(a => a.day === dayNumber);
+    const completedData = completedDays.find(d => d.day_number === dayNumber);
+    if (act && completedData) {
+      setShareData({
+        dayNumber,
+        title: act.title,
+        description: act.description,
+        reflection: completedData.reflection,
+        completedAt: completedData.completed_at,
+      });
+      setShowShareModal(true);
+    }
   };
 
   const progressPercentage = (completedDays.length / 30) * 100;
@@ -216,12 +241,23 @@ const Challenge = () => {
                     
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-medium text-muted-foreground">Day {act.day}</span>
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-muted-foreground">Day {act.day}</span>
+                          {isCompleted && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
+                              Completed
+                            </span>
+                          )}
+                        </div>
                         {isCompleted && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
-                            Completed
-                          </span>
+                          <button
+                            onClick={(e) => handleShare(act.day, e)}
+                            className="p-1.5 rounded-full hover:bg-primary/20 text-primary transition-colors"
+                            title="Share this kindness act"
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                          </button>
                         )}
                       </div>
                       <h3 className={`font-semibold text-sm ${isCompleted ? "text-primary" : "text-foreground"}`}>
@@ -297,6 +333,19 @@ const Challenge = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Share Modal */}
+        {shareData && (
+          <ShareKindnessCard
+            open={showShareModal}
+            onOpenChange={setShowShareModal}
+            dayNumber={shareData.dayNumber}
+            title={shareData.title}
+            description={shareData.description}
+            reflection={shareData.reflection}
+            completedAt={shareData.completedAt}
+          />
+        )}
       </div>
     </AppLayout>
   );
