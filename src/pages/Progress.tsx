@@ -13,6 +13,10 @@ import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { usePremium } from "@/hooks/usePremium";
+import PremiumThemes from "@/components/PremiumThemes";
+import ExclusiveContent from "@/components/ExclusiveContent";
+import UpgradeModal from "@/components/UpgradeModal";
 
 interface ProfileStats {
   nickname: string;
@@ -37,6 +41,7 @@ interface ActivitySummary {
 
 const Progress = () => {
   const { user } = useAuth();
+  const { isPremium } = usePremium();
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [activity, setActivity] = useState<ActivitySummary>({
     moodsThisWeek: 0,
@@ -47,7 +52,7 @@ const Progress = () => {
     visionsCreated: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
-
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   useEffect(() => {
     if (!user) {
       setIsLoading(false);
@@ -312,6 +317,21 @@ const Progress = () => {
           </p>
         </div>
       </section>
+
+      {/* Premium Features Section */}
+      <section className="pb-8">
+        <div className="card-embrace">
+          <PremiumThemes />
+        </div>
+      </section>
+
+      <section className="pb-20">
+        <div className="card-embrace">
+          <ExclusiveContent onUpgradeClick={() => setShowUpgradeModal(true)} />
+        </div>
+      </section>
+
+      <UpgradeModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
     </AppLayout>
   );
 };
