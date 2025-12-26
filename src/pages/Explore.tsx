@@ -4,7 +4,9 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Bookmark, BookmarkCheck } from "lucide-react";
+import { Bookmark, BookmarkCheck, CalendarDays, Sparkles } from "lucide-react";
+import InsightScheduleModal from "@/components/InsightScheduleModal";
+import { format, isToday } from "date-fns";
 
 const categories = [
   "PRESENCE",
@@ -76,10 +78,22 @@ const insightsData: Record<string, Array<{ text: string }>> = {
   ],
 };
 
+interface SavedInsight {
+  id: string;
+  insight_text: string;
+  scheduled_date: string | null;
+  is_practiced: boolean;
+}
+
 const Explore = () => {
   const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState("PRESENCE");
-  const [savedInsights, setSavedInsights] = useState<string[]>([]);
+  const [savedInsights, setSavedInsights] = useState<SavedInsight[]>([]);
+  const [todaysFocus, setTodaysFocus] = useState<SavedInsight[]>([]);
+
+  // Schedule modal state
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [pendingInsight, setPendingInsight] = useState<{ text: string; category: string } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -87,61 +101,111 @@ const Explore = () => {
     const fetchSaved = async () => {
       const { data } = await supabase
         .from("saved_insights")
-        .select("insight_text")
+        .select("id, insight_text, scheduled_date, is_practiced")
         .eq("user_id", user.id);
 
       if (data) {
-        setSavedInsights(data.map((d) => d.insight_text));
+        setSavedInsights(data);
+        // Find today's focus insights
+        const today = data.filter(d =>
+          d.scheduled_date && isToday(new Date(d.scheduled_date)) && !d.is_practiced
+        );
+        setTodaysFocus(today);
       }
     };
 
     fetchSaved();
   }, [user]);
 
-  const handleSave = async (text: string, category: string) => {
+  const isInsightSaved = (text: string) => {
+    return savedInsights.some(s => s.insight_text === text);
+  };
+
+  const handleSaveClick = (text: string, category: string) => {
     if (!user) {
       toast.error("Sign in to save insights");
       return;
     }
 
-    const isSaved = savedInsights.includes(text);
+    const isSaved = isInsightSaved(text);
 
     if (isSaved) {
-      const { error } = await supabase
-        .from("saved_insights")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("insight_text", text);
-
-      if (error) {
-        toast.error("Could not remove insight");
-        return;
-      }
-
-      setSavedInsights(savedInsights.filter((t) => t !== text));
-      toast.info("Removed from library");
+      // Remove from saved
+      handleRemove(text);
     } else {
-      const { error } = await supabase
-        .from("saved_insights")
-        .insert({
-          user_id: user.id,
-          insight_text: text,
-          insight_type: "insight",
-          category: category,
-        });
+      // Open schedule modal
+      setPendingInsight({ text, category });
+      setShowScheduleModal(true);
+    }
+  };
 
-      if (error) {
-        toast.error("Could not save insight");
-        return;
-      }
+  const handleRemove = async (text: string) => {
+    const { error } = await supabase
+      .from("saved_insights")
+      .delete()
+      .eq("user_id", user!.id)
+      .eq("insight_text", text);
 
-      setSavedInsights([...savedInsights, text]);
+    if (error) {
+      toast.error("Could not remove insight");
+      return;
+    }
+
+    setSavedInsights(savedInsights.filter((s) => s.insight_text !== text));
+    setTodaysFocus(todaysFocus.filter((s) => s.insight_text !== text));
+    toast.info("Removed from library");
+  };
+
+  const handleSaveInsight = async (scheduledDate: Date | null) => {
+    if (!pendingInsight || !user) return;
+
+    const { data, error } = await supabase
+      .from("saved_insights")
+      .insert({
+        user_id: user.id,
+        insight_text: pendingInsight.text,
+        insight_type: "insight",
+        category: pendingInsight.category,
+        scheduled_date: scheduledDate ? format(scheduledDate, "yyyy-MM-dd") : null,
+      })
+      .select("id, insight_text, scheduled_date, is_practiced")
+      .single();
+
+    if (error) {
+      toast.error("Could not save insight");
+      return;
+    }
+
+    setSavedInsights([...savedInsights, data]);
+
+    if (scheduledDate && isToday(scheduledDate)) {
+      setTodaysFocus([...todaysFocus, data]);
+    }
+
+    if (scheduledDate) {
+      toast.success(`Scheduled for ${format(scheduledDate, "MMM d")}`);
+    } else {
       toast.success("Saved to library");
     }
+
+    setPendingInsight(null);
+    setShowScheduleModal(false);
   };
 
   return (
     <AppLayout>
+      {/* Schedule Modal */}
+      <InsightScheduleModal
+        isOpen={showScheduleModal}
+        onClose={() => {
+          setShowScheduleModal(false);
+          setPendingInsight(null);
+        }}
+        insightText={pendingInsight?.text || ""}
+        category={pendingInsight?.category || ""}
+        onSave={handleSaveInsight}
+      />
+
       {/* Header */}
       <div className="mt-2 mb-6">
         <h1 className="font-serif italic text-3xl text-foreground mb-1">
@@ -151,6 +215,42 @@ const Explore = () => {
           Intentional thoughts for daily integration.
         </p>
       </div>
+
+      {/* Instructions Card */}
+      <div className="bg-secondary/50 rounded-xl p-4 mb-6 space-y-2 text-sm">
+        <h3 className="font-semibold text-foreground flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-primary" />
+          How to Use These Insights
+        </h3>
+        <ul className="text-muted-foreground space-y-1.5">
+          <li>• <strong>Read slowly</strong> and let the words settle</li>
+          <li>• <strong>Save insights</strong> you want to practice this week</li>
+          <li>• <strong>Schedule a date</strong> to focus on integrating each one</li>
+          <li>• <strong>Track your practice</strong> in the Library with reflections</li>
+        </ul>
+      </div>
+
+      {/* Today's Focus */}
+      {todaysFocus.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <CalendarDays className="w-4 h-4 text-primary" />
+            <span className="text-label">TODAY'S FOCUS</span>
+          </div>
+          <div className="space-y-3">
+            {todaysFocus.map((insight) => (
+              <div
+                key={insight.id}
+                className="bg-primary/10 border border-primary/20 rounded-xl p-4"
+              >
+                <p className="font-serif italic text-foreground text-sm">
+                  "{insight.insight_text}"
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Category tabs */}
       <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-4 px-4 scrollbar-hide">
@@ -173,7 +273,8 @@ const Explore = () => {
       {/* Insights list */}
       <div className="space-y-4 pb-8">
         {insightsData[activeCategory]?.map((insight, i) => {
-          const isSaved = savedInsights.includes(insight.text);
+          const isSaved = isInsightSaved(insight.text);
+          const savedData = savedInsights.find(s => s.insight_text === insight.text);
           const isAccent = i === 0;
 
           return (
@@ -193,29 +294,42 @@ const Explore = () => {
               >
                 "{insight.text}"
               </p>
-              <button
-                onClick={() => handleSave(insight.text, activeCategory)}
-                className={cn(
-                  "mt-4 flex items-center gap-2 text-xs font-semibold tracking-wider uppercase transition-colors",
-                  isSaved
-                    ? "text-primary"
-                    : isAccent
-                    ? "text-success-foreground/70 hover:text-success-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+
+              <div className="mt-4 flex items-center justify-between">
+                <button
+                  onClick={() => handleSaveClick(insight.text, activeCategory)}
+                  className={cn(
+                    "flex items-center gap-2 text-xs font-semibold tracking-wider uppercase transition-colors",
+                    isSaved
+                      ? "text-primary"
+                      : isAccent
+                        ? "text-success-foreground/70 hover:text-success-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {isSaved ? (
+                    <>
+                      <BookmarkCheck className="w-4 h-4" />
+                      SAVED
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark className="w-4 h-4" />
+                      SAVE INSIGHT
+                    </>
+                  )}
+                </button>
+
+                {savedData?.scheduled_date && !savedData.is_practiced && (
+                  <span className={cn(
+                    "text-xs flex items-center gap-1",
+                    isAccent ? "text-success-foreground/70" : "text-muted-foreground"
+                  )}>
+                    <CalendarDays className="w-3 h-3" />
+                    {format(new Date(savedData.scheduled_date), "MMM d")}
+                  </span>
                 )}
-              >
-                {isSaved ? (
-                  <>
-                    <BookmarkCheck className="w-4 h-4" />
-                    SAVED
-                  </>
-                ) : (
-                  <>
-                    <Bookmark className="w-4 h-4" />
-                    SAVE INSIGHT
-                  </>
-                )}
-              </button>
+              </div>
             </div>
           );
         })}
