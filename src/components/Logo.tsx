@@ -35,7 +35,7 @@ const Logo = ({ className, showTagline = false, size = "md" }: LogoProps) => {
 
       {/* Optional tagline */}
       {showTagline && (
-        <div className="flex flex-col items-center -mt-40 md:-mt-44">
+        <div className="flex flex-col items-center -mt-48 md:-mt-52">
           <p className="text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium">
             THE POWER OF PRESENCE
           </p>
