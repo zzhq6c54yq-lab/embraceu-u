@@ -22,6 +22,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 import ProCelebration from "@/components/ProCelebration";
+import ProWelcomeScreen from "@/components/ProWelcomeScreen";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -31,6 +32,7 @@ const App = () => (
           <Toaster />
           <Sonner position="top-center" />
           <ProCelebration />
+          <ProWelcomeScreen />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />

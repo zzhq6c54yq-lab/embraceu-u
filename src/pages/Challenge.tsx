@@ -186,28 +186,56 @@ const Challenge = () => {
               <h2 className="text-lg font-semibold text-foreground">Daily Challenges</h2>
             </div>
             
-            <div className="grid grid-cols-5 sm:grid-cols-6 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {kindnessActs.map((act) => {
                 const isCompleted = completedDays.some(d => d.day_number === act.day);
+                const completedData = completedDays.find(d => d.day_number === act.day);
                 return (
                   <button
                     key={act.day}
                     onClick={() => handleDayClick(act.day)}
                     className={`
-                      relative aspect-square rounded-xl flex flex-col items-center justify-center
-                      transition-all duration-300 hover:scale-105 hover:shadow-lg
+                      relative p-4 rounded-xl flex items-start gap-4 text-left
+                      transition-all duration-300 hover:scale-[1.02] hover:shadow-lg
                       ${isCompleted 
-                        ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md" 
-                        : "bg-card/50 border border-border/50 text-foreground hover:border-primary/50"
+                        ? "bg-gradient-to-br from-primary/20 to-accent/10 border border-primary/30 shadow-md" 
+                        : "bg-card/50 border border-border/50 hover:border-primary/50"
                       }
                     `}
                   >
-                    {isCompleted && (
-                      <Check className="absolute top-1 right-1 w-3 h-3" />
-                    )}
-                    <span className={`text-lg font-bold ${isCompleted ? "" : "text-muted-foreground"}`}>
-                      {act.day}
-                    </span>
+                    {/* Day number badge */}
+                    <div className={`
+                      flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm
+                      ${isCompleted 
+                        ? "bg-primary text-primary-foreground" 
+                        : "bg-muted text-muted-foreground"
+                      }
+                    `}>
+                      {isCompleted ? <Check className="w-5 h-5" /> : act.day}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-medium text-muted-foreground">Day {act.day}</span>
+                        {isCompleted && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
+                            Completed
+                          </span>
+                        )}
+                      </div>
+                      <h3 className={`font-semibold text-sm ${isCompleted ? "text-primary" : "text-foreground"}`}>
+                        {act.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                        {act.description}
+                      </p>
+                      {completedData?.reflection && (
+                        <p className="text-xs text-primary/80 mt-2 italic line-clamp-1">
+                          "{completedData.reflection}"
+                        </p>
+                      )}
+                    </div>
                   </button>
                 );
               })}
