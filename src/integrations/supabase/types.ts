@@ -65,6 +65,27 @@ export type Database = {
         }
         Relationships: []
       }
+      gratitude_entries: {
+        Row: {
+          created_at: string
+          gratitude_text: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gratitude_text: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gratitude_text?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mood_entries: {
         Row: {
           created_at: string
