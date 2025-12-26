@@ -15,7 +15,7 @@ const Logo = ({ className, showTagline = false, size = "md", isExiting = false }
     md: { width: 240, height: 120 },
     lg: { width: 400, height: 200 },
     xl: { width: 600, height: 300 },
-    "2xl": { width: 480, height: 280 },
+    "2xl": { width: 560, height: 340 },
   };
 
   const s = sizes[size];
@@ -36,7 +36,7 @@ const Logo = ({ className, showTagline = false, size = "md", isExiting = false }
 
       {/* Optional tagline */}
       {showTagline && (
-        <div className="flex flex-col items-center -mt-16 md:-mt-20">
+        <div className="flex flex-col items-center -mt-24 md:-mt-28">
           <p 
             className="text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium animate-text-shimmer"
           >
