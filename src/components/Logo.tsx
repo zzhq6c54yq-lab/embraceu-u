@@ -6,9 +6,10 @@ interface LogoProps {
   className?: string;
   showTagline?: boolean;
   size?: "sm" | "md" | "lg" | "xl" | "2xl";
+  isExiting?: boolean;
 }
 
-const Logo = ({ className, showTagline = false, size = "md" }: LogoProps) => {
+const Logo = ({ className, showTagline = false, size = "md", isExiting = false }: LogoProps) => {
   const sizes = {
     sm: { width: 140, height: 70 },
     md: { width: 240, height: 120 },
@@ -35,10 +36,9 @@ const Logo = ({ className, showTagline = false, size = "md" }: LogoProps) => {
 
       {/* Optional tagline */}
       {showTagline && (
-        <div className="flex flex-col items-center -mt-48 md:-mt-52">
+        <div className="flex flex-col items-center -mt-56 md:-mt-64">
           <p 
-            className="text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium"
-            style={{ textShadow: "0 2px 12px hsl(210 30% 50% / 0.3), 0 0 24px hsl(210 30% 70% / 0.2)" }}
+            className="text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium animate-text-shimmer"
           >
             THE POWER OF PRESENCE
           </p>
@@ -50,7 +50,14 @@ const Logo = ({ className, showTagline = false, size = "md" }: LogoProps) => {
             }}
           >
             by Thrive MT
-            <img src={thriveMtIcon} alt="Thrive MT" className="w-5 h-5 object-contain drop-shadow-md" />
+            <img 
+              src={thriveMtIcon} 
+              alt="Thrive MT" 
+              className={cn(
+                "w-5 h-5 object-contain drop-shadow-md",
+                isExiting && "animate-spin-once"
+              )} 
+            />
           </p>
         </div>
       )}
