@@ -5,7 +5,8 @@ import {
   Wind, 
   RefreshCw, 
   Compass, 
-  Heart
+  Heart,
+  Sparkles
 } from "lucide-react";
 
 const navItems = [
@@ -13,6 +14,7 @@ const navItems = [
   { path: "/breath", label: "Breath", icon: Wind },
   { path: "/reframe", label: "Reframe", icon: RefreshCw },
   { path: "/explore", label: "Explore", icon: Compass },
+  { path: "/gratitude", label: "Gratitude", icon: Sparkles },
   { path: "/challenge", label: "Challenge", icon: Heart },
 ];
 
