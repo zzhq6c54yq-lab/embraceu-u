@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { usePremium } from "@/hooks/usePremium";
 import { Crown, Sparkles } from "lucide-react";
+import useCelebrationSound from "@/hooks/useCelebrationSound";
 
 interface Particle {
   id: number;
@@ -15,6 +16,7 @@ interface Particle {
 
 const ProCelebration = () => {
   const { showCelebration, completeCelebration } = usePremium();
+  const { playCelebrationSequence } = useCelebrationSound();
   const [phase, setPhase] = useState<"shake" | "explode" | "reveal" | "fade" | "done">("shake");
   const [particles, setParticles] = useState<Particle[]>([]);
 
@@ -50,6 +52,9 @@ const ProCelebration = () => {
     }
 
     generateParticles();
+    
+    // Play celebration sound
+    playCelebrationSequence();
 
     // Phase timing
     const shakeTimeout = setTimeout(() => setPhase("explode"), 700);
@@ -66,7 +71,7 @@ const ProCelebration = () => {
       clearTimeout(fadeTimeout);
       clearTimeout(doneTimeout);
     };
-  }, [showCelebration, completeCelebration, generateParticles]);
+  }, [showCelebration, completeCelebration, generateParticles, playCelebrationSequence]);
 
   if (!showCelebration) return null;
 
