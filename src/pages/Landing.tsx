@@ -15,7 +15,7 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-start pt-0">
+    <div className={`min-h-screen bg-background flex flex-col items-center justify-start pt-0 transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 
