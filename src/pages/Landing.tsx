@@ -36,8 +36,8 @@ const Landing = () => {
 
       {/* Hero Section */}
       <div className="relative z-10 flex flex-col items-center justify-center px-6 py-16 md:py-24 text-center">
-        {/* Logo with tagline - 3x larger */}
-        <Logo size="xl" showTagline />
+        {/* Logo with tagline - doubled size */}
+        <Logo size="2xl" showTagline />
 
 
         {/* Description */}
