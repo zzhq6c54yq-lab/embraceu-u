@@ -39,11 +39,6 @@ const Landing = () => {
         {/* Logo with tagline - 3x larger */}
         <Logo size="xl" showTagline />
 
-        {/* By Thrive MT branding */}
-        <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground flex items-center gap-1.5 mt-4">
-          BY THRIVE MT
-          <img src={thriveMtIcon} alt="Thrive MT" className="w-4 h-4 object-contain" />
-        </span>
 
         {/* Description */}
         <p className="mt-8 text-muted-foreground text-italic-serif text-lg md:text-xl leading-relaxed max-w-md">
