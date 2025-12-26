@@ -36,12 +36,21 @@ const Logo = ({ className, showTagline = false, size = "md" }: LogoProps) => {
       {/* Optional tagline */}
       {showTagline && (
         <div className="flex flex-col items-center -mt-48 md:-mt-52">
-          <p className="text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium">
+          <p 
+            className="text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium"
+            style={{ textShadow: "0 2px 12px hsl(210 30% 50% / 0.3), 0 0 24px hsl(210 30% 70% / 0.2)" }}
+          >
             THE POWER OF PRESENCE
           </p>
-          <p className="text-base italic text-muted-foreground/80 mt-1 flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <p 
+            className="text-base italic text-muted-foreground/80 mt-1 flex items-center gap-2" 
+            style={{ 
+              fontFamily: "'Playfair Display', serif",
+              textShadow: "0 1px 8px hsl(210 30% 50% / 0.25)"
+            }}
+          >
             by Thrive MT
-            <img src={thriveMtIcon} alt="Thrive MT" className="w-5 h-5 object-contain" />
+            <img src={thriveMtIcon} alt="Thrive MT" className="w-5 h-5 object-contain drop-shadow-md" />
           </p>
         </div>
       )}
