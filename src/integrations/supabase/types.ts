@@ -158,6 +158,41 @@ export type Database = {
         }
         Relationships: []
       }
+      quality_practice_logs: {
+        Row: {
+          created_at: string | null
+          gratitude_note: string | null
+          id: string
+          practice_note: string
+          quality_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          gratitude_note?: string | null
+          id?: string
+          practice_note: string
+          quality_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          gratitude_note?: string | null
+          id?: string
+          practice_note?: string
+          quality_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_practice_logs_quality_id_fkey"
+            columns: ["quality_id"]
+            isOneToOne: false
+            referencedRelation: "user_qualities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rituals_completed: {
         Row: {
           completed_at: string
@@ -192,6 +227,10 @@ export type Database = {
           id: string
           insight_text: string
           insight_type: string
+          is_practiced: boolean | null
+          practice_note: string | null
+          practiced_at: string | null
+          scheduled_date: string | null
           user_id: string
         }
         Insert: {
@@ -200,6 +239,10 @@ export type Database = {
           id?: string
           insight_text: string
           insight_type?: string
+          is_practiced?: boolean | null
+          practice_note?: string | null
+          practiced_at?: string | null
+          scheduled_date?: string | null
           user_id: string
         }
         Update: {
@@ -208,6 +251,10 @@ export type Database = {
           id?: string
           insight_text?: string
           insight_type?: string
+          is_practiced?: boolean | null
+          practice_note?: string | null
+          practiced_at?: string | null
+          scheduled_date?: string | null
           user_id?: string
         }
         Relationships: []
@@ -216,24 +263,33 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          impact_note: string | null
           is_released: boolean | null
           pattern_name: string
+          recognition_note: string | null
+          release_intention: string | null
           released_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          impact_note?: string | null
           is_released?: boolean | null
           pattern_name: string
+          recognition_note?: string | null
+          release_intention?: string | null
           released_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          impact_note?: string | null
           is_released?: boolean | null
           pattern_name?: string
+          recognition_note?: string | null
+          release_intention?: string | null
           released_at?: string | null
           user_id?: string
         }
