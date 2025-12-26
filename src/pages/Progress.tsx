@@ -20,6 +20,7 @@ import PremiumThemes from "@/components/PremiumThemes";
 import ExclusiveContent from "@/components/ExclusiveContent";
 import UpgradeModal from "@/components/UpgradeModal";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import ProfileSettings from "@/components/ProfileSettings";
 import { Button } from "@/components/ui/button";
 
 interface ProfileStats {
@@ -335,9 +336,17 @@ const Progress = () => {
         </div>
       </section>
 
+      {/* Profile Settings Section */}
+      <section className="pb-8">
+        <h2 className="text-label mb-4">PROFILE SETTINGS</h2>
+        <div className="card-embrace">
+          <ProfileSettings />
+        </div>
+      </section>
+
       {/* Account Settings Section */}
       <section className="pb-20">
-        <h2 className="text-label mb-4">ACCOUNT SETTINGS</h2>
+        <h2 className="text-label mb-4">ACCOUNT</h2>
         <div className="card-embrace space-y-3">
           <Button
             variant="outline"
