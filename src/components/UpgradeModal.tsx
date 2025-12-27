@@ -41,11 +41,7 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        headers: {
-          Authorization: `Bearer ${freshSession.access_token}`,
-        },
-      });
+      const { data, error } = await supabase.functions.invoke('create-checkout');
 
       if (error) {
         throw error;
