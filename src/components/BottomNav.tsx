@@ -92,11 +92,13 @@ const BottomNav = () => {
                         )}
                       >
                         {item.isLogo ? (
-                          <img 
-                            src={thriveMtIcon} 
-                            alt="ThriveMT"
-                            className="w-7 h-7 sm:w-8 sm:h-8 transition-all duration-200 flex-shrink-0 object-contain brightness-125 saturate-150 drop-shadow-sm hover:brightness-150 hover:scale-110"
-                          />
+                          <div className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/90 animate-glow-pulse">
+                            <img 
+                              src={thriveMtIcon} 
+                              alt="ThriveMT"
+                              className="w-6 h-6 sm:w-7 sm:h-7 object-contain brightness-125 saturate-150"
+                            />
+                          </div>
                         ) : (
                           Icon && (
                             <Icon 
