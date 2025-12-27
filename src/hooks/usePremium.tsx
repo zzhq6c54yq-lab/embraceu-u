@@ -74,7 +74,7 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
       setHasCheckedInitially(true);
     }
-  }, [session?.access_token, isPremium, hasCheckedInitially, triggerCelebration]);
+  }, [isPremium, hasCheckedInitially, triggerCelebration]);
 
   const openCustomerPortal = useCallback(async () => {
     // Get fresh session to ensure token is valid
@@ -100,7 +100,7 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Error opening customer portal:', error);
     }
-  }, [session?.access_token]);
+  }, []);
 
   // Check subscription on auth state change
   useEffect(() => {
