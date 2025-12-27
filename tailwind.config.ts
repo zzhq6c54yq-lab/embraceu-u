@@ -106,6 +106,16 @@ export default {
             boxShadow: "0 0 18px 6px hsl(32 95% 60% / 1), 0 0 32px 12px hsl(32 90% 55% / 0.6), 0 0 48px 16px hsl(32 80% 50% / 0.4)",
           },
         },
+        "link-pulse": {
+          "0%, 100%": { 
+            transform: "scale(1)",
+            opacity: "0.85",
+          },
+          "50%": { 
+            transform: "scale(1.15)",
+            opacity: "1",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -114,6 +124,7 @@ export default {
         "scale-in": "scale-in 0.3s ease-out",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         "glow-pulse-intense": "glow-pulse-intense 1.5s ease-in-out infinite",
+        "link-pulse": "link-pulse 2s ease-in-out infinite",
       },
       boxShadow: {
         soft: "0 4px 20px -4px hsl(210 30% 70% / 0.2)",
