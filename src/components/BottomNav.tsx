@@ -27,7 +27,7 @@ const navSlides = [
   [
     { path: "/gratitude", label: "Gratitude", icon: Sparkles },
     { path: "/challenge", label: "Challenge", icon: Heart },
-    { path: "/about", label: "About", icon: null, isLogo: true },
+    { path: "/about", label: "", icon: null, isLogo: true },
   ],
 ];
 
@@ -95,10 +95,7 @@ const BottomNav = () => {
                           <img 
                             src={thriveMtIcon} 
                             alt="ThriveMT"
-                            className={cn(
-                              "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-200 flex-shrink-0 object-contain",
-                              isActive ? "opacity-100" : "opacity-60"
-                            )}
+                            className="w-7 h-7 sm:w-8 sm:h-8 transition-all duration-200 flex-shrink-0 object-contain brightness-125 saturate-150 drop-shadow-sm hover:brightness-150 hover:scale-110"
                           />
                         ) : (
                           Icon && (
@@ -111,14 +108,16 @@ const BottomNav = () => {
                             />
                           )
                         )}
-                        <span 
-                          className={cn(
-                            "text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider transition-colors duration-200 truncate",
-                            isActive ? "text-primary" : "text-muted-foreground"
-                          )}
-                        >
-                          {item.label}
-                        </span>
+                        {item.label && (
+                          <span 
+                            className={cn(
+                              "text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider transition-colors duration-200 truncate",
+                              isActive ? "text-primary" : "text-muted-foreground"
+                            )}
+                          >
+                            {item.label}
+                          </span>
+                        )}
                       </RouterNavLink>
                     );
                   })}
