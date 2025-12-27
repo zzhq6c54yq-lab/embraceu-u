@@ -18,6 +18,7 @@ import Library from "./pages/Library";
 import Progress from "./pages/Progress";
 import Challenge from "./pages/Challenge";
 import Gratitude from "./pages/Gratitude";
+import Duo from "./pages/Duo";
 import Install from "./pages/Install";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/progress" element={<Progress />} />
               <Route path="/challenge" element={<Challenge />} />
               <Route path="/gratitude" element={<Gratitude />} />
+              <Route path="/duo" element={<Duo />} />
               <Route path="/install" element={<Install />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />

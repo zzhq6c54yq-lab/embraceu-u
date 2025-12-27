@@ -121,6 +121,9 @@ export type Database = {
           last_active_date: string | null
           longest_streak: number | null
           nickname: string
+          referral_code: string | null
+          referred_by: string | null
+          theme_preference: string | null
           total_insights_saved: number | null
           total_moods_logged: number | null
           total_patterns_released: number | null
@@ -135,6 +138,9 @@ export type Database = {
           last_active_date?: string | null
           longest_streak?: number | null
           nickname: string
+          referral_code?: string | null
+          referred_by?: string | null
+          theme_preference?: string | null
           total_insights_saved?: number | null
           total_moods_logged?: number | null
           total_patterns_released?: number | null
@@ -149,6 +155,9 @@ export type Database = {
           last_active_date?: string | null
           longest_streak?: number | null
           nickname?: string
+          referral_code?: string | null
+          referred_by?: string | null
+          theme_preference?: string | null
           total_insights_saved?: number | null
           total_moods_logged?: number | null
           total_patterns_released?: number | null
@@ -156,7 +165,22 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "user_impact_summary"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       push_tokens: {
         Row: {
@@ -283,6 +307,65 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_streaks: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_sync: string | null
+          partner_1: string
+          partner_2: string
+          streak_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          partner_1: string
+          partner_2: string
+          streak_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          partner_1?: string
+          partner_2?: string
+          streak_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_streaks_partner_1_fkey"
+            columns: ["partner_1"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "shared_streaks_partner_1_fkey"
+            columns: ["partner_1"]
+            isOneToOne: false
+            referencedRelation: "user_impact_summary"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "shared_streaks_partner_2_fkey"
+            columns: ["partner_2"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "shared_streaks_partner_2_fkey"
+            columns: ["partner_2"]
+            isOneToOne: false
+            referencedRelation: "user_impact_summary"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_patterns: {
         Row: {
           created_at: string
@@ -396,7 +479,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_impact_summary: {
+        Row: {
+          current_streak: number | null
+          growth_rank: string | null
+          longest_streak: number | null
+          nickname: string | null
+          total_activities: number | null
+          total_insights_saved: number | null
+          total_moods_logged: number | null
+          total_patterns_released: number | null
+          total_rituals_completed: number | null
+          user_id: string | null
+        }
+        Insert: {
+          current_streak?: number | null
+          growth_rank?: never
+          longest_streak?: number | null
+          nickname?: string | null
+          total_activities?: never
+          total_insights_saved?: never
+          total_moods_logged?: never
+          total_patterns_released?: never
+          total_rituals_completed?: never
+          user_id?: string | null
+        }
+        Update: {
+          current_streak?: number | null
+          growth_rank?: never
+          longest_streak?: number | null
+          nickname?: string | null
+          total_activities?: never
+          total_insights_saved?: never
+          total_moods_logged?: never
+          total_patterns_released?: never
+          total_rituals_completed?: never
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
