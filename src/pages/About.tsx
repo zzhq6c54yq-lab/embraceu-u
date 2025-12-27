@@ -7,6 +7,15 @@ import {
   Compass, Star, Zap, Clock, Award, Smile, Music, Eye, Leaf, Sun,
   ArrowLeft, ExternalLink, Check
 } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import { useRef, useState, useCallback } from "react";
 
 const features = [
   { icon: Brain, name: "Mood Tracker", desc: "Log & analyze emotions" },
@@ -35,6 +44,12 @@ const features = [
   { icon: Sun, name: "Morning Rituals", desc: "Start right" },
 ];
 
+// Group features into slides of 6
+const featureSlides = [];
+for (let i = 0; i < features.length; i += 6) {
+  featureSlides.push(features.slice(i, i + 6));
+}
+
 const programs = [
   { name: "Anxiety Relief", audience: "Those with worry & stress" },
   { name: "Depression Support", audience: "Mood challenges" },
@@ -47,7 +62,7 @@ const programs = [
   { name: "Addiction Recovery", audience: "Breaking habits" },
   { name: "Trauma Healing", audience: "Processing past" },
   { name: "ADHD Support", audience: "Focus strategies" },
-  { name: "OCD Management", audience: "Intrusive thoughts" },
+  { name: "OCD Management", desc: "Intrusive thoughts" },
   { name: "Eating Disorders", audience: "Healthy relationship with food" },
   { name: "Social Anxiety", audience: "Connection comfort" },
   { name: "PTSD Recovery", audience: "Trauma processing" },
@@ -55,6 +70,22 @@ const programs = [
 ];
 
 const About = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const autoplayPlugin = useRef(
+    Autoplay({
+      delay: 4000,
+      stopOnMouseEnter: true,
+      stopOnInteraction: false,
+      stopOnFocusIn: true,
+    })
+  );
+
+  const handleSlideChange = useCallback((api: any) => {
+    if (api) {
+      setCurrentSlide(api.selectedScrollSnap());
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -92,18 +123,59 @@ const About = () => {
           </Button>
         </section>
 
-        {/* 24 Features */}
+        {/* 24 Features Carousel */}
         <section className="space-y-4">
           <h2 className="text-xl font-semibold text-center">24-Feature Wellness Toolkit</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-            {features.map((f) => (
-              <div key={f.name} className="flex items-center gap-2 p-2 rounded-lg bg-card/50 border border-border/30">
-                <f.icon className="w-4 h-4 text-primary shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-xs font-medium truncate">{f.name}</p>
-                </div>
-              </div>
-            ))}
+          <div className="relative px-8">
+            <Carousel
+              plugins={[autoplayPlugin.current]}
+              opts={{
+                loop: true,
+                align: "start",
+              }}
+              className="w-full"
+              setApi={(api) => {
+                if (api) {
+                  api.on("select", () => handleSlideChange(api));
+                  handleSlideChange(api);
+                }
+              }}
+            >
+              <CarouselContent>
+                {featureSlides.map((slide, slideIndex) => (
+                  <CarouselItem key={slideIndex} className="basis-full">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {slide.map((f) => (
+                        <div 
+                          key={f.name} 
+                          className="flex flex-col items-center gap-2 p-3 rounded-lg bg-card/50 border border-border/30 text-center"
+                        >
+                          <f.icon className="w-6 h-6 text-primary shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium">{f.name}</p>
+                            <p className="text-xs text-muted-foreground">{f.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-0" />
+              <CarouselNext className="right-0" />
+            </Carousel>
+            {/* Dot indicators */}
+            <div className="flex justify-center gap-2 mt-4">
+              {featureSlides.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    currentSlide === index ? "bg-primary" : "bg-border"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
           </div>
         </section>
 
