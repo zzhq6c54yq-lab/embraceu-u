@@ -26,20 +26,24 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpgrade = async () => {
-    if (!session?.access_token) {
-      toast({
-        title: "Please sign in",
-        description: "You need to be signed in to upgrade to Pro.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsLoading(true);
     try {
+      // Get fresh session to ensure token is valid
+      const { data: { session: freshSession } } = await supabase.auth.getSession();
+      
+      if (!freshSession?.access_token) {
+        toast({
+          title: "Please sign in",
+          description: "You need to be signed in to upgrade to Pro.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${freshSession.access_token}`,
         },
       });
 
