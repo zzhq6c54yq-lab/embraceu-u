@@ -111,12 +111,16 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
       // Remove the query param
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
-      // Check subscription after successful checkout
+      
+      // Trigger celebration immediately for checkout success
+      triggerCelebration();
+      
+      // Also verify subscription in background
       setTimeout(() => {
         checkSubscription();
-      }, 2000); // Wait 2 seconds for Stripe to process
+      }, 2000);
     }
-  }, [checkSubscription]);
+  }, []);
 
   const togglePremium = () => setIsPremiumState((prev) => !prev);
   
