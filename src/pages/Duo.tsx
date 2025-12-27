@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { usePremium } from '@/hooks/usePremium';
 import UpgradeModal from '@/components/UpgradeModal';
+import ReferralRewardsSection from '@/components/ReferralRewardsSection';
 interface SharedStreak {
   id: string;
   partner_1: string;
@@ -365,6 +366,11 @@ const Duo = () => {
           </div>
         </section>
       )}
+
+      {/* Referral Rewards Section */}
+      <section className="mb-8">
+        <ReferralRewardsSection />
+      </section>
 
       {/* Info Section */}
       <section className="pb-20">
