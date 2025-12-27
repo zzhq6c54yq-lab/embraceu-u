@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowRight, Download } from "lucide-react";
 import Logo from "@/components/Logo";
 
 const Landing = () => {
@@ -38,6 +38,25 @@ const Landing = () => {
           OPEN SPACE
           <ArrowRight className="w-4 h-4" />
         </button>
+
+        {/* Install PWA Button */}
+        <Link
+          to="/install"
+          className="mt-4 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+        >
+          <Download className="w-4 h-4" />
+          <span>Install App</span>
+        </Link>
+      </div>
+
+      {/* Footer with legal links */}
+      <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-6 text-xs text-muted-foreground">
+        <Link to="/privacy" className="hover:text-foreground transition-colors">
+          Privacy Policy
+        </Link>
+        <Link to="/terms" className="hover:text-foreground transition-colors">
+          Terms of Service
+        </Link>
       </div>
     </div>
   );
