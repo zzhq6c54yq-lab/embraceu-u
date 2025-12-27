@@ -1,0 +1,147 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface PushPayload {
+  title: string;
+  body: string;
+  data?: Record<string, string>;
+  user_ids?: string[]; // Send to specific users, or omit for broadcast
+}
+
+serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Optional: FCM Server Key for Android (add later)
+    const fcmServerKey = Deno.env.get('FCM_SERVER_KEY');
+    
+    // Optional: APNs credentials for iOS (add later)
+    // const apnsKeyId = Deno.env.get('APNS_KEY_ID');
+    // const apnsTeamId = Deno.env.get('APNS_TEAM_ID');
+
+    const payload: PushPayload = await req.json();
+    const { title, body, data, user_ids } = payload;
+
+    if (!title || !body) {
+      return new Response(
+        JSON.stringify({ error: 'Title and body are required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Sending push notification:', { title, body, user_ids: user_ids?.length || 'broadcast' });
+
+    // Fetch push tokens from database
+    let query = supabase.from('push_tokens').select('token, platform, user_id');
+    
+    if (user_ids && user_ids.length > 0) {
+      query = query.in('user_id', user_ids);
+    }
+
+    const { data: tokens, error: tokensError } = await query;
+
+    if (tokensError) {
+      console.error('Error fetching tokens:', tokensError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch push tokens' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!tokens || tokens.length === 0) {
+      console.log('No push tokens found');
+      return new Response(
+        JSON.stringify({ message: 'No push tokens found', sent: 0 }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Found ${tokens.length} push tokens`);
+
+    // Separate tokens by platform
+    const androidTokens = tokens.filter(t => t.platform === 'android').map(t => t.token);
+    const iosTokens = tokens.filter(t => t.platform === 'ios').map(t => t.token);
+
+    const results = {
+      android: { sent: 0, failed: 0 },
+      ios: { sent: 0, failed: 0 },
+    };
+
+    // Send to Android devices via FCM
+    if (androidTokens.length > 0) {
+      if (fcmServerKey) {
+        try {
+          const fcmResponse = await fetch('https://fcm.googleapis.com/fcm/send', {
+            method: 'POST',
+            headers: {
+              'Authorization': `key=${fcmServerKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              registration_ids: androidTokens,
+              notification: { title, body },
+              data: data || {},
+            }),
+          });
+
+          const fcmResult = await fcmResponse.json();
+          console.log('FCM response:', fcmResult);
+          
+          results.android.sent = fcmResult.success || 0;
+          results.android.failed = fcmResult.failure || 0;
+        } catch (fcmError) {
+          console.error('FCM error:', fcmError);
+          results.android.failed = androidTokens.length;
+        }
+      } else {
+        console.log('FCM_SERVER_KEY not configured - skipping Android push');
+        results.android.failed = androidTokens.length;
+      }
+    }
+
+    // Send to iOS devices via APNs
+    if (iosTokens.length > 0) {
+      // APNs implementation placeholder
+      // When ready, add APNS_KEY_ID, APNS_TEAM_ID, APNS_PRIVATE_KEY secrets
+      // and implement JWT-based APNs authentication
+      console.log('APNs not configured - skipping iOS push');
+      console.log(`Would send to ${iosTokens.length} iOS devices`);
+      results.ios.failed = iosTokens.length;
+    }
+
+    const totalSent = results.android.sent + results.ios.sent;
+    const totalFailed = results.android.failed + results.ios.failed;
+
+    console.log(`Push notification complete: ${totalSent} sent, ${totalFailed} failed`);
+
+    return new Response(
+      JSON.stringify({
+        message: 'Push notification processed',
+        sent: totalSent,
+        failed: totalFailed,
+        details: results,
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error: unknown) {
+    console.error('Error in send-push-notification:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});
