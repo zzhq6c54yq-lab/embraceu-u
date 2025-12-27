@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PremiumProvider } from "@/hooks/usePremium";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import Landing from "./pages/Landing";
 import About from "./pages/About";
 import Intro from "./pages/Intro";
@@ -24,16 +25,17 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
-const queryClient = new QueryClient();
-
 import ProCelebration from "@/components/ProCelebration";
 import ProWelcomeScreen from "@/components/ProWelcomeScreen";
+
+const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <PremiumProvider>
         <TooltipProvider>
+          <OfflineIndicator />
           <Toaster />
           <Sonner position="top-center" />
           <ProCelebration />
