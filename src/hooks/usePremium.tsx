@@ -35,22 +35,10 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const checkSubscription = useCallback(async () => {
-    // Get fresh session to ensure token is valid
-    const { data: { session: freshSession } } = await supabase.auth.getSession();
-    
-    if (!freshSession?.access_token) {
-      setIsPremiumState(false);
-      setSubscriptionEnd(null);
-      return;
-    }
-
+    setIsLoading(true);
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('check-subscription', {
-        headers: {
-          Authorization: `Bearer ${freshSession.access_token}`,
-        },
-      });
+      const { data, error } = await supabase.functions.invoke('check-subscription');
 
       if (error) {
         console.error('Error checking subscription:', error);
@@ -77,17 +65,9 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
   }, [isPremium, hasCheckedInitially, triggerCelebration]);
 
   const openCustomerPortal = useCallback(async () => {
-    // Get fresh session to ensure token is valid
-    const { data: { session: freshSession } } = await supabase.auth.getSession();
-    
-    if (!freshSession?.access_token) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal', {
-        headers: {
-          Authorization: `Bearer ${freshSession.access_token}`,
-        },
-      });
+      const { data, error } = await supabase.functions.invoke('customer-portal');
 
       if (error) {
         console.error('Error opening customer portal:', error);
