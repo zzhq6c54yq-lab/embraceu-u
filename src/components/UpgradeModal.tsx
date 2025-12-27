@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
-import { Crown, Check, Sparkles, Diamond } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Crown, Check, Sparkles, Diamond, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface UpgradeModalProps {
   open: boolean;
@@ -17,11 +21,47 @@ const features = [
 ];
 
 const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
-  const { setPremium } = usePremium();
+  const { session } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleUpgrade = () => {
-    setPremium(true);
-    onOpenChange(false);
+  const handleUpgrade = async () => {
+    if (!session?.access_token) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to upgrade to Pro.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        // Open Stripe Checkout in a new tab
+        window.open(data.url, '_blank');
+        onOpenChange(false);
+      }
+    } catch (error: any) {
+      console.error('Error creating checkout session:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to start checkout. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -83,10 +123,20 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
             
             <Button
               onClick={handleUpgrade}
+              disabled={isLoading}
               className="w-full btn-premium text-base py-6"
             >
-              <Crown className="w-5 h-5 mr-2" />
-              Upgrade Now
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <Crown className="w-5 h-5 mr-2" />
+                  Upgrade Now
+                </>
+              )}
             </Button>
             
             <button

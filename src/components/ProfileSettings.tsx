@@ -1,18 +1,21 @@
 import { useState } from "react";
-import { User, Mail, Lock, Check, Loader2 } from "lucide-react";
+import { User, Mail, Lock, Check, Loader2, Crown, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePremium } from "@/hooks/usePremium";
 import { z } from "zod";
+import { format } from "date-fns";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
 
 const ProfileSettings = () => {
   const { user } = useAuth();
+  const { isPremium, subscriptionEnd, openCustomerPortal, isLoading: isPremiumLoading } = usePremium();
   const { toast } = useToast();
   
   // Email change state
@@ -26,6 +29,9 @@ const ProfileSettings = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+
+  // Portal loading state
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false);
 
   const handleEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,8 +111,58 @@ const ProfileSettings = () => {
     }
   };
 
+  const handleManageSubscription = async () => {
+    setIsOpeningPortal(true);
+    try {
+      await openCustomerPortal();
+    } finally {
+      setIsOpeningPortal(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Subscription Status */}
+      {isPremium && (
+        <div className="p-4 bg-gradient-to-br from-accent/20 via-accent/10 to-transparent rounded-lg border border-accent/30">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-accent/60 flex items-center justify-center">
+              <Crown className="w-5 h-5 text-accent-foreground" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground flex items-center gap-2">
+                Pro Member
+                <span className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full">Active</span>
+              </p>
+              {subscriptionEnd && (
+                <p className="text-sm text-muted-foreground">
+                  Renews {format(new Date(subscriptionEnd), 'MMM d, yyyy')}
+                </p>
+              )}
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleManageSubscription}
+            disabled={isOpeningPortal}
+            className="w-full border-accent/30 hover:bg-accent/10"
+          >
+            {isOpeningPortal ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Opening...
+              </>
+            ) : (
+              <>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Manage Subscription
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+
       {/* Current Profile Info */}
       <div className="flex items-center gap-4 p-4 bg-secondary/50 rounded-lg">
         <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
