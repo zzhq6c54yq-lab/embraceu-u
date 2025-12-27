@@ -98,6 +98,14 @@ export default {
             boxShadow: "0 0 12px 4px hsl(32 80% 55% / 0.8), 0 0 24px 8px hsl(32 80% 50% / 0.4)",
           },
         },
+        "glow-pulse-intense": {
+          "0%, 100%": { 
+            boxShadow: "0 0 12px 4px hsl(32 90% 55% / 0.9), 0 0 24px 8px hsl(32 90% 50% / 0.5), 0 0 36px 12px hsl(32 80% 45% / 0.3)",
+          },
+          "50%": { 
+            boxShadow: "0 0 18px 6px hsl(32 95% 60% / 1), 0 0 32px 12px hsl(32 90% 55% / 0.6), 0 0 48px 16px hsl(32 80% 50% / 0.4)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -105,6 +113,7 @@ export default {
         "fade-in": "fade-in 0.4s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        "glow-pulse-intense": "glow-pulse-intense 1.5s ease-in-out infinite",
       },
       boxShadow: {
         soft: "0 4px 20px -4px hsl(210 30% 70% / 0.2)",
