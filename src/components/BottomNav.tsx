@@ -92,11 +92,17 @@ const BottomNav = () => {
                         )}
                       >
                         {item.isLogo ? (
-                          <div className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/90 animate-glow-pulse">
+                          <div className={cn(
+                            "relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/90",
+                            isActive ? "animate-glow-pulse-intense" : "animate-glow-pulse"
+                          )}>
                             <img 
                               src={thriveMtIcon} 
                               alt="ThriveMT"
-                              className="w-6 h-6 sm:w-7 sm:h-7 object-contain brightness-125 saturate-150"
+                              className={cn(
+                                "w-6 h-6 sm:w-7 sm:h-7 object-contain",
+                                isActive ? "brightness-150 saturate-200" : "brightness-125 saturate-150"
+                              )}
                             />
                           </div>
                         ) : (
