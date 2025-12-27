@@ -122,6 +122,7 @@ export type Database = {
           longest_streak: number | null
           nickname: string
           referral_code: string | null
+          referral_count: number | null
           referred_by: string | null
           theme_preference: string | null
           total_insights_saved: number | null
@@ -139,6 +140,7 @@ export type Database = {
           longest_streak?: number | null
           nickname: string
           referral_code?: string | null
+          referral_count?: number | null
           referred_by?: string | null
           theme_preference?: string | null
           total_insights_saved?: number | null
@@ -156,6 +158,7 @@ export type Database = {
           longest_streak?: number | null
           nickname?: string
           referral_code?: string | null
+          referral_count?: number | null
           referred_by?: string | null
           theme_preference?: string | null
           total_insights_saved?: number | null
@@ -240,6 +243,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      referral_rewards: {
+        Row: {
+          claimed: boolean | null
+          claimed_at: string | null
+          created_at: string | null
+          earned_at: string | null
+          id: string
+          metadata: Json | null
+          referral_count_at_earn: number
+          reward_description: string | null
+          reward_title: string
+          reward_type: string
+          user_id: string
+        }
+        Insert: {
+          claimed?: boolean | null
+          claimed_at?: string | null
+          created_at?: string | null
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          referral_count_at_earn: number
+          reward_description?: string | null
+          reward_title: string
+          reward_type: string
+          user_id: string
+        }
+        Update: {
+          claimed?: boolean | null
+          claimed_at?: string | null
+          created_at?: string | null
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          referral_count_at_earn?: number
+          reward_description?: string | null
+          reward_title?: string
+          reward_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       rituals_completed: {
         Row: {
