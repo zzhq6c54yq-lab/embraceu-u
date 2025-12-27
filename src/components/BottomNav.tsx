@@ -8,7 +8,9 @@ import {
   Compass, 
   Heart,
   Sparkles,
+  Link2,
 } from "lucide-react";
+import { usePremium } from "@/hooks/usePremium";
 import thriveMtIcon from "@/assets/thrive-mt-icon.png";
 import {
   Carousel,
@@ -27,18 +29,20 @@ const navSlides = [
   [
     { path: "/gratitude", label: "Gratitude", icon: Sparkles },
     { path: "/challenge", label: "Challenge", icon: Heart },
+    { path: "/duo", label: "Duo", icon: Link2, isPro: true },
     { path: "/about", label: "", icon: null, isLogo: true },
   ],
-];
+] as const;
 
 const BottomNav = () => {
   const location = useLocation();
+  const { isPremium } = usePremium();
   const [api, setApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Determine which slide the current route belongs to
   const getSlideForRoute = useCallback((pathname: string) => {
-    const slide2Paths = ["/gratitude", "/challenge", "/about"];
+    const slide2Paths = ["/gratitude", "/challenge", "/duo", "/about"];
     return slide2Paths.includes(pathname) ? 1 : 0;
   }, []);
 
@@ -77,9 +81,10 @@ const BottomNav = () => {
             {navSlides.map((slide, slideIndex) => (
               <CarouselItem key={slideIndex} className="pl-0 basis-full">
                 <div className="flex items-center justify-around py-1.5 sm:py-2 px-1 sm:px-2">
-                  {slide.map((item) => {
+                {slide.map((item) => {
                     const isActive = location.pathname === item.path;
                     const Icon = item.icon;
+                    const showProBadge = 'isPro' in item && item.isPro && !isPremium;
 
                     return (
                       <RouterNavLink
@@ -107,13 +112,20 @@ const BottomNav = () => {
                           </div>
                         ) : (
                           Icon && (
-                            <Icon 
-                              className={cn(
-                                "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-200 flex-shrink-0",
-                                isActive ? "text-primary" : "text-muted-foreground"
-                              )} 
-                              strokeWidth={isActive ? 2.5 : 2}
-                            />
+                            <div className="relative">
+                              <Icon 
+                                className={cn(
+                                  "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-200 flex-shrink-0",
+                                  isActive ? "text-primary" : "text-muted-foreground"
+                                )} 
+                                strokeWidth={isActive ? 2.5 : 2}
+                              />
+                              {showProBadge && (
+                                <span className="absolute -top-1 -right-1.5 text-[6px] font-bold bg-primary text-primary-foreground px-1 rounded-full">
+                                  PRO
+                                </span>
+                              )}
+                            </div>
                           )
                         )}
                         {item.label && (
