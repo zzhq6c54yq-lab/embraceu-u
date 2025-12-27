@@ -46,7 +46,7 @@ interface ActivitySummary {
 
 const Progress = () => {
   const { user, signOut } = useAuth();
-  const { isPremium } = usePremium();
+  const { isPremium, openCustomerPortal } = usePremium();
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [activity, setActivity] = useState<ActivitySummary>({
     moodsThisWeek: 0,
@@ -348,6 +348,16 @@ const Progress = () => {
       <section className="pb-20">
         <h2 className="text-label mb-4">ACCOUNT</h2>
         <div className="card-embrace space-y-3">
+          {isPremium && (
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => openCustomerPortal()}
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Manage Subscription
+            </Button>
+          )}
           <Button
             variant="outline"
             className="w-full justify-start"

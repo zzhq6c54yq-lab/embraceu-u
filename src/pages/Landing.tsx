@@ -22,7 +22,7 @@ const Landing = () => {
       {/* Hero Section */}
       <div className="relative z-10 flex flex-col items-center px-6 py-0 text-center">
         {/* Logo with tagline - doubled size */}
-        <Logo size="2xl" showTagline isExiting={isExiting} />
+        <Logo size="2xl" showTagline isExiting={isExiting} enableAdminAccess />
 
         {/* Description */}
         <p className="mt-8 text-muted-foreground text-italic-serif text-lg md:text-xl leading-relaxed max-w-md">
