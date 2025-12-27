@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -24,6 +24,12 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [hasCheckedInitially, setHasCheckedInitially] = useState(false);
+  const isPremiumRef = useRef(isPremium);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    isPremiumRef.current = isPremium;
+  }, [isPremium]);
 
   const triggerCelebration = useCallback(() => {
     setShowCelebration(true);
@@ -34,18 +40,34 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
     setIsPremiumState(true);
   }, []);
 
-  const checkSubscription = useCallback(async () => {
-    setIsLoading(true);
+  const checkSubscription = useCallback(async (retryCount = 0): Promise<void> => {
+    const maxRetries = 3;
+    const retryDelay = 2000;
+    
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('check-subscription');
 
       if (error) {
         console.error('Error checking subscription:', error);
+        
+        // If auth error and we have retries left, wait and retry
+        if (error.message?.includes('Auth session missing') && retryCount < maxRetries) {
+          console.log(`Retrying subscription check (${retryCount + 1}/${maxRetries})...`);
+          setTimeout(() => {
+            checkSubscription(retryCount + 1);
+          }, retryDelay);
+          return;
+        }
+        
+        // Don't reset premium state on error if user was already premium
+        if (!isPremiumRef.current) {
+          setIsLoading(false);
+        }
         return;
       }
 
-      const wasNotPremium = !isPremium;
+      const wasNotPremium = !isPremiumRef.current;
       const isNowPremium = data?.subscribed === true;
 
       if (wasNotPremium && isNowPremium && hasCheckedInitially) {
@@ -58,11 +80,12 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
       setSubscriptionEnd(data?.subscription_end || null);
     } catch (error) {
       console.error('Error checking subscription:', error);
+      // Don't reset premium state on error
     } finally {
       setIsLoading(false);
       setHasCheckedInitially(true);
     }
-  }, [isPremium, hasCheckedInitially, triggerCelebration]);
+  }, [hasCheckedInitially, triggerCelebration]);
 
   const openCustomerPortal = useCallback(async () => {
 
@@ -112,13 +135,25 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
       
-      // Trigger celebration immediately for checkout success
+      // Set premium immediately for checkout success (optimistic)
+      setIsPremiumState(true);
+      
+      // Trigger celebration
       triggerCelebration();
       
-      // Also verify subscription in background
-      setTimeout(() => {
-        checkSubscription();
-      }, 2000);
+      // Verify subscription in background with retry logic
+      const verifySubscription = async () => {
+        // Wait for session to be available
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (currentSession) {
+          checkSubscription();
+        } else {
+          // If no session yet, wait and retry
+          setTimeout(verifySubscription, 1000);
+        }
+      };
+      
+      setTimeout(verifySubscription, 2000);
     }
   }, []);
 
