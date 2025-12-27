@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Crown, Check, Sparkles, Diamond, Loader2 } from "lucide-react";
+import { Crown, Check, Sparkles, Diamond, Loader2, RefreshCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface UpgradeModalProps {
@@ -23,7 +23,9 @@ const features = [
 const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const { session } = useAuth();
   const { toast } = useToast();
+  const { checkSubscription } = usePremium();
   const [isLoading, setIsLoading] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
 
   const handleUpgrade = async () => {
     setIsLoading(true);
@@ -143,6 +145,25 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
               className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               Maybe later
+            </button>
+
+            {/* Restore Purchases - Required by Apple */}
+            <button
+              onClick={async () => {
+                setIsRestoring(true);
+                await checkSubscription();
+                setIsRestoring(false);
+                toast({ title: 'Checked', description: 'Subscription status verified' });
+              }}
+              disabled={isRestoring}
+              className="mt-3 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors flex items-center justify-center gap-1 mx-auto"
+            >
+              {isRestoring ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <RefreshCcw className="w-3 h-3" />
+              )}
+              Restore Purchases
             </button>
           </div>
         </div>

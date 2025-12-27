@@ -1,156 +1,124 @@
-import { useState } from "react";
-import { usePremium } from "@/hooks/usePremium";
-import { Check, Lock, Palette } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-export type PremiumTheme = "gold" | "rose" | "midnight" | "emerald" | "aurora";
+import { Lock, Check } from "lucide-react";
+import { useTheme, type ThemePreference } from "@/hooks/useTheme";
 
 interface ThemeOption {
-  id: PremiumTheme;
+  id: ThemePreference;
   name: string;
   description: string;
-  colors: {
-    primary: string;
-    accent: string;
-    gradient: string;
-  };
+  previewColors: string[];
 }
 
 const themes: ThemeOption[] = [
   {
     id: "gold",
-    name: "Royal Gold",
-    description: "Classic luxury with warm golden tones",
-    colors: {
-      primary: "from-amber-400 to-amber-600",
-      accent: "bg-amber-500",
-      gradient: "from-amber-400 via-yellow-300 to-amber-500",
-    },
+    name: "Classic Gold",
+    description: "Luxurious warmth",
+    previewColors: ["hsl(42, 85%, 52%)", "hsl(38, 80%, 38%)", "hsl(45, 90%, 68%)"],
   },
   {
     id: "rose",
     name: "Rose Quartz",
-    description: "Elegant pink with soft warmth",
-    colors: {
-      primary: "from-rose-400 to-pink-600",
-      accent: "bg-rose-500",
-      gradient: "from-rose-400 via-pink-300 to-rose-500",
-    },
+    description: "Soft elegance",
+    previewColors: ["hsl(350, 60%, 65%)", "hsl(345, 50%, 50%)", "hsl(355, 70%, 80%)"],
   },
   {
     id: "midnight",
-    name: "Midnight Luxe",
-    description: "Deep blues with silver accents",
-    colors: {
-      primary: "from-indigo-400 to-purple-600",
-      accent: "bg-indigo-500",
-      gradient: "from-indigo-400 via-violet-400 to-purple-500",
-    },
+    name: "Midnight Blue",
+    description: "Deep serenity",
+    previewColors: ["hsl(220, 60%, 30%)", "hsl(225, 50%, 20%)", "hsl(215, 70%, 45%)"],
   },
   {
     id: "emerald",
-    name: "Emerald Elite",
-    description: "Rich greens for natural elegance",
-    colors: {
-      primary: "from-emerald-400 to-teal-600",
-      accent: "bg-emerald-500",
-      gradient: "from-emerald-400 via-teal-400 to-emerald-500",
-    },
+    name: "Emerald Forest",
+    description: "Natural harmony",
+    previewColors: ["hsl(150, 50%, 40%)", "hsl(155, 45%, 30%)", "hsl(145, 60%, 55%)"],
   },
   {
     id: "aurora",
-    name: "Aurora Dreams",
-    description: "Mystical northern lights palette",
-    colors: {
-      primary: "from-cyan-400 to-violet-600",
-      accent: "bg-cyan-500",
-      gradient: "from-cyan-400 via-purple-400 to-pink-400",
-    },
+    name: "Aurora",
+    description: "Mystical glow",
+    previewColors: ["hsl(280, 60%, 55%)", "hsl(200, 70%, 50%)", "hsl(320, 50%, 60%)"],
   },
 ];
 
 interface PremiumThemesProps {
-  onThemeChange?: (theme: PremiumTheme) => void;
-  currentTheme?: PremiumTheme;
+  onThemeChange?: (theme: ThemePreference) => void;
 }
 
-const PremiumThemes = ({ onThemeChange, currentTheme = "gold" }: PremiumThemesProps) => {
-  const { isPremium } = usePremium();
-  const [selectedTheme, setSelectedTheme] = useState<PremiumTheme>(currentTheme);
+const PremiumThemes = ({ onThemeChange }: PremiumThemesProps) => {
+  const { theme: currentTheme, updateTheme, isPremium } = useTheme();
 
-  const handleSelectTheme = (themeId: PremiumTheme) => {
-    if (!isPremium) return;
-    setSelectedTheme(themeId);
+  const handleSelectTheme = (themeId: ThemePreference) => {
+    if (!isPremium && themeId !== "gold") return;
+    updateTheme(themeId);
     onThemeChange?.(themeId);
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-6">
-        <Palette className="w-5 h-5 text-accent" />
-        <h3 className="font-serif text-lg">Premium Themes</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-label">PREMIUM THEMES</h3>
         {!isPremium && (
-          <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
-            <Lock className="w-3 h-3" /> Pro Only
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <Lock className="w-3 h-3" />
+            Pro only
           </span>
         )}
       </div>
-
-      <div className="grid gap-3">
-        {themes.map((theme) => (
-          <button
-            key={theme.id}
-            onClick={() => handleSelectTheme(theme.id)}
-            disabled={!isPremium}
-            className={cn(
-              "relative w-full p-4 rounded-xl border transition-all duration-300 text-left",
-              isPremium
-                ? "hover:scale-[1.02] cursor-pointer"
-                : "opacity-60 cursor-not-allowed",
-              selectedTheme === theme.id && isPremium
-                ? "border-accent ring-2 ring-accent/30"
-                : "border-border hover:border-accent/50"
-            )}
-          >
-            <div className="flex items-center gap-4">
-              {/* Theme Preview */}
-              <div
-                className={cn(
-                  "w-12 h-12 rounded-lg bg-gradient-to-br shrink-0",
-                  theme.colors.primary
-                )}
-              />
-
-              {/* Theme Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">
-                    {theme.name}
-                  </span>
-                  {selectedTheme === theme.id && isPremium && (
-                    <Check className="w-4 h-4 text-accent" />
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground truncate">
-                  {theme.description}
-                </p>
+      
+      <div className="grid grid-cols-2 gap-3">
+        {themes.map((theme) => {
+          const isSelected = currentTheme === theme.id;
+          const isLocked = !isPremium && theme.id !== "gold";
+          
+          return (
+            <button
+              key={theme.id}
+              onClick={() => handleSelectTheme(theme.id)}
+              disabled={isLocked}
+              className={`
+                relative p-4 rounded-xl text-left transition-all duration-300
+                ${isSelected 
+                  ? "ring-2 ring-accent shadow-lg" 
+                  : "border border-border hover:border-accent/50"}
+                ${isLocked ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
+              `}
+            >
+              {/* Color preview */}
+              <div className="flex gap-1 mb-3">
+                {theme.previewColors.map((color, i) => (
+                  <div
+                    key={i}
+                    className="w-6 h-6 rounded-full"
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
               </div>
-
-              {/* Lock Icon for non-premium */}
-              {!isPremium && (
-                <Lock className="w-4 h-4 text-muted-foreground shrink-0" />
+              
+              {/* Theme info */}
+              <p className="font-serif italic text-sm text-foreground">
+                {theme.name}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {theme.description}
+              </p>
+              
+              {/* Selected indicator */}
+              {isSelected && isPremium && (
+                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                  <Check className="w-3 h-3 text-accent-foreground" />
+                </div>
               )}
-            </div>
-
-            {/* Color Bar Preview */}
-            <div
-              className={cn(
-                "mt-3 h-1.5 rounded-full bg-gradient-to-r",
-                theme.colors.gradient
+              
+              {/* Lock indicator */}
+              {isLocked && (
+                <div className="absolute top-2 right-2">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                </div>
               )}
-            />
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

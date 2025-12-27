@@ -9,7 +9,8 @@ import {
   Award,
   Calendar,
   LogOut,
-  Settings
+  Settings,
+  Share2
 } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +22,7 @@ import ExclusiveContent from "@/components/ExclusiveContent";
 import UpgradeModal from "@/components/UpgradeModal";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import ProfileSettings from "@/components/ProfileSettings";
+import ImpactWrap from "@/components/ImpactWrap";
 import { Button } from "@/components/ui/button";
 
 interface ProfileStats {
@@ -58,6 +60,7 @@ const Progress = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showImpactWrap, setShowImpactWrap] = useState(false);
   useEffect(() => {
     if (!user) {
       setIsLoading(false);
@@ -314,6 +317,23 @@ const Progress = () => {
         </div>
       </section>
 
+      {/* Impact Wrap Section */}
+      <section className="pb-8">
+        <h2 className="text-label mb-4">SHARE YOUR GROWTH</h2>
+        <div className="card-embrace text-center py-6">
+          <p className="text-sm text-muted-foreground mb-4">
+            Create a shareable summary of your journey
+          </p>
+          <Button
+            onClick={() => setShowImpactWrap(true)}
+            className="btn-premium"
+          >
+            <Share2 className="w-4 h-4 mr-2" />
+            Generate Impact Wrap
+          </Button>
+        </div>
+      </section>
+
       {/* Motivational Quote */}
       <section className="pb-8">
         <div className="insight-card-accent text-center">
@@ -371,6 +391,7 @@ const Progress = () => {
       </section>
 
       <UpgradeModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
+      <ImpactWrap open={showImpactWrap} onOpenChange={setShowImpactWrap} />
     </AppLayout>
   );
 };
