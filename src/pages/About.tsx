@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import thriveLogo from "@/assets/thrive-mt-icon.png";
 import thriveQR from "@/assets/thrive-mt-qr.png";
+import SEOHead from "@/components/SEOHead";
 
 const features = [
   { icon: MessageCircle, name: "Between-Session Companion", desc: "AI-powered therapeutic support between therapy sessions" },
@@ -58,6 +59,11 @@ const programs = [
 const About = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SEOHead 
+        title="About ThriveMT - Mental Health Platform"
+        description="Discover ThriveMT, the comprehensive mental health platform with 24 wellness tools, specialized programs, professional therapy, coaching, and AI support."
+        path="/about"
+      />
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
