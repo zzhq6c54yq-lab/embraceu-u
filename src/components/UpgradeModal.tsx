@@ -48,9 +48,8 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
       }
 
       if (data?.url) {
-        // Open Stripe Checkout in a new tab
-        window.open(data.url, '_blank');
-        onOpenChange(false);
+        // Redirect to Stripe Checkout (more reliable than popup)
+        window.location.href = data.url;
       }
     } catch (error: any) {
       console.error('Error creating checkout session:', error);
