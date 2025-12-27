@@ -35,7 +35,10 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const checkSubscription = useCallback(async () => {
-    if (!session?.access_token) {
+    // Get fresh session to ensure token is valid
+    const { data: { session: freshSession } } = await supabase.auth.getSession();
+    
+    if (!freshSession?.access_token) {
       setIsPremiumState(false);
       setSubscriptionEnd(null);
       return;
@@ -45,7 +48,7 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { data, error } = await supabase.functions.invoke('check-subscription', {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${freshSession.access_token}`,
         },
       });
 
@@ -74,12 +77,15 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
   }, [session?.access_token, isPremium, hasCheckedInitially, triggerCelebration]);
 
   const openCustomerPortal = useCallback(async () => {
-    if (!session?.access_token) return;
+    // Get fresh session to ensure token is valid
+    const { data: { session: freshSession } } = await supabase.auth.getSession();
+    
+    if (!freshSession?.access_token) return;
 
     try {
       const { data, error } = await supabase.functions.invoke('customer-portal', {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${freshSession.access_token}`,
         },
       });
 

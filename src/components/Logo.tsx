@@ -30,7 +30,7 @@ const Logo = ({ className, showTagline = false, size = "md", isExiting = false }
         <img
           src={logoImage}
           alt="EmbraceU logo - hands embracing a heart"
-          className="w-full h-full object-contain mix-blend-multiply"
+          className="w-full h-full object-contain drop-shadow-lg"
         />
       </div>
 
