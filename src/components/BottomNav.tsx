@@ -8,8 +8,8 @@ import {
   Compass, 
   Heart,
   Sparkles,
-  Info
 } from "lucide-react";
+import thriveMtIcon from "@/assets/thrive-mt-icon.png";
 import {
   Carousel,
   CarouselContent,
@@ -27,7 +27,7 @@ const navSlides = [
   [
     { path: "/gratitude", label: "Gratitude", icon: Sparkles },
     { path: "/challenge", label: "Challenge", icon: Heart },
-    { path: "/about", label: "About", icon: Info },
+    { path: "/about", label: "About", icon: null, isLogo: true },
   ],
 ];
 
@@ -91,13 +91,26 @@ const BottomNav = () => {
                           isActive && "text-primary"
                         )}
                       >
-                        <Icon 
-                          className={cn(
-                            "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-200 flex-shrink-0",
-                            isActive ? "text-primary" : "text-muted-foreground"
-                          )} 
-                          strokeWidth={isActive ? 2.5 : 2}
-                        />
+                        {item.isLogo ? (
+                          <img 
+                            src={thriveMtIcon} 
+                            alt="ThriveMT"
+                            className={cn(
+                              "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-200 flex-shrink-0 object-contain",
+                              isActive ? "opacity-100" : "opacity-60"
+                            )}
+                          />
+                        ) : (
+                          Icon && (
+                            <Icon 
+                              className={cn(
+                                "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-200 flex-shrink-0",
+                                isActive ? "text-primary" : "text-muted-foreground"
+                              )} 
+                              strokeWidth={isActive ? 2.5 : 2}
+                            />
+                          )
+                        )}
                         <span 
                           className={cn(
                             "text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider transition-colors duration-200 truncate",
