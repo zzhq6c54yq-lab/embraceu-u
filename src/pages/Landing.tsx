@@ -15,12 +15,15 @@ const Landing = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-background flex flex-col items-center justify-start pt-0 transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
+    <div className={`min-h-screen bg-background flex flex-col items-center justify-between py-12 transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 
+      {/* Spacer for top */}
+      <div />
+
       {/* Hero Section */}
-      <div className="relative z-10 flex flex-col items-center px-6 py-0 text-center">
+      <div className="relative z-10 flex flex-col items-center px-6 text-center">
         {/* Logo with tagline - doubled size */}
         <Logo size="2xl" showTagline isExiting={isExiting} enableAdminAccess />
 
@@ -38,29 +41,32 @@ const Landing = () => {
           OPEN SPACE
           <ArrowRight className="w-4 h-4" />
         </button>
+      </div>
 
+      {/* Footer with legal links */}
+      <footer className="relative z-10 flex flex-col items-center gap-4 px-6">
         {/* Install PWA Button */}
         <Link
           to="/install"
-          className="mt-4 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
         >
           <Download className="w-4 h-4" />
           <span>Install App</span>
         </Link>
-      </div>
 
-      {/* Footer with legal links */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-6 text-xs text-muted-foreground">
-        <Link to="/about" className="hover:text-foreground transition-colors">
-          About ThriveMT
-        </Link>
-        <Link to="/privacy" className="hover:text-foreground transition-colors">
-          Privacy Policy
-        </Link>
-        <Link to="/terms" className="hover:text-foreground transition-colors">
-          Terms of Service
-        </Link>
-      </div>
+        {/* Legal links row */}
+        <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
+          <Link to="/about" className="hover:text-foreground transition-colors">
+            About ThriveMT
+          </Link>
+          <Link to="/privacy" className="hover:text-foreground transition-colors">
+            Privacy Policy
+          </Link>
+          <Link to="/terms" className="hover:text-foreground transition-colors">
+            Terms of Service
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 };
