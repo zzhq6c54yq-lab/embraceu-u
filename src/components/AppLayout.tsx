@@ -20,6 +20,12 @@ const AppLayout = ({
 }: AppLayoutProps) => {
   const { isPremium } = usePremium();
   
+  // Calculate bottom padding based on nav + ad banner + safe area
+  // Nav: ~52px, Ad banner: ~60px (when shown), safe area: variable
+  const bottomPadding = isPremium 
+    ? "pb-[calc(60px+env(safe-area-inset-bottom,0px))]" // Just nav
+    : "pb-[calc(120px+env(safe-area-inset-bottom,0px))]"; // Nav + ad banner
+
   return (
     <div className={cn(
       "min-h-screen bg-background flex flex-col relative",
@@ -28,9 +34,9 @@ const AppLayout = ({
       {showHeader && <AppHeader />}
       <main 
         className={cn(
-          "flex-1 px-4 animate-fade-in relative z-10",
+          "flex-1 px-3 sm:px-4 animate-fade-in relative z-10",
           !showHeader && "pt-4",
-          isPremium ? "pb-24" : "pb-32",
+          bottomPadding,
           className
         )}
       >
