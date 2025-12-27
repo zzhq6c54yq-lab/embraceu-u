@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Copy, Check, Users, Flame, UserPlus, Unlink } from 'lucide-react';
+import { Copy, Check, Users, Flame, UserPlus, Unlink, Lock, Crown } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-
+import { usePremium } from '@/hooks/usePremium';
+import UpgradeModal from '@/components/UpgradeModal';
 interface SharedStreak {
   id: string;
   partner_1: string;
@@ -24,6 +25,7 @@ interface PartnerProfile {
 const Duo = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isPremium } = usePremium();
   const [referralCode, setReferralCode] = useState('');
   const [friendCode, setFriendCode] = useState('');
   const [copied, setCopied] = useState(false);
@@ -31,6 +33,7 @@ const Duo = () => {
   const [isJoining, setIsJoining] = useState(false);
   const [sharedStreak, setSharedStreak] = useState<SharedStreak | null>(null);
   const [partnerName, setPartnerName] = useState<string>('');
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -199,6 +202,36 @@ const Duo = () => {
 
   return (
     <AppLayout>
+      {/* Premium Lock Overlay */}
+      {!isPremium && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md">
+          <div className="text-center p-8 max-w-sm animate-fade-in">
+            <div className="relative inline-block mb-6">
+              <div className="absolute inset-0 rounded-full bg-accent/30 blur-2xl animate-glow-pulse" />
+              <div className="relative w-20 h-20 rounded-full bg-card border-2 border-accent/40 flex items-center justify-center">
+                <Lock className="w-10 h-10 text-accent" />
+              </div>
+            </div>
+            <h2 className="font-serif italic text-2xl text-foreground mb-3">
+              Pro Feature
+            </h2>
+            <p className="text-muted-foreground text-sm mb-6">
+              Growth Chain is a premium feature that helps you stay accountable with a friend. Unlock it with Pro.
+            </p>
+            <Button 
+              variant="premium" 
+              onClick={() => setShowUpgradeModal(true)}
+              className="w-full"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Unlock with Pro
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <UpgradeModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
+
       {/* Header */}
       <div className="mt-2 mb-8 text-center">
         <h1 className="font-serif italic text-3xl text-foreground mb-2">

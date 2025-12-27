@@ -116,7 +116,8 @@ const BottomNav = () => {
                               <Icon 
                                 className={cn(
                                   "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-200 flex-shrink-0",
-                                  isActive ? "text-primary" : "text-muted-foreground"
+                                  isActive ? "text-primary" : "text-muted-foreground",
+                                  item.path === "/duo" && "animate-link-pulse text-accent"
                                 )} 
                                 strokeWidth={isActive ? 2.5 : 2}
                               />
