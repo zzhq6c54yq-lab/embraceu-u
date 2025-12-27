@@ -51,6 +51,9 @@ const Landing = () => {
 
       {/* Footer with legal links */}
       <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-6 text-xs text-muted-foreground">
+        <Link to="/about" className="hover:text-foreground transition-colors">
+          About ThriveMT
+        </Link>
         <Link to="/privacy" className="hover:text-foreground transition-colors">
           Privacy Policy
         </Link>
