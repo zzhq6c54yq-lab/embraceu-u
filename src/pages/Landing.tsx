@@ -15,12 +15,12 @@ const Landing = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-background flex flex-col items-center pt-6 pb-12 transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
+    <div className={`min-h-screen bg-background flex flex-col items-center pt-2 pb-12 transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 
-      {/* Hero Section - closer to top */}
-      <div className="relative z-10 flex flex-col items-center px-6 text-center mt-4">
+      {/* Hero Section - at top */}
+      <div className="relative z-10 flex flex-col items-center px-6 text-center">
         {/* Logo with tagline - doubled size */}
         <Logo size="2xl" showTagline isExiting={isExiting} enableAdminAccess />
 
