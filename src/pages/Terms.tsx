@@ -1,14 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import Logo from "@/components/Logo";
+import SEOHead from "@/components/SEOHead";
 
 const Terms = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Terms of Service"
+        description="EmbraceU Terms of Service. Read our terms and conditions for using the mindfulness and personal growth app."
+        path="/terms"
+      />
       <div className="absolute inset-0 gradient-warm opacity-30 pointer-events-none" />
-      
       <div className="relative z-10 max-w-3xl mx-auto px-6 py-12">
         {/* Back button */}
         <button

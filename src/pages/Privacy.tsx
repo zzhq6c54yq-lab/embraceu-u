@@ -1,14 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import Logo from "@/components/Logo";
+import SEOHead from "@/components/SEOHead";
 
 const Privacy = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title="Privacy Policy"
+        description="EmbraceU Privacy Policy. Learn how we collect, use, and protect your personal data. Your privacy and security are our priority."
+        path="/privacy"
+      />
       <div className="absolute inset-0 gradient-warm opacity-30 pointer-events-none" />
-      
       <div className="relative z-10 max-w-3xl mx-auto px-6 py-12">
         {/* Back button */}
         <button

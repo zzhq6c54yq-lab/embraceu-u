@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowRight, Download } from "lucide-react";
 import Logo from "@/components/Logo";
+import SEOHead from "@/components/SEOHead";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Landing = () => {
 
   return (
     <div className={`min-h-screen bg-background flex flex-col items-center pt-2 pb-12 transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
+      <SEOHead path="/" />
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 

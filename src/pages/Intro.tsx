@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, Heart, Wind, Sparkles, BookOpen } from "lucide-react";
 import Logo from "@/components/Logo";
 import thriveMtIcon from "@/assets/thrive-mt-icon.png";
+import SEOHead from "@/components/SEOHead";
 
 const features = [
   {
@@ -31,6 +32,11 @@ const Intro = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEOHead 
+        title="Start Your Journey - Mindfulness & Personal Growth"
+        description="Begin your intentional living journey with EmbraceU. Daily intentions, breathwork rituals, word reframing, and a personal library for your growth."
+        path="/intro"
+      />
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 

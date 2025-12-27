@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Download, Share, MoreVertical, Plus, ArrowLeft, Smartphone, Monitor, Check } from "lucide-react";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import SEOHead from "@/components/SEOHead";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -58,8 +59,12 @@ const Install = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col px-6 py-12">
+      <SEOHead 
+        title="Install EmbraceU App"
+        description="Install EmbraceU on your device for the best mindfulness experience. Works offline, launches instantly, and provides a full-screen experience."
+        path="/install"
+      />
       <div className="absolute inset-0 gradient-warm opacity-30 pointer-events-none" />
-      
       <div className="relative z-10 flex-1 flex flex-col max-w-md mx-auto w-full">
         {/* Back button */}
         <button
