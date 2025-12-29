@@ -17,18 +17,23 @@ const Landing = () => {
 
   return (
     <div className={`min-h-screen bg-background flex flex-col items-center pt-2 pb-12 transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
-      <SEOHead path="/" />
+      <SEOHead 
+        path="/" 
+        title="EmbraceU | Self-Love, Mental Wellness & Personal Growth App"
+        description="EmbraceU is your daily companion for self-love, mental wellness, and emotional health. Build confidence through mindfulness, mood tracking, breathwork, and personal development tools."
+      />
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 
       {/* Hero Section - at top */}
-      <div className="relative z-10 flex flex-col items-center px-6 text-center">
+      <main className="relative z-10 flex flex-col items-center px-6 text-center">
         {/* Logo with tagline - doubled size */}
+        <h1 className="sr-only">EmbraceU - Mental Wellness & Self-Growth App</h1>
         <Logo size="2xl" showTagline isExiting={isExiting} enableAdminAccess />
 
         {/* Description */}
         <p className="mt-8 text-muted-foreground text-italic-serif text-lg md:text-xl leading-relaxed max-w-md">
-          A space to deconstruct patterns and cultivate your most intentional self.
+          Your daily space for self-love, emotional balance, and personal growth.
         </p>
 
         {/* CTA Button */}
@@ -40,7 +45,7 @@ const Landing = () => {
           OPEN SPACE
           <ArrowRight className="w-4 h-4" />
         </button>
-      </div>
+      </main>
 
       {/* Footer with legal links - pushed to bottom */}
       <footer className="relative z-10 flex flex-col items-center gap-4 px-6 mt-auto">
