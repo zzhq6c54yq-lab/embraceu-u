@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { usePremium } from "@/hooks/usePremium";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import AdminAccessModal from "@/components/AdminAccessModal";
 import { 
   Users, 
   CreditCard, 
@@ -17,7 +16,8 @@ import {
   Target,
   BookOpen,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  LogOut
 } from "lucide-react";
 
 interface AdminStats {
@@ -39,31 +39,33 @@ interface UserInfo {
 
 const Admin = () => {
   const navigate = useNavigate();
-  const { user, isLoading: authLoading } = useAuth();
-  const { isAdmin, isLoading: adminLoading } = useAdminAuth();
-  const { isPremium } = usePremium();
+  const { isAdmin, isLoading: adminLoading, checkAdminStatus, clearAdminStatus } = useAdminAuth();
+  const [showAccessModal, setShowAccessModal] = useState(false);
   
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [users, setUsers] = useState<UserInfo[]>([]);
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-      return;
-    }
-
     if (!adminLoading && !isAdmin) {
-      navigate("/");
-      return;
+      setShowAccessModal(true);
     }
-  }, [user, authLoading, isAdmin, adminLoading, navigate]);
+  }, [isAdmin, adminLoading]);
 
   useEffect(() => {
     if (isAdmin) {
       fetchAdminData();
     }
   }, [isAdmin]);
+
+  const handleAccessSuccess = () => {
+    checkAdminStatus();
+  };
+
+  const handleLogout = () => {
+    clearAdminStatus();
+    navigate("/");
+  };
 
   const fetchAdminData = async () => {
     setIsLoadingData(true);
@@ -114,7 +116,7 @@ const Admin = () => {
     }
   };
 
-  if (authLoading || adminLoading) {
+  if (adminLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -123,7 +125,18 @@ const Admin = () => {
   }
 
   if (!isAdmin) {
-    return null;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <AdminAccessModal 
+          open={showAccessModal} 
+          onOpenChange={(open) => {
+            setShowAccessModal(open);
+            if (!open) navigate("/");
+          }}
+          onSuccess={handleAccessSuccess}
+        />
+      </div>
+    );
   }
 
   const statCards = [
@@ -158,15 +171,25 @@ const Admin = () => {
               </p>
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchAdminData}
-            disabled={isLoadingData}
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingData ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchAdminData}
+              disabled={isLoadingData}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingData ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Exit
+            </Button>
+          </div>
         </div>
       </header>
 
