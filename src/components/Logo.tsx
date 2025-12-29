@@ -15,9 +15,9 @@ interface LogoProps {
 }
 
 const Logo = ({ className, showTagline = false, size = "md", isExiting = false, enableAdminAccess = false }: LogoProps) => {
+  const [showAdminModal, setShowAdminModal] = useState(false);
   const navigate = useNavigate();
   const { isAdmin } = useAdminAuth();
-  const [showAdminModal, setShowAdminModal] = useState(false);
   
   const sizes = {
     sm: { width: 140, height: 70 },
