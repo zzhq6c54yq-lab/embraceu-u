@@ -13,8 +13,8 @@ const BASE_URL = "https://embraceu.app";
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`;
 
 export const SEOHead = ({
-  title = "EmbraceU - Cultivate Your Most Intentional Self",
-  description = "EmbraceU helps you deconstruct limiting patterns and cultivate intentional living. Daily mindfulness prompts, mood tracking, breathwork rituals, and personal growth journaling.",
+  title = "EmbraceU | Self-Love, Mental Wellness & Personal Growth App",
+  description = "EmbraceU is a mental wellness and self-growth platform supporting daily confidence, self-love, and emotional balance. Mindfulness tools, mood tracking, breathwork rituals, and personal development journaling.",
   path = "",
   image = DEFAULT_IMAGE,
   type = "website",
