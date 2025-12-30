@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.fetch-admin-stats]
 verify_jwt = false
+
+[functions.generate-insights]
+verify_jwt = false
