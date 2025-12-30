@@ -55,34 +55,52 @@ export const useAdminRealtime = ({
   useEffect(() => {
     if (!isAdmin) return;
 
+    console.log('[AdminRealtime] Setting up realtime subscriptions...');
+
     const profilesChannel = supabase
       .channel('admin-profiles')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'profiles' },
-        handleNewSignup
+        (payload) => {
+          console.log('[AdminRealtime] New profile detected:', payload);
+          handleNewSignup(payload as any);
+        }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[AdminRealtime] Profiles channel status:', status);
+      });
 
     const moodsChannel = supabase
       .channel('admin-moods')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'mood_entries' },
-        handleNewMood as any
+        (payload) => {
+          console.log('[AdminRealtime] New mood detected:', payload);
+          handleNewMood(payload as any);
+        }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[AdminRealtime] Moods channel status:', status);
+      });
 
     const ritualsChannel = supabase
       .channel('admin-rituals')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'rituals_completed' },
-        handleNewRitual as any
+        (payload) => {
+          console.log('[AdminRealtime] New ritual detected:', payload);
+          handleNewRitual(payload as any);
+        }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[AdminRealtime] Rituals channel status:', status);
+      });
 
     return () => {
+      console.log('[AdminRealtime] Cleaning up subscriptions');
       supabase.removeChannel(profilesChannel);
       supabase.removeChannel(moodsChannel);
       supabase.removeChannel(ritualsChannel);
