@@ -876,3 +876,91 @@
   border: 2px solid hsl(45 90% 70% / 0.3);
   animation: luxe-glow-pulse 3s ease-in-out infinite;
 }
+
+/* ======================= */
+/* PREMIUM COLOR THEMES    */
+/* ======================= */
+
+/* Rose Quartz - Soft pink elegance */
+.theme-rose {
+  --background: 350 30% 97%;
+  --foreground: 350 20% 20%;
+  --card: 350 25% 95%;
+  --card-foreground: 350 20% 20%;
+  --popover: 350 30% 97%;
+  --popover-foreground: 350 20% 20%;
+  --primary: 350 55% 55%;
+  --primary-foreground: 350 30% 97%;
+  --secondary: 350 20% 92%;
+  --secondary-foreground: 350 20% 30%;
+  --muted: 350 15% 90%;
+  --muted-foreground: 350 15% 50%;
+  --accent: 345 65% 60%;
+  --accent-foreground: 350 90% 10%;
+  --border: 350 20% 88%;
+  --input: 350 20% 90%;
+  --ring: 350 55% 55%;
+}
+
+/* Midnight Blue - Deep serenity */
+.theme-midnight {
+  --background: 225 35% 12%;
+  --foreground: 220 20% 92%;
+  --card: 225 30% 16%;
+  --card-foreground: 220 20% 92%;
+  --popover: 225 30% 14%;
+  --popover-foreground: 220 20% 92%;
+  --primary: 215 70% 55%;
+  --primary-foreground: 225 35% 10%;
+  --secondary: 225 25% 20%;
+  --secondary-foreground: 220 20% 85%;
+  --muted: 225 25% 22%;
+  --muted-foreground: 220 15% 60%;
+  --accent: 200 80% 55%;
+  --accent-foreground: 225 90% 10%;
+  --border: 225 25% 25%;
+  --input: 225 25% 20%;
+  --ring: 215 70% 55%;
+}
+
+/* Emerald Forest - Natural harmony */
+.theme-emerald {
+  --background: 150 25% 96%;
+  --foreground: 155 25% 18%;
+  --card: 150 20% 94%;
+  --card-foreground: 155 25% 18%;
+  --popover: 150 25% 96%;
+  --popover-foreground: 155 25% 18%;
+  --primary: 155 50% 38%;
+  --primary-foreground: 150 25% 96%;
+  --secondary: 150 20% 90%;
+  --secondary-foreground: 155 25% 28%;
+  --muted: 150 15% 88%;
+  --muted-foreground: 155 15% 48%;
+  --accent: 145 60% 42%;
+  --accent-foreground: 155 90% 8%;
+  --border: 150 18% 85%;
+  --input: 150 18% 88%;
+  --ring: 155 50% 38%;
+}
+
+/* Aurora - Mystical purple/teal glow */
+.theme-aurora {
+  --background: 280 25% 97%;
+  --foreground: 275 20% 18%;
+  --card: 280 20% 95%;
+  --card-foreground: 275 20% 18%;
+  --popover: 280 25% 97%;
+  --popover-foreground: 275 20% 18%;
+  --primary: 270 55% 55%;
+  --primary-foreground: 280 25% 97%;
+  --secondary: 280 18% 92%;
+  --secondary-foreground: 275 20% 28%;
+  --muted: 280 15% 90%;
+  --muted-foreground: 275 15% 48%;
+  --accent: 185 65% 45%;
+  --accent-foreground: 185 90% 8%;
+  --border: 280 18% 88%;
+  --input: 280 18% 90%;
+  --ring: 270 55% 55%;
+}
