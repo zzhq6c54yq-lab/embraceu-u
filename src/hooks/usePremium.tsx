@@ -44,6 +44,16 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
     const maxRetries = 3;
     const retryDelay = 2000;
     
+    // Check if we have a valid session before calling the edge function
+    const { data: { session: currentSession } } = await supabase.auth.getSession();
+    if (!currentSession) {
+      console.log('No session available, skipping subscription check');
+      setIsPremiumState(false);
+      setSubscriptionEnd(null);
+      setIsLoading(false);
+      return;
+    }
+    
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('check-subscription');
