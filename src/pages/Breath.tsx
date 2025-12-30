@@ -5,6 +5,34 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import OnboardingTour from "@/components/OnboardingTour";
+
+const breathTourSteps = [
+  {
+    target: "[data-tour='breath-header']",
+    title: "Welcome to Breathwork",
+    description: "Conscious breathing exercises to calm your mind, reduce stress, and find inner peace.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='breath-patterns']",
+    title: "Choose Your Pattern",
+    description: "Select from scientifically-backed breathing techniques. Each one serves a different purpose.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='breath-circle']",
+    title: "Breathing Guide",
+    description: "Follow the expanding and contracting circle. The countdown shows you when to breathe in, hold, and release.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='breath-controls']",
+    title: "Control Your Session",
+    description: "Press play to start, pause anytime, or reset to begin again. Your sessions are tracked automatically.",
+    position: "top" as const,
+  },
+];
 
 type BreathPhase = "inhale" | "hold" | "exhale" | "rest";
 
@@ -185,8 +213,12 @@ const Breath = () => {
 
   return (
     <AppLayout>
+      <OnboardingTour
+        steps={breathTourSteps}
+        storageKey="embraceu-breath-tour-completed"
+      />
       {/* Header */}
-      <div className="text-center mt-4 mb-8">
+      <div className="text-center mt-4 mb-8" data-tour="breath-header">
         <h1 className="font-serif italic text-3xl md:text-4xl text-foreground mb-2">
           Breathwork
         </h1>
@@ -194,7 +226,7 @@ const Breath = () => {
       </div>
 
       {/* Pattern selector */}
-      <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide mb-6">
+      <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide mb-6" data-tour="breath-patterns">
         {breathPatterns.map((pattern) => (
           <button
             key={pattern.name}
@@ -225,7 +257,7 @@ const Breath = () => {
       </div>
 
       {/* Breathing circle */}
-      <div className="flex flex-col items-center justify-center mb-8">
+      <div className="flex flex-col items-center justify-center mb-8" data-tour="breath-circle">
         <div className="relative w-56 h-56 md:w-64 md:h-64 flex items-center justify-center">
           {/* Outer ring progress */}
           <svg className="absolute inset-0 w-full h-full -rotate-90">
@@ -295,7 +327,7 @@ const Breath = () => {
       </div>
 
       {/* Controls */}
-      <div className="flex justify-center gap-4 mb-8">
+      <div className="flex justify-center gap-4 mb-8" data-tour="breath-controls">
         {!isActive ? (
           <button
             onClick={handleStart}

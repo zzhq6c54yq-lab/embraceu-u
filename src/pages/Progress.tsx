@@ -22,6 +22,40 @@ import ImpactWrap from "@/components/ImpactWrap";
 import AIInsights from "@/components/AIInsights";
 import ExportProgress from "@/components/ExportProgress";
 import { Button } from "@/components/ui/button";
+import OnboardingTour from "@/components/OnboardingTour";
+
+const progressTourSteps = [
+  {
+    target: "[data-tour='progress-header']",
+    title: "Your Progress Hub",
+    description: "Track your growth journey with detailed stats, streaks, and activity summaries all in one place.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='progress-stats']",
+    title: "Key Statistics",
+    description: "Monitor your streaks, completed rituals, and mood entries. Consistency is key to transformation.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='progress-insights']",
+    title: "AI Insights",
+    description: "Get personalized insights based on your patterns. Pro users unlock powerful AI-driven analysis.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='progress-activity']",
+    title: "Activity Summary",
+    description: "See your patterns, qualities, saved insights, and visions at a glance.",
+    position: "top" as const,
+  },
+  {
+    target: "[data-tour='progress-export']",
+    title: "Export Your Journey",
+    description: "Pro users can export their data as PDF reports or CSV files to keep or share.",
+    position: "top" as const,
+  },
+];
 
 interface ProfileStats {
   nickname: string;
@@ -232,8 +266,12 @@ const Progress = () => {
 
   return (
     <AppLayout>
+      <OnboardingTour
+        steps={progressTourSteps}
+        storageKey="embraceu-progress-tour-completed"
+      />
       {/* Header */}
-      <div className="mt-2 mb-8 text-center">
+      <div className="mt-2 mb-8 text-center" data-tour="progress-header">
         <h1 className="font-serif italic text-3xl text-foreground mb-2">
           Your Progress
         </h1>
@@ -248,7 +286,7 @@ const Progress = () => {
       </div>
 
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-2 gap-4 mb-8" data-tour="progress-stats">
         {statCards.map((stat) => (
           <div
             key={stat.label}
@@ -267,10 +305,12 @@ const Progress = () => {
       </div>
 
       {/* AI Insights Section - Pro Feature */}
-      <AIInsights onUpgradeClick={() => setShowUpgradeModal(true)} />
+      <div data-tour="progress-insights">
+        <AIInsights onUpgradeClick={() => setShowUpgradeModal(true)} />
+      </div>
 
       {/* Activity Summary */}
-      <section className="mb-8">
+      <section className="mb-8" data-tour="progress-activity">
         <h2 className="text-label mb-4">ACTIVITY SUMMARY</h2>
         <div className="space-y-3">
           {activityItems.map((item) => (
@@ -319,7 +359,7 @@ const Progress = () => {
       </section>
 
       {/* Export Progress Section - Pro Feature */}
-      <section className="mb-8">
+      <section className="mb-8" data-tour="progress-export">
         <ExportProgress onUpgradeClick={() => setShowUpgradeModal(true)} />
       </section>
 
