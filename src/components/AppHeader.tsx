@@ -17,7 +17,7 @@ import logoImage from "@/assets/logo-embrace.png";
 import thriveMtIcon from "@/assets/thrive-mt-icon.png";
 import ProBadge from "@/components/ProBadge";
 import UpgradeModal from "@/components/UpgradeModal";
-import { AVATAR_OPTIONS } from "@/components/AvatarSelector";
+import { AvatarDisplay } from "@/components/avatar";
 
 interface AppHeaderProps {
   className?: string;
@@ -56,7 +56,7 @@ const AppHeader = ({ className }: AppHeaderProps) => {
     fetchProfile();
   }, [user]);
 
-  const avatarOption = AVATAR_OPTIONS.find(a => a.id === avatarUrl);
+  
 
   const toggleTheme = () => {
     const newIsDark = !isDark;
@@ -143,8 +143,8 @@ const AppHeader = ({ className }: AppHeaderProps) => {
                   className="p-2 rounded-full hover:bg-secondary/50 transition-all duration-200 active:scale-[0.95] flex items-center gap-2"
                   aria-label="User menu"
                 >
-                  {avatarOption ? (
-                    <span className="text-xl">{avatarOption.emoji}</span>
+                  {avatarUrl ? (
+                    <AvatarDisplay avatarUrl={avatarUrl} size={28} />
                   ) : (
                     <User className={cn("w-5 h-5", isPremium ? "text-accent" : "text-primary")} />
                   )}
