@@ -17,6 +17,7 @@ import logoImage from "@/assets/logo-embrace.png";
 import thriveMtIcon from "@/assets/thrive-mt-icon.png";
 import ProBadge from "@/components/ProBadge";
 import UpgradeModal from "@/components/UpgradeModal";
+import { AVATAR_OPTIONS } from "@/components/AvatarSelector";
 
 interface AppHeaderProps {
   className?: string;
@@ -28,6 +29,7 @@ const AppHeader = ({ className }: AppHeaderProps) => {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(false);
   const [nickname, setNickname] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
@@ -38,20 +40,23 @@ const AppHeader = ({ className }: AppHeaderProps) => {
   useEffect(() => {
     if (!user) return;
 
-    const fetchNickname = async () => {
+    const fetchProfile = async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("nickname")
+        .select("nickname, avatar_url")
         .eq("user_id", user.id)
         .maybeSingle();
 
       if (data) {
         setNickname(data.nickname);
+        setAvatarUrl(data.avatar_url);
       }
     };
 
-    fetchNickname();
+    fetchProfile();
   }, [user]);
+
+  const avatarOption = AVATAR_OPTIONS.find(a => a.id === avatarUrl);
 
   const toggleTheme = () => {
     const newIsDark = !isDark;
@@ -138,7 +143,11 @@ const AppHeader = ({ className }: AppHeaderProps) => {
                   className="p-2 rounded-full hover:bg-secondary/50 transition-all duration-200 active:scale-[0.95] flex items-center gap-2"
                   aria-label="User menu"
                 >
-                  <User className={cn("w-5 h-5", isPremium ? "text-accent" : "text-primary")} />
+                  {avatarOption ? (
+                    <span className="text-xl">{avatarOption.emoji}</span>
+                  ) : (
+                    <User className={cn("w-5 h-5", isPremium ? "text-accent" : "text-primary")} />
+                  )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">

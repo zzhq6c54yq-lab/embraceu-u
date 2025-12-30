@@ -8,8 +8,6 @@ import {
   Wind,
   Award,
   Calendar,
-  LogOut,
-  Settings,
   Share2
 } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
@@ -20,8 +18,6 @@ import { usePremium } from "@/hooks/usePremium";
 import PremiumThemes from "@/components/PremiumThemes";
 import ExclusiveContent from "@/components/ExclusiveContent";
 import UpgradeModal from "@/components/UpgradeModal";
-import DeleteAccountDialog from "@/components/DeleteAccountDialog";
-import ProfileSettings from "@/components/ProfileSettings";
 import ImpactWrap from "@/components/ImpactWrap";
 import AIInsights from "@/components/AIInsights";
 import ExportProgress from "@/components/ExportProgress";
@@ -49,8 +45,8 @@ interface ActivitySummary {
 }
 
 const Progress = () => {
-  const { user, signOut } = useAuth();
-  const { isPremium, openCustomerPortal } = usePremium();
+  const { user } = useAuth();
+  const { isPremium } = usePremium();
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [activity, setActivity] = useState<ActivitySummary>({
     moodsThisWeek: 0,
@@ -360,43 +356,9 @@ const Progress = () => {
         </div>
       </section>
 
-      <section className="pb-8">
+      <section className="pb-20">
         <div className="card-embrace">
           <ExclusiveContent onUpgradeClick={() => setShowUpgradeModal(true)} />
-        </div>
-      </section>
-
-      {/* Profile Settings Section */}
-      <section className="pb-8">
-        <h2 className="text-label mb-4">PROFILE SETTINGS</h2>
-        <div className="card-embrace">
-          <ProfileSettings />
-        </div>
-      </section>
-
-      {/* Account Settings Section */}
-      <section className="pb-20">
-        <h2 className="text-label mb-4">ACCOUNT</h2>
-        <div className="card-embrace space-y-3">
-          {isPremium && (
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => openCustomerPortal()}
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Manage Subscription
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            className="w-full justify-start"
-            onClick={() => signOut()}
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
-          <DeleteAccountDialog />
         </div>
       </section>
 
