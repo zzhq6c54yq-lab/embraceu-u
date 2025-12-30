@@ -61,6 +61,7 @@ export const useAdminAuth = () => {
   const clearAdminStatus = useCallback(() => {
     sessionStorage.removeItem("admin_verified");
     sessionStorage.removeItem("admin_last_activity");
+    sessionStorage.removeItem("admin_codes");
     if (timeoutIntervalRef.current) {
       clearInterval(timeoutIntervalRef.current);
     }
@@ -90,6 +91,7 @@ export const useAdminAuth = () => {
       const now = Date.now();
       sessionStorage.setItem("admin_verified", "true");
       sessionStorage.setItem("admin_last_activity", now.toString());
+      sessionStorage.setItem("admin_codes", JSON.stringify({ code1, code2, code3 }));
       lastActivityRef.current = now;
       
       setState({

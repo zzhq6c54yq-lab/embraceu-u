@@ -42,7 +42,22 @@ export const useAdminStats = (): UseAdminStatsReturn => {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('fetch-admin-stats');
+      // Include stored admin passcodes for authentication
+      const storedCodes = sessionStorage.getItem("admin_codes");
+      const headers: Record<string, string> = {};
+      
+      if (storedCodes) {
+        try {
+          const codes = JSON.parse(storedCodes);
+          headers['x-admin-code-1'] = codes.code1;
+          headers['x-admin-code-2'] = codes.code2;
+          headers['x-admin-code-3'] = codes.code3;
+        } catch (e) {
+          console.error("Failed to parse admin codes:", e);
+        }
+      }
+
+      const { data, error } = await supabase.functions.invoke('fetch-admin-stats', { headers });
 
       if (error) {
         console.error("Error fetching admin stats:", error);
