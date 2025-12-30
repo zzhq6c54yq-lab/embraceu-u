@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PremiumProvider } from "@/hooks/usePremium";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { AppTracking } from "@/components/AppTracking";
 import Landing from "./pages/Landing";
 import About from "./pages/About";
 import Intro from "./pages/Intro";
@@ -36,6 +37,7 @@ const App = () => (
       <PremiumProvider>
         <TooltipProvider>
           <OfflineIndicator />
+          <AppTracking />
           <Toaster />
           <Sonner position="top-center" />
           <ProCelebration />

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import AdminAccessModal from "@/components/AdminAccessModal";
+import { toast } from "sonner";
 import { 
   Users, 
   CreditCard, 
@@ -22,7 +23,10 @@ import {
   Zap,
   TrendingUp,
   Clock,
-  Sparkles
+  Sparkles,
+  Smartphone,
+  Timer,
+  AlertTriangle
 } from "lucide-react";
 
 interface AdminStats {
@@ -45,6 +49,10 @@ interface UserInfo {
   created_at: string;
   theme_preference: string;
   referral_count: number;
+  pwa_installed: boolean;
+  pwa_installed_at: string | null;
+  total_time_spent_seconds: number;
+  last_session_duration_seconds: number;
 }
 
 interface ProSubscriber {
@@ -62,9 +70,33 @@ interface RecentActivity {
   rituals: Array<{ id: string; ritual_type: string; created_at: string; user_id: string }>;
 }
 
+const formatDuration = (seconds: number): string => {
+  if (!seconds || seconds < 60) return "< 1m";
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${minutes}m`;
+};
+
+const formatSessionTime = (ms: number | null): string => {
+  if (!ms) return "--:--";
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
+
 const Admin = () => {
   const navigate = useNavigate();
-  const { isAdmin, isLoading: adminLoading, checkAdminStatus, clearAdminStatus } = useAdminAuth();
+  const { 
+    isAdmin, 
+    isLoading: adminLoading, 
+    checkAdminStatus, 
+    clearAdminStatus,
+    sessionTimeRemaining,
+    showTimeoutWarning 
+  } = useAdminAuth();
   const [showAccessModal, setShowAccessModal] = useState(false);
   
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -73,6 +105,16 @@ const Admin = () => {
   const [recentActivity, setRecentActivity] = useState<RecentActivity>({ moods: [], rituals: [] });
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  // Show timeout warning toast
+  useEffect(() => {
+    if (showTimeoutWarning) {
+      toast.warning("Session expiring soon!", {
+        description: "Your admin session will expire in 5 minutes due to inactivity.",
+        duration: 10000,
+      });
+    }
+  }, [showTimeoutWarning]);
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
@@ -114,7 +156,6 @@ const Admin = () => {
   useEffect(() => {
     if (!isAdmin) return;
 
-    // Subscribe to new signups (profiles table)
     const profilesChannel = supabase
       .channel('admin-profiles')
       .on(
@@ -122,13 +163,11 @@ const Admin = () => {
         { event: 'INSERT', schema: 'public', table: 'profiles' },
         (payload) => {
           console.log('New signup:', payload);
-          // Refresh data when new user signs up
           fetchAdminData();
         }
       )
       .subscribe();
 
-    // Subscribe to mood entries
     const moodsChannel = supabase
       .channel('admin-moods')
       .on(
@@ -149,7 +188,6 @@ const Admin = () => {
       )
       .subscribe();
 
-    // Subscribe to rituals completed
     const ritualsChannel = supabase
       .channel('admin-rituals')
       .on(
@@ -229,7 +267,6 @@ const Admin = () => {
     { icon: BookOpen, label: "Insights", value: stats?.totalInsights || 0, color: "text-purple-500" },
   ];
 
-  // Combine recent activity for feed
   const activityFeed = [
     ...recentActivity.moods.map(m => ({ type: 'mood' as const, ...m })),
     ...recentActivity.rituals.map(r => ({ type: 'ritual' as const, ...r })),
@@ -263,6 +300,16 @@ const Admin = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {/* Session Timer */}
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
+              showTimeoutWarning 
+                ? 'bg-amber-500/20 text-amber-600' 
+                : 'bg-muted text-muted-foreground'
+            }`}>
+              {showTimeoutWarning && <AlertTriangle className="w-3 h-3" />}
+              <Timer className="w-3 h-3" />
+              <span>{formatSessionTime(sessionTimeRemaining)}</span>
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -387,7 +434,7 @@ const Admin = () => {
                     <div className="divide-y divide-border">
                       {users.slice(0, 50).map((u) => (
                         <div key={u.user_id} className="p-3">
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between mb-1">
                             <p className="font-medium text-foreground text-sm">{u.nickname || "—"}</p>
                             <span className="flex items-center gap-1 text-orange-500 text-sm">
                               🔥 {u.current_streak}
@@ -397,6 +444,20 @@ const Admin = () => {
                             Joined {new Date(u.created_at).toLocaleDateString()}
                             {u.referral_count > 0 && ` • ${u.referral_count} referrals`}
                           </p>
+                          <div className="flex items-center gap-3 mt-1.5">
+                            {/* PWA Status */}
+                            <span className={`flex items-center gap-1 text-xs ${
+                              u.pwa_installed ? 'text-green-600' : 'text-muted-foreground'
+                            }`}>
+                              <Smartphone className="w-3 h-3" />
+                              {u.pwa_installed ? 'PWA' : 'Web'}
+                            </span>
+                            {/* Time Spent */}
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              {formatDuration(u.total_time_spent_seconds)}
+                            </span>
+                          </div>
                         </div>
                       ))}
                     </div>

@@ -114,10 +114,10 @@ serve(async (req) => {
     // Fetch all data using service role (bypasses RLS)
     const today = new Date().toISOString().split("T")[0];
 
-    // Get all profiles
+    // Get all profiles with new tracking fields
     const { data: profiles, error: profilesError } = await supabaseAdmin
       .from("profiles")
-      .select("user_id, nickname, current_streak, longest_streak, created_at, theme_preference, referral_count")
+      .select("user_id, nickname, current_streak, longest_streak, created_at, theme_preference, referral_count, pwa_installed, pwa_installed_at, total_time_spent_seconds, last_session_duration_seconds")
       .order("created_at", { ascending: false });
 
     if (profilesError) {

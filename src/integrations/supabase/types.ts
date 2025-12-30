@@ -119,8 +119,11 @@ export type Database = {
           current_streak: number | null
           id: string
           last_active_date: string | null
+          last_session_duration_seconds: number | null
           longest_streak: number | null
           nickname: string
+          pwa_installed: boolean | null
+          pwa_installed_at: string | null
           referral_code: string | null
           referral_count: number | null
           referred_by: string | null
@@ -129,6 +132,7 @@ export type Database = {
           total_moods_logged: number | null
           total_patterns_released: number | null
           total_rituals_completed: number | null
+          total_time_spent_seconds: number | null
           updated_at: string
           user_id: string
         }
@@ -137,8 +141,11 @@ export type Database = {
           current_streak?: number | null
           id?: string
           last_active_date?: string | null
+          last_session_duration_seconds?: number | null
           longest_streak?: number | null
           nickname: string
+          pwa_installed?: boolean | null
+          pwa_installed_at?: string | null
           referral_code?: string | null
           referral_count?: number | null
           referred_by?: string | null
@@ -147,6 +154,7 @@ export type Database = {
           total_moods_logged?: number | null
           total_patterns_released?: number | null
           total_rituals_completed?: number | null
+          total_time_spent_seconds?: number | null
           updated_at?: string
           user_id: string
         }
@@ -155,8 +163,11 @@ export type Database = {
           current_streak?: number | null
           id?: string
           last_active_date?: string | null
+          last_session_duration_seconds?: number | null
           longest_streak?: number | null
           nickname?: string
+          pwa_installed?: boolean | null
+          pwa_installed_at?: string | null
           referral_code?: string | null
           referral_count?: number | null
           referred_by?: string | null
@@ -165,6 +176,7 @@ export type Database = {
           total_moods_logged?: number | null
           total_patterns_released?: number | null
           total_rituals_completed?: number | null
+          total_time_spent_seconds?: number | null
           updated_at?: string
           user_id?: string
         }
