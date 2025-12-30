@@ -1,5 +1,5 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Suspense, lazy } from "react";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -7,29 +7,40 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { PremiumProvider } from "@/hooks/usePremium";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { AppTracking } from "@/components/AppTracking";
-import Landing from "./pages/Landing";
-import About from "./pages/About";
-import Intro from "./pages/Intro";
-import Auth from "./pages/Auth";
-import Daily from "./pages/Daily";
-import Space from "./pages/Space";
-import Breath from "./pages/Breath";
-import Reframe from "./pages/Reframe";
-import Explore from "./pages/Explore";
-import Library from "./pages/Library";
-import Progress from "./pages/Progress";
-import Challenge from "./pages/Challenge";
-import Gratitude from "./pages/Gratitude";
-import Duo from "./pages/Duo";
-import Install from "./pages/Install";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import NotFound from "./pages/NotFound";
-import Admin from "./pages/Admin";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import ProCelebration from "@/components/ProCelebration";
 import ProWelcomeScreen from "@/components/ProWelcomeScreen";
+import { Loader2 } from "lucide-react";
+
+// Lazy load pages for better performance
+const Landing = lazy(() => import("./pages/Landing"));
+const About = lazy(() => import("./pages/About"));
+const Intro = lazy(() => import("./pages/Intro"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Daily = lazy(() => import("./pages/Daily"));
+const Space = lazy(() => import("./pages/Space"));
+const Breath = lazy(() => import("./pages/Breath"));
+const Reframe = lazy(() => import("./pages/Reframe"));
+const Explore = lazy(() => import("./pages/Explore"));
+const Library = lazy(() => import("./pages/Library"));
+const Progress = lazy(() => import("./pages/Progress"));
+const Challenge = lazy(() => import("./pages/Challenge"));
+const Gratitude = lazy(() => import("./pages/Gratitude"));
+const Duo = lazy(() => import("./pages/Duo"));
+const Install = lazy(() => import("./pages/Install"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Admin = lazy(() => import("./pages/Admin"));
 
 const queryClient = new QueryClient();
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -38,32 +49,40 @@ const App = () => (
         <TooltipProvider>
           <OfflineIndicator />
           <AppTracking />
-          <Toaster />
-          <Sonner position="top-center" />
+          <Toaster position="top-center" />
           <ProCelebration />
           <ProWelcomeScreen />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/intro" element={<Intro />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/daily" element={<Daily />} />
-              <Route path="/space" element={<Space />} />
-              <Route path="/breath" element={<Breath />} />
-              <Route path="/reframe" element={<Reframe />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/library" element={<Library />} />
-              <Route path="/progress" element={<Progress />} />
-              <Route path="/challenge" element={<Challenge />} />
-              <Route path="/gratitude" element={<Gratitude />} />
-              <Route path="/duo" element={<Duo />} />
-              <Route path="/install" element={<Install />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Landing />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/intro" element={<Intro />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/install" element={<Install />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                
+                {/* Protected routes - require authentication */}
+                <Route path="/daily" element={<ProtectedRoute><Daily /></ProtectedRoute>} />
+                <Route path="/space" element={<ProtectedRoute><Space /></ProtectedRoute>} />
+                <Route path="/breath" element={<ProtectedRoute><Breath /></ProtectedRoute>} />
+                <Route path="/reframe" element={<ProtectedRoute><Reframe /></ProtectedRoute>} />
+                <Route path="/explore" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
+                <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
+                <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
+                <Route path="/challenge" element={<ProtectedRoute><Challenge /></ProtectedRoute>} />
+                <Route path="/gratitude" element={<ProtectedRoute><Gratitude /></ProtectedRoute>} />
+                <Route path="/duo" element={<ProtectedRoute><Duo /></ProtectedRoute>} />
+                
+                {/* Admin route - has its own auth check */}
+                <Route path="/admin" element={<Admin />} />
+                
+                {/* 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </PremiumProvider>
