@@ -34,9 +34,5 @@ Crawl-delay: 2
 # Sitemap location
 Sitemap: https://embraceu-mt.com/sitemap.xml
 
-# Disallow private/auth areas from indexing
-Disallow: /daily
-Disallow: /progress
-Disallow: /library
-Disallow: /space
+# Disallow admin area only
 Disallow: /admin
