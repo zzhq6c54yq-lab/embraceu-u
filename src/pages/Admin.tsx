@@ -64,7 +64,7 @@ interface RecentActivity {
 
 const Admin = () => {
   const navigate = useNavigate();
-  const { isAdmin, isLoading: adminLoading, user, checkAdminStatus, clearAdminStatus } = useAdminAuth();
+  const { isAdmin, isLoading: adminLoading, checkAdminStatus, clearAdminStatus } = useAdminAuth();
   const [showAccessModal, setShowAccessModal] = useState(false);
   
   const [stats, setStats] = useState<AdminStats | null>(null);
