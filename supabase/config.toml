@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.get-subscription-details]
 verify_jwt = false
+
+[functions.search-insights]
+verify_jwt = false

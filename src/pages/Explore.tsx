@@ -9,6 +9,7 @@ import { Bookmark, BookmarkCheck, CalendarDays, Sparkles } from "lucide-react";
 import InsightScheduleModal from "@/components/InsightScheduleModal";
 import UpgradeModal from "@/components/UpgradeModal";
 import TextToSpeech from "@/components/TextToSpeech";
+import InsightSearch from "@/components/InsightSearch";
 import { format, isToday } from "date-fns";
 
 const categories = [
@@ -220,6 +221,15 @@ const Explore = () => {
           Intentional thoughts for daily integration.
         </p>
       </div>
+
+      {/* AI Search */}
+      <InsightSearch
+        onSaveInsight={(text, category) => {
+          setPendingInsight({ text, category });
+          setShowScheduleModal(true);
+        }}
+        onUpgradeClick={() => setShowUpgradeModal(true)}
+      />
 
       {/* Instructions Card */}
       <div className="bg-secondary/50 rounded-xl p-4 mb-6 space-y-2 text-sm">
