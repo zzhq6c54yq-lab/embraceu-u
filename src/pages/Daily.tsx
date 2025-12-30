@@ -10,6 +10,47 @@ import MoodCheckModal from "@/components/MoodCheckModal";
 import PatternReleaseModal from "@/components/PatternReleaseModal";
 import QualityCultivateModal from "@/components/QualityCultivateModal";
 import FeatureInfoModal from "@/components/FeatureInfoModal";
+import OnboardingTour from "@/components/OnboardingTour";
+
+const dailyTourSteps = [
+  {
+    target: "[data-tour='daily-focus']",
+    title: "Daily Focus",
+    description: "Start your day with an inspiring quote to set your intention and mindset.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='mood-check']",
+    title: "Mood Check-In",
+    description: "Track how you're feeling throughout the day. Building awareness is the first step to growth.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='gratitude']",
+    title: "Gratitude Journal",
+    description: "Practice gratitude daily to cultivate joy and appreciation for life's moments.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='vision']",
+    title: "Vision Deconstruction",
+    description: "Turn your big dreams into actionable steps. Enter a goal and get a roadmap to achieve it.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='patterns']",
+    title: "Patterns for Release",
+    description: "Identify negative patterns holding you back. Acknowledge them to begin letting go.",
+    position: "top" as const,
+  },
+  {
+    target: "[data-tour='qualities']",
+    title: "Qualities to Cultivate",
+    description: "Choose positive qualities you want to develop. Track your progress as you grow.",
+    position: "top" as const,
+  },
+];
+
 interface Pattern {
   id: string;
   pattern_name: string;
@@ -385,9 +426,13 @@ const Daily = () => {
           "Master a creative skill",
         ]}
       />
+      <OnboardingTour
+        steps={dailyTourSteps}
+        storageKey="embraceu-daily-tour-completed"
+      />
       <AppLayout>
         {/* Daily Focus Card */}
-        <div className="mt-4">
+        <div className="mt-4" data-tour="daily-focus">
           <div className="card-embrace relative overflow-hidden">
             <div className="flex items-center gap-2 mb-6">
               <div className="w-2 h-2 rounded-full bg-primary" />
@@ -404,13 +449,14 @@ const Daily = () => {
           <button
             onClick={handleMoodCheck}
             className="btn-embrace-outline w-full mt-6"
+            data-tour="mood-check"
           >
             HOW ARE YOU FEELING NOW?
           </button>
         </div>
 
         {/* Gratitude Link Section */}
-        <section className="mt-8">
+        <section className="mt-8" data-tour="gratitude">
           <Link
             to="/gratitude"
             className="card-embrace flex items-center gap-4 hover:border-primary/50 transition-colors"
@@ -430,7 +476,7 @@ const Daily = () => {
         </section>
 
         {/* Deconstruct section */}
-        <section className="mt-10">
+        <section className="mt-10" data-tour="vision">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-label">DECONSTRUCT A VISION</h2>
             <button
@@ -483,7 +529,7 @@ const Daily = () => {
         </section>
 
         {/* Patterns section */}
-        <section className="mt-10">
+        <section className="mt-10" data-tour="patterns">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-label">PATTERNS FOR RELEASE</h2>
             <button
@@ -590,7 +636,7 @@ const Daily = () => {
         </section>
 
         {/* Qualities section */}
-        <section className="mt-10 pb-8">
+        <section className="mt-10 pb-8" data-tour="qualities">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-label">QUALITIES TO CULTIVATE</h2>
             <button
