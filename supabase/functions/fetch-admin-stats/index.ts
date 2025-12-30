@@ -17,6 +17,18 @@ const logStep = (step: string, details?: any) => {
   console.log(`[FETCH-ADMIN-STATS] ${step}${detailsStr}`);
 };
 
+// Safe timestamp to ISO conversion with error handling
+const safeTimestampToISO = (timestamp: number | undefined | null): string | null => {
+  if (!timestamp || typeof timestamp !== 'number') {
+    return null;
+  }
+  try {
+    return new Date(timestamp * 1000).toISOString();
+  } catch {
+    return null;
+  }
+};
+
 const validateAdminCodes = (req: Request): boolean => {
   const code1 = req.headers.get("x-admin-code-1");
   const code2 = req.headers.get("x-admin-code-2");
@@ -163,12 +175,12 @@ serve(async (req) => {
           const customer = sub.customer as Stripe.Customer;
           return {
             id: sub.id,
-            email: customer.email || "Unknown",
-            name: customer.name || customer.email || "Unknown",
+            email: customer?.email || "Unknown",
+            name: customer?.name || customer?.email || "Unknown",
             status: sub.status,
-            currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
-            created: new Date(sub.created * 1000).toISOString(),
-            plan: sub.items.data[0]?.price?.nickname || "Pro",
+            currentPeriodEnd: safeTimestampToISO(sub.current_period_end),
+            created: safeTimestampToISO(sub.created),
+            plan: sub.items?.data?.[0]?.price?.nickname || "Pro",
           };
         });
         logStep("Fetched Pro subscribers", { count: proSubscribers.length });
