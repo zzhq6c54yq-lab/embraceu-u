@@ -27,6 +27,7 @@ const Progress = lazy(() => import("./pages/Progress"));
 const Challenge = lazy(() => import("./pages/Challenge"));
 const Gratitude = lazy(() => import("./pages/Gratitude"));
 const Duo = lazy(() => import("./pages/Duo"));
+const Rituals = lazy(() => import("./pages/Rituals"));
 const Install = lazy(() => import("./pages/Install"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
@@ -75,6 +76,7 @@ const App = () => (
                 <Route path="/challenge" element={<ProtectedRoute><Challenge /></ProtectedRoute>} />
                 <Route path="/gratitude" element={<ProtectedRoute><Gratitude /></ProtectedRoute>} />
                 <Route path="/duo" element={<ProtectedRoute><Duo /></ProtectedRoute>} />
+                <Route path="/rituals" element={<ProtectedRoute><Rituals /></ProtectedRoute>} />
                 
                 {/* Admin route - has its own auth check */}
                 <Route path="/admin" element={<Admin />} />

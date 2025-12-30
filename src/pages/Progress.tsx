@@ -23,6 +23,8 @@ import UpgradeModal from "@/components/UpgradeModal";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import ProfileSettings from "@/components/ProfileSettings";
 import ImpactWrap from "@/components/ImpactWrap";
+import AIInsights from "@/components/AIInsights";
+import ExportProgress from "@/components/ExportProgress";
 import { Button } from "@/components/ui/button";
 
 interface ProfileStats {
@@ -268,6 +270,9 @@ const Progress = () => {
         ))}
       </div>
 
+      {/* AI Insights Section - Pro Feature */}
+      <AIInsights />
+
       {/* Activity Summary */}
       <section className="mb-8">
         <h2 className="text-label mb-4">ACTIVITY SUMMARY</h2>
@@ -315,6 +320,11 @@ const Progress = () => {
               : "Every action counts. Start today."}
           </p>
         </div>
+      </section>
+
+      {/* Export Progress Section - Pro Feature */}
+      <section className="mb-8">
+        <ExportProgress onUpgradeClick={() => setShowUpgradeModal(true)} />
       </section>
 
       {/* Impact Wrap Section */}
