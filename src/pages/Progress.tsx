@@ -271,7 +271,7 @@ const Progress = () => {
       </div>
 
       {/* AI Insights Section - Pro Feature */}
-      <AIInsights />
+      <AIInsights onUpgradeClick={() => setShowUpgradeModal(true)} />
 
       {/* Activity Summary */}
       <section className="mb-8">
