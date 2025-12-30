@@ -4,12 +4,29 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-admin-code-1, x-admin-code-2, x-admin-code-3",
 };
+
+// Server-side admin access codes (secure - not exposed to client)
+const ADMIN_CODE_1 = "070606300428"; // 12 digits
+const ADMIN_CODE_2 = "06300428";     // 8 digits
+const ADMIN_CODE_3 = "0706";         // 4 digits
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[FETCH-ADMIN-STATS] ${step}${detailsStr}`);
+};
+
+const validateAdminCodes = (req: Request): boolean => {
+  const code1 = req.headers.get("x-admin-code-1");
+  const code2 = req.headers.get("x-admin-code-2");
+  const code3 = req.headers.get("x-admin-code-3");
+  
+  if (!code1 || !code2 || !code3) {
+    return false;
+  }
+  
+  return code1 === ADMIN_CODE_1 && code2 === ADMIN_CODE_2 && code3 === ADMIN_CODE_3;
 };
 
 serve(async (req) => {
@@ -29,39 +46,43 @@ serve(async (req) => {
       auth: { persistSession: false }
     });
 
-    // Verify the user is authenticated and is an admin
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header provided");
-    }
+    let isAuthorized = false;
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+    // Method 1: Check for 3-step admin codes
+    if (validateAdminCodes(req)) {
+      logStep("Admin access via passcodes");
+      isAuthorized = true;
+    }
     
-    if (userError || !userData.user) {
-      throw new Error("Authentication failed");
+    // Method 2: Check for JWT auth with admin role (fallback)
+    if (!isAuthorized) {
+      const authHeader = req.headers.get("Authorization");
+      if (authHeader) {
+        const token = authHeader.replace("Bearer ", "");
+        const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+        
+        if (!userError && userData.user) {
+          const userId = userData.user.id;
+          logStep("User authenticated", { userId });
+
+          // Check if user has admin role
+          const { data: hasAdminRole } = await supabaseAdmin.rpc('has_role', {
+            _user_id: userId,
+            _role: 'admin'
+          });
+
+          if (hasAdminRole) {
+            logStep("Admin role verified via JWT");
+            isAuthorized = true;
+          }
+        }
+      }
     }
 
-    const userId = userData.user.id;
-    logStep("User authenticated", { userId });
-
-    // Check if user has admin role using the has_role function
-    const { data: hasAdminRole, error: roleError } = await supabaseAdmin.rpc('has_role', {
-      _user_id: userId,
-      _role: 'admin'
-    });
-
-    if (roleError) {
-      logStep("Role check error", { error: roleError.message });
-      throw new Error("Failed to verify admin role");
+    if (!isAuthorized) {
+      logStep("Access denied - no valid authentication");
+      throw new Error("Access denied: Invalid credentials");
     }
-
-    if (!hasAdminRole) {
-      logStep("Access denied - not an admin", { userId });
-      throw new Error("Access denied: Admin role required");
-    }
-
-    logStep("Admin role verified");
 
     // Fetch all data using service role (bypasses RLS)
     const today = new Date().toISOString().split("T")[0];
