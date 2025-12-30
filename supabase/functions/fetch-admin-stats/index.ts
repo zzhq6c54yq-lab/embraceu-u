@@ -22,6 +22,15 @@ const validateAdminCodes = (req: Request): boolean => {
   const code2 = req.headers.get("x-admin-code-2");
   const code3 = req.headers.get("x-admin-code-3");
   
+  logStep("Checking passcodes", { 
+    hasCode1: !!code1, 
+    hasCode2: !!code2, 
+    hasCode3: !!code3,
+    code1Match: code1 === ADMIN_CODE_1,
+    code2Match: code2 === ADMIN_CODE_2,
+    code3Match: code3 === ADMIN_CODE_3
+  });
+  
   if (!code1 || !code2 || !code3) {
     return false;
   }
@@ -50,31 +59,37 @@ serve(async (req) => {
 
     // Method 1: Check for 3-step admin codes
     if (validateAdminCodes(req)) {
-      logStep("Admin access via passcodes");
+      logStep("Admin access via passcodes - AUTHORIZED");
       isAuthorized = true;
     }
     
     // Method 2: Check for JWT auth with admin role (fallback)
     if (!isAuthorized) {
       const authHeader = req.headers.get("Authorization");
+      logStep("Checking JWT auth", { hasAuthHeader: !!authHeader });
+      
       if (authHeader) {
         const token = authHeader.replace("Bearer ", "");
         const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
         
         if (!userError && userData.user) {
           const userId = userData.user.id;
-          logStep("User authenticated", { userId });
+          logStep("User authenticated via JWT", { userId });
 
           // Check if user has admin role
-          const { data: hasAdminRole } = await supabaseAdmin.rpc('has_role', {
+          const { data: hasAdminRole, error: roleError } = await supabaseAdmin.rpc('has_role', {
             _user_id: userId,
             _role: 'admin'
           });
 
+          logStep("Admin role check", { hasAdminRole, roleError: roleError?.message });
+
           if (hasAdminRole) {
-            logStep("Admin role verified via JWT");
+            logStep("Admin role verified via JWT - AUTHORIZED");
             isAuthorized = true;
           }
+        } else {
+          logStep("JWT auth failed", { error: userError?.message });
         }
       }
     }
