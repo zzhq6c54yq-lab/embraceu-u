@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Shield, Loader2 } from "lucide-react";
+import { Shield, Loader2, Mail, Lock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AdminAccessModalProps {
   open: boolean;
@@ -18,34 +19,65 @@ interface AdminAccessModalProps {
   onSuccess: () => void;
 }
 
-// This access code grants admin access for the current session
-const ADMIN_ACCESS_CODE = "070606300428";
-
 const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalProps) => {
-  const [accessCode, setAccessCode] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Clear form when modal opens
+  useEffect(() => {
+    if (open) {
+      setEmail("");
+      setPassword("");
+      setError("");
+    }
+  }, [open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (accessCode !== ADMIN_ACCESS_CODE) {
-      setError("Invalid access code");
-      setAccessCode("");
-      return;
-    }
-
     setIsLoading(true);
 
-    // Store admin verification in sessionStorage
-    sessionStorage.setItem("admin_verified", "true");
-    
-    toast.success("Admin access granted!");
-    onSuccess();
-    onOpenChange(false);
-    setAccessCode("");
-    setIsLoading(false);
+    try {
+      // Sign in with email/password
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        setError(signInError.message);
+        setIsLoading(false);
+        return;
+      }
+
+      if (!data.session) {
+        setError("Failed to create session");
+        setIsLoading(false);
+        return;
+      }
+
+      // Verify admin role by calling the edge function
+      const { error: adminError } = await supabase.functions.invoke('fetch-admin-stats');
+
+      if (adminError) {
+        // Sign out if not an admin
+        await supabase.auth.signOut();
+        setError("Access denied: Admin privileges required");
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success("Admin access granted!");
+      onSuccess();
+      onOpenChange(false);
+    } catch (err) {
+      setError("An unexpected error occurred");
+      console.error("Admin login error:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -57,25 +89,50 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
             Admin Access
           </DialogTitle>
           <DialogDescription>
-            Enter the access code to unlock the admin dashboard.
+            Sign in with your admin account to access the dashboard.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="accessCode">Access Code</Label>
-            <Input
-              id="accessCode"
-              type="password"
-              value={accessCode}
-              onChange={(e) => setAccessCode(e.target.value)}
-              placeholder="Enter access code"
-              autoComplete="off"
-            />
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
+            <Label htmlFor="email">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+                className="pl-10"
+                autoComplete="email"
+                required
+              />
+            </div>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="pl-10"
+                autoComplete="current-password"
+                required
+              />
+            </div>
+          </div>
+
+          {error && (
+            <p className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+              {error}
+            </p>
+          )}
 
           <div className="flex gap-2">
             <Button
@@ -84,7 +141,8 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
               className="flex-1"
               onClick={() => {
                 onOpenChange(false);
-                setAccessCode("");
+                setEmail("");
+                setPassword("");
                 setError("");
               }}
             >
@@ -93,15 +151,15 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
             <Button
               type="submit"
               className="flex-1"
-              disabled={isLoading || !accessCode}
+              disabled={isLoading || !email || !password}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Verifying...
+                  Signing in...
                 </>
               ) : (
-                "Access Dashboard"
+                "Sign In"
               )}
             </Button>
           </div>

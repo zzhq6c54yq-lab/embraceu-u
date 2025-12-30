@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.customer-portal]
 verify_jwt = false
+
+[functions.fetch-admin-stats]
+verify_jwt = true
