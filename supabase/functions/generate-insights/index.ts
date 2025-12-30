@@ -94,70 +94,102 @@ serve(async (req) => {
     // Generate rule-based insights first
     const insights: string[] = [];
 
-    // Streak insights
-    if (profile?.current_streak && profile.current_streak >= 7) {
-      insights.push(`🔥 Amazing! You're on a ${profile.current_streak}-day streak. Keep the momentum going!`);
-    } else if (profile?.current_streak && profile.current_streak >= 3) {
-      insights.push(`🌱 ${profile.current_streak}-day streak building – consistency creates transformation.`);
-    }
+    // Check if this is a new user with no data
+    const hasNoData = moods.length === 0 && rituals.length === 0 && gratitudes.length === 0;
+    const hasLimitedData = moods.length < 3 && rituals.length < 3 && gratitudes.length < 3;
 
-    // Mood analysis
-    if (moods.length > 0) {
-      const moodMap: Record<string, number> = {};
-      moods.forEach(m => {
-        moodMap[m.mood] = (moodMap[m.mood] || 0) + 1;
-      });
-      const topMood = Object.entries(moodMap).sort((a, b) => b[1] - a[1])[0];
-      if (topMood) {
-        insights.push(`📊 Your most common mood this month: ${topMood[0]} (${topMood[1]} entries)`);
+    if (hasNoData) {
+      // Onboarding insights for brand new users
+      insights.push(`🌟 Welcome to your growth journey! Let's build some data for personalized insights.`);
+      insights.push(`📝 Start by logging your first mood – tap the mood tracker to begin.`);
+      insights.push(`🧘 Try a 2-minute breathing ritual – it's the perfect first step to mindfulness.`);
+      insights.push(`💛 Add a gratitude entry – what's one thing you appreciate today?`);
+      insights.push(`🎯 Consistency is key: just 2 minutes daily can transform your wellbeing.`);
+    } else if (hasLimitedData) {
+      // Encouragement for users with some data
+      insights.push(`🌱 Great start! You're building the foundation for personalized insights.`);
+      
+      if (moods.length === 0) {
+        insights.push(`📝 Log your first mood to start tracking emotional patterns.`);
+      } else if (moods.length < 5) {
+        insights.push(`📊 ${moods.length} mood${moods.length > 1 ? 's' : ''} logged – log 5 to unlock pattern analysis!`);
       }
-    }
-
-    // Ritual insights
-    if (rituals.length > 0) {
-      const ritualTypes: Record<string, number> = {};
-      rituals.forEach(r => {
-        ritualTypes[r.ritual_type] = (ritualTypes[r.ritual_type] || 0) + 1;
-      });
-      const topRitual = Object.entries(ritualTypes).sort((a, b) => b[1] - a[1])[0];
-      if (topRitual) {
-        insights.push(`🧘 You've completed ${rituals.length} rituals – ${topRitual[0]} is your go-to practice.`);
+      
+      if (rituals.length === 0) {
+        insights.push(`🧘 Complete your first ritual – just 2 minutes of breathing can shift your state.`);
+      }
+      
+      if (gratitudes.length === 0) {
+        insights.push(`💛 Add your first gratitude – research shows this rewires your brain for positivity.`);
       }
     } else {
-      insights.push(`🧘 Try adding a breathing ritual to your routine – just 2 minutes can shift your state.`);
+      // Streak insights
+      if (profile?.current_streak && profile.current_streak >= 7) {
+        insights.push(`🔥 Amazing! You're on a ${profile.current_streak}-day streak. Keep the momentum going!`);
+      } else if (profile?.current_streak && profile.current_streak >= 3) {
+        insights.push(`🌱 ${profile.current_streak}-day streak building – consistency creates transformation.`);
+      }
+
+      // Mood analysis
+      if (moods.length > 0) {
+        const moodMap: Record<string, number> = {};
+        moods.forEach(m => {
+          moodMap[m.mood] = (moodMap[m.mood] || 0) + 1;
+        });
+        const topMood = Object.entries(moodMap).sort((a, b) => b[1] - a[1])[0];
+        if (topMood) {
+          insights.push(`📊 Your most common mood this month: ${topMood[0]} (${topMood[1]} entries)`);
+        }
+      }
+
+      // Ritual insights
+      if (rituals.length > 0) {
+        const ritualTypes: Record<string, number> = {};
+        rituals.forEach(r => {
+          ritualTypes[r.ritual_type] = (ritualTypes[r.ritual_type] || 0) + 1;
+        });
+        const topRitual = Object.entries(ritualTypes).sort((a, b) => b[1] - a[1])[0];
+        if (topRitual) {
+          insights.push(`🧘 You've completed ${rituals.length} rituals – ${topRitual[0]} is your go-to practice.`);
+        }
+      }
+
+      // Gratitude insights
+      if (gratitudes.length >= 10) {
+        insights.push(`💛 ${gratitudes.length} gratitude entries! Research shows this builds lasting positivity.`);
+      } else if (gratitudes.length > 0) {
+        insights.push(`💛 ${gratitudes.length} gratitude moments captured. Each one rewires your brain for joy.`);
+      }
+
+      // Pattern insights
+      const releasedPatterns = patterns.filter(p => p.is_released);
+      const activePatterns = patterns.filter(p => !p.is_released);
+      if (releasedPatterns.length > 0) {
+        insights.push(`🦋 You've released ${releasedPatterns.length} limiting pattern${releasedPatterns.length > 1 ? 's' : ''} – that's real growth.`);
+      }
+      if (activePatterns.length > 0) {
+        insights.push(`🎯 ${activePatterns.length} pattern${activePatterns.length > 1 ? 's' : ''} still in progress. Awareness is the first step to change.`);
+      }
+
+      // Time-based insights
+      const now = new Date();
+      const hour = now.getHours();
+      if (hour < 12) {
+        insights.push(`🌅 Morning is prime time for transformation. Today is full of possibility.`);
+      } else if (hour < 18) {
+        insights.push(`☀️ Afternoon check-in: How are you honoring your growth today?`);
+      }
     }
 
-    // Gratitude insights
-    if (gratitudes.length >= 10) {
-      insights.push(`💛 ${gratitudes.length} gratitude entries! Research shows this builds lasting positivity.`);
-    } else if (gratitudes.length > 0) {
-      insights.push(`💛 ${gratitudes.length} gratitude moments captured. Each one rewires your brain for joy.`);
-    }
-
-    // Pattern insights
-    const releasedPatterns = patterns.filter(p => p.is_released);
-    const activePatterns = patterns.filter(p => !p.is_released);
-    if (releasedPatterns.length > 0) {
-      insights.push(`🦋 You've released ${releasedPatterns.length} limiting pattern${releasedPatterns.length > 1 ? 's' : ''} – that's real growth.`);
-    }
-    if (activePatterns.length > 0) {
-      insights.push(`🎯 ${activePatterns.length} pattern${activePatterns.length > 1 ? 's' : ''} still in progress. Awareness is the first step to change.`);
-    }
-
-    // Time-based insights
-    const now = new Date();
-    const hour = now.getHours();
-    if (hour < 12) {
-      insights.push(`🌅 Morning is prime time for transformation. Today is full of possibility.`);
-    } else if (hour < 18) {
-      insights.push(`☀️ Afternoon check-in: How are you honoring your growth today?`);
-    }
-
-    // Fallback if no insights generated
+    // Fallback if still no insights
     if (insights.length === 0) {
       insights.push(`🌟 Start your journey today – every small step creates meaningful change.`);
       insights.push(`💡 Tip: Log your mood daily to unlock personalized patterns and insights.`);
     }
+
+    // Pattern insights (outside the else block so they show even with limited data)
+    const releasedPatterns = patterns.filter(p => p.is_released);
+    const activePatterns = patterns.filter(p => !p.is_released);
 
     // Try to enhance with AI if available (Lovable AI Gateway)
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");

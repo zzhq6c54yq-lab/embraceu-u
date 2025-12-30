@@ -35,6 +35,12 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Admin = lazy(() => import("./pages/Admin"));
 const ProFeatures = lazy(() => import("./pages/ProFeatures"));
 
+// Exclusive content pages
+const GuidedMeditations = lazy(() => import("./pages/exclusive/GuidedMeditations"));
+const AffirmationPacks = lazy(() => import("./pages/exclusive/AffirmationPacks"));
+const AdvancedBreathwork = lazy(() => import("./pages/exclusive/AdvancedBreathwork"));
+const SelfLoveRituals = lazy(() => import("./pages/exclusive/SelfLoveRituals"));
+
 const queryClient = new QueryClient();
 
 // Loading fallback component
@@ -79,6 +85,12 @@ const App = () => (
                 <Route path="/duo" element={<ProtectedRoute><Duo /></ProtectedRoute>} />
                 <Route path="/rituals" element={<ProtectedRoute><Rituals /></ProtectedRoute>} />
                 <Route path="/pro" element={<ProtectedRoute><ProFeatures /></ProtectedRoute>} />
+                
+                {/* Exclusive content routes - require premium */}
+                <Route path="/exclusive/meditations" element={<ProtectedRoute><GuidedMeditations /></ProtectedRoute>} />
+                <Route path="/exclusive/affirmations" element={<ProtectedRoute><AffirmationPacks /></ProtectedRoute>} />
+                <Route path="/exclusive/breathwork" element={<ProtectedRoute><AdvancedBreathwork /></ProtectedRoute>} />
+                <Route path="/exclusive/rituals" element={<ProtectedRoute><SelfLoveRituals /></ProtectedRoute>} />
                 
                 {/* Admin route - has its own auth check */}
                 <Route path="/admin" element={<Admin />} />

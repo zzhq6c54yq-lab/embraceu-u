@@ -1,43 +1,54 @@
+import { Lock, Check, ChevronRight } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
-import { Lock, Crown, Sparkles, Star, Heart, Zap } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { 
+  Headphones, 
+  Heart, 
+  Wind, 
+  Sparkles 
+} from "lucide-react";
 
 interface ExclusiveItem {
   id: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
   category: string;
+  path: string;
 }
 
 const exclusiveContent: ExclusiveItem[] = [
   {
-    id: "guided-meditations",
-    title: "Premium Guided Meditations",
-    description: "Deep relaxation sessions with exclusive soundscapes",
-    icon: <Sparkles className="w-5 h-5" />,
-    category: "Meditation",
+    id: "meditations",
+    title: "Guided Meditations",
+    description: "Premium sessions for deep relaxation",
+    icon: Headphones,
+    category: "Audio",
+    path: "/exclusive/meditations",
   },
   {
-    id: "affirmation-packs",
-    title: "Luxury Affirmation Packs",
-    description: "Curated affirmations for success and abundance",
-    icon: <Star className="w-5 h-5" />,
-    category: "Affirmations",
+    id: "affirmations",
+    title: "Affirmation Packs",
+    description: "Curated collections for growth",
+    icon: Heart,
+    category: "Mindset",
+    path: "/exclusive/affirmations",
   },
   {
-    id: "breath-techniques",
+    id: "breathwork",
     title: "Advanced Breathwork",
-    description: "Master-level breathing techniques for peak performance",
-    icon: <Zap className="w-5 h-5" />,
-    category: "Breathwork",
+    description: "Expert-level breathing techniques",
+    icon: Wind,
+    category: "Practice",
+    path: "/exclusive/breathwork",
   },
   {
-    id: "self-love-rituals",
+    id: "rituals",
     title: "Self-Love Rituals",
-    description: "Daily rituals designed by wellness experts",
-    icon: <Heart className="w-5 h-5" />,
-    category: "Rituals",
+    description: "Daily rituals designed by experts",
+    icon: Sparkles,
+    category: "Wellness",
+    path: "/exclusive/rituals",
   },
 ];
 
@@ -47,103 +58,87 @@ interface ExclusiveContentProps {
 
 const ExclusiveContent = ({ onUpgradeClick }: ExclusiveContentProps) => {
   const { isPremium } = usePremium();
+  const navigate = useNavigate();
+
+  const handleItemClick = (item: ExclusiveItem) => {
+    if (isPremium) {
+      navigate(item.path);
+    } else {
+      onUpgradeClick?.();
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-6">
-        <Crown className="w-5 h-5 text-accent" />
-        <h3 className="font-serif text-lg">Exclusive Content</h3>
-        {!isPremium && (
-          <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
-            <Lock className="w-3 h-3" /> Pro Only
+    <section className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-label">EXCLUSIVE CONTENT</h3>
+        {isPremium && (
+          <span className="text-xs text-accent flex items-center gap-1">
+            <Check className="w-3 h-3" />
+            Unlocked
           </span>
         )}
       </div>
 
-      <div className="space-y-3">
-        {exclusiveContent.map((item) => (
-          <div
-            key={item.id}
-            className={cn(
-              "relative p-4 rounded-xl border transition-all duration-300",
-              isPremium
-                ? "border-accent/30 bg-gradient-to-br from-card/80 to-accent/5 hover:border-accent/50 cursor-pointer hover:scale-[1.01]"
-                : "border-border bg-card/50"
-            )}
-          >
-            <div className="flex items-start gap-4">
-              {/* Icon Container */}
-              <div
-                className={cn(
-                  "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
-                  isPremium
-                    ? "bg-gradient-to-br from-accent/20 to-accent/10 text-accent"
-                    : "bg-muted text-muted-foreground"
-                )}
-              >
-                {item.icon}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={cn(
-                      "font-semibold",
-                      isPremium ? "text-foreground" : "text-muted-foreground"
-                    )}
-                  >
+      <div className="grid grid-cols-1 gap-3">
+        {exclusiveContent.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              onClick={() => handleItemClick(item)}
+              className={`
+                relative p-4 rounded-xl text-left transition-all duration-300
+                ${isPremium 
+                  ? "card-embrace hover:border-accent/50 cursor-pointer" 
+                  : "card-embrace opacity-70 cursor-pointer"}
+              `}
+            >
+              <div className="flex items-center gap-4">
+                <div className={`
+                  w-12 h-12 rounded-xl flex items-center justify-center
+                  ${isPremium ? "bg-accent/20" : "bg-muted"}
+                `}>
+                  <Icon className={`w-6 h-6 ${isPremium ? "text-accent" : "text-muted-foreground"}`} />
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <p className="font-serif italic text-foreground">
                     {item.title}
-                  </span>
-                  {isPremium && (
-                    <span className="px-2 py-0.5 rounded-full bg-accent/20 text-accent text-xs font-medium">
-                      Unlocked
-                    </span>
-                  )}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {item.description}
+                  </p>
                 </div>
-                <p
-                  className={cn(
-                    "text-sm mt-1",
-                    isPremium ? "text-muted-foreground" : "text-muted-foreground/60"
-                  )}
-                >
-                  {item.description}
-                </p>
-                <span className="text-xs text-accent/70 mt-2 inline-block">
-                  {item.category}
-                </span>
-              </div>
 
-              {/* Lock/Access indicator */}
-              {!isPremium && (
-                <div className="shrink-0">
+                {isPremium ? (
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                ) : (
                   <Lock className="w-4 h-4 text-muted-foreground" />
-                </div>
-              )}
-            </div>
-
-            {/* Locked overlay for non-premium */}
-            {!isPremium && (
-              <div
-                className="absolute inset-0 rounded-xl bg-background/30 backdrop-blur-[1px] flex items-center justify-center cursor-pointer hover:bg-background/40 transition-colors"
-                onClick={onUpgradeClick}
-              >
-                <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                  <Lock className="w-4 h-4" />
-                  Upgrade to unlock
-                </span>
+                )}
               </div>
-            )}
-          </div>
-        ))}
+
+              {/* Category badge */}
+              <span className={`
+                absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-full
+                ${isPremium ? "bg-accent/20 text-accent" : "bg-muted text-muted-foreground"}
+              `}>
+                {item.category}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {isPremium && (
-        <p className="text-center text-sm text-muted-foreground mt-6 font-serif italic">
-          Enjoy your exclusive Pro content
-        </p>
+      {!isPremium && (
+        <button
+          onClick={onUpgradeClick}
+          className="w-full py-3 text-sm text-accent hover:text-accent/80 transition-colors"
+        >
+          Upgrade to unlock all content →
+        </button>
       )}
-    </div>
+    </section>
   );
 };
 
