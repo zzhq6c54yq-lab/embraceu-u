@@ -3,14 +3,31 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-admin-passcode-1, x-admin-passcode-2, x-admin-passcode-3',
 };
+
+// Admin passcodes (same as fetch-admin-stats)
+const ADMIN_PASSCODE_1 = "070606300428";
+const ADMIN_PASSCODE_2 = "06300428";
+const ADMIN_PASSCODE_3 = "0706";
 
 interface PushPayload {
   title: string;
   body: string;
   data?: Record<string, string>;
   user_ids?: string[]; // Send to specific users, or omit for broadcast
+  pro_only?: boolean; // Send only to pro subscribers
+}
+
+// Verify admin access via passcode headers
+function verifyAdminAccess(req: Request): boolean {
+  const passcode1 = req.headers.get('x-admin-passcode-1');
+  const passcode2 = req.headers.get('x-admin-passcode-2');
+  const passcode3 = req.headers.get('x-admin-passcode-3');
+  
+  return passcode1 === ADMIN_PASSCODE_1 && 
+         passcode2 === ADMIN_PASSCODE_2 && 
+         passcode3 === ADMIN_PASSCODE_3;
 }
 
 serve(async (req) => {
@@ -20,6 +37,9 @@ serve(async (req) => {
   }
 
   try {
+    // Check admin authorization for broadcast notifications
+    const isAdminRequest = verifyAdminAccess(req);
+    
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -32,7 +52,7 @@ serve(async (req) => {
     // const apnsTeamId = Deno.env.get('APNS_TEAM_ID');
 
     const payload: PushPayload = await req.json();
-    const { title, body, data, user_ids } = payload;
+    const { title, body, data, user_ids, pro_only } = payload;
 
     if (!title || !body) {
       return new Response(
@@ -41,7 +61,23 @@ serve(async (req) => {
       );
     }
 
-    console.log('Sending push notification:', { title, body, user_ids: user_ids?.length || 'broadcast' });
+    // For broadcast notifications (no specific user_ids), require admin auth
+    const isBroadcast = !user_ids || user_ids.length === 0;
+    if (isBroadcast && !isAdminRequest) {
+      console.log('Unauthorized broadcast attempt');
+      return new Response(
+        JSON.stringify({ error: 'Admin authorization required for broadcast notifications' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Sending push notification:', { 
+      title, 
+      body, 
+      user_ids: user_ids?.length || 'broadcast',
+      pro_only,
+      isAdmin: isAdminRequest 
+    });
 
     // Fetch push tokens from database
     let query = supabase.from('push_tokens').select('token, platform, user_id');

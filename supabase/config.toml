@@ -7,7 +7,7 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.send-push-notification]
-verify_jwt = true
+verify_jwt = false
 
 [functions.create-checkout]
 verify_jwt = false
