@@ -7,10 +7,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-admin-code-1, x-admin-code-2, x-admin-code-3",
 };
 
-// Server-side admin access codes (secure - not exposed to client)
-const ADMIN_CODE_1 = "070606300428"; // 12 digits
-const ADMIN_CODE_2 = "06300428";     // 8 digits
-const ADMIN_CODE_3 = "0706";         // 4 digits
+// Admin access codes loaded from environment secrets (not hardcoded)
+const ADMIN_CODE_1 = Deno.env.get("ADMIN_CODE_1") ?? "";
+const ADMIN_CODE_2 = Deno.env.get("ADMIN_CODE_2") ?? "";
+const ADMIN_CODE_3 = Deno.env.get("ADMIN_CODE_3") ?? "";
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
