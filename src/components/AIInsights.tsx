@@ -4,6 +4,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { Sparkles, RefreshCw, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import TextToSpeech from "@/components/TextToSpeech";
 
 interface AIInsightsProps {
   onUpgradeClick?: () => void;
@@ -119,9 +120,10 @@ export default function AIInsights({ onUpgradeClick }: AIInsightsProps) {
           {data?.insights?.map((insight, index) => (
             <li 
               key={index} 
-              className="text-sm text-foreground leading-relaxed pl-1 border-l-2 border-primary/30 ml-1 py-0.5"
+              className="text-sm text-foreground leading-relaxed pl-1 border-l-2 border-primary/30 ml-1 py-0.5 flex items-start justify-between gap-2"
             >
-              {insight}
+              <span>{insight}</span>
+              <TextToSpeech text={insight} size="sm" showLockForFree={false} />
             </li>
           ))}
         </ul>

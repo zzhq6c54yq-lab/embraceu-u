@@ -33,6 +33,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Admin = lazy(() => import("./pages/Admin"));
+const ProFeatures = lazy(() => import("./pages/ProFeatures"));
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,7 @@ const App = () => (
                 <Route path="/gratitude" element={<ProtectedRoute><Gratitude /></ProtectedRoute>} />
                 <Route path="/duo" element={<ProtectedRoute><Duo /></ProtectedRoute>} />
                 <Route path="/rituals" element={<ProtectedRoute><Rituals /></ProtectedRoute>} />
+                <Route path="/pro" element={<ProtectedRoute><ProFeatures /></ProtectedRoute>} />
                 
                 {/* Admin route - has its own auth check */}
                 <Route path="/admin" element={<Admin />} />
