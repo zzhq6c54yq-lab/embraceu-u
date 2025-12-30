@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Shield, Loader2, ChevronRight, Check, KeyRound } from "lucide-react";
+import { Shield, Loader2, ChevronRight, Check, KeyRound, Mail, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AdminAccessModalProps {
   open: boolean;
@@ -19,26 +20,68 @@ interface AdminAccessModalProps {
   onSuccess: () => void;
 }
 
-type AuthStep = 'code1' | 'code2' | 'code3';
+type AuthStep = 'login' | 'code1' | 'code2' | 'code3';
 
 const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalProps) => {
-  const [step, setStep] = useState<AuthStep>('code1');
+  const [step, setStep] = useState<AuthStep>('login');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [code1, setCode1] = useState(""); // 12 digits
   const [code2, setCode2] = useState(""); // 8 digits
   const [code3, setCode3] = useState(""); // 4 digits
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   // Clear form when modal opens
   useEffect(() => {
     if (open) {
-      setStep('code1');
+      setStep('login');
+      setEmail("");
+      setPassword("");
       setCode1("");
       setCode2("");
       setCode3("");
       setError("");
+      setAccessToken(null);
     }
   }, [open]);
+
+  const handleLogin = async () => {
+    setError("");
+    
+    if (!email || !password) {
+      setError("Please enter both email and password");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        setError(authError.message);
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.session?.access_token) {
+        setAccessToken(data.session.access_token);
+        setStep('code1');
+      } else {
+        setError("Authentication failed");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred");
+      console.error("Login error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleNextCode = () => {
     setError("");
@@ -66,17 +109,23 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
       return;
     }
 
+    if (!accessToken) {
+      setError("Session expired. Please log in again.");
+      setStep('login');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Send all three codes to the edge function for server-side validation
-      // No JWT required - just passcode authentication
+      // Send all three codes with the auth token for server-side validation
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-admin-stats`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
             'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             'x-admin-code-1': code1,
             'x-admin-code-2': code2,
@@ -115,7 +164,9 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (step === 'code1' || step === 'code2') {
+    if (step === 'login') {
+      await handleLogin();
+    } else if (step === 'code1' || step === 'code2') {
       handleNextCode();
     } else if (step === 'code3') {
       await handleFinalVerification();
@@ -124,8 +175,10 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
 
   const handleBack = () => {
     setError("");
-    if (step === 'code1') {
+    if (step === 'login') {
       onOpenChange(false);
+    } else if (step === 'code1') {
+      setStep('login');
     } else if (step === 'code2') {
       setStep('code1');
     } else if (step === 'code3') {
@@ -135,10 +188,13 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
 
   const handleCancel = () => {
     onOpenChange(false);
+    setEmail("");
+    setPassword("");
     setCode1("");
     setCode2("");
     setCode3("");
     setError("");
+    setAccessToken(null);
   };
 
   const getCurrentCode = () => {
@@ -163,12 +219,14 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
   };
 
   const getStepNumber = () => {
-    if (step === 'code1') return 1;
-    if (step === 'code2') return 2;
-    return 3;
+    if (step === 'login') return 1;
+    if (step === 'code1') return 2;
+    if (step === 'code2') return 3;
+    return 4;
   };
 
   const getStepLabel = () => {
+    if (step === 'login') return "Admin Login";
     if (step === 'code1') return "Primary Access Code";
     if (step === 'code2') return "Secondary Code";
     return "Final Verification";
@@ -176,7 +234,15 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
 
   const isButtonDisabled = () => {
     if (isLoading) return true;
+    if (step === 'login') return !email || !password;
     return getCurrentCode().length !== getCodeLength();
+  };
+
+  const getDescription = () => {
+    if (step === 'login') return "Sign in with your admin credentials.";
+    if (step === 'code1') return "Enter the primary 12-digit access code.";
+    if (step === 'code2') return "Enter the secondary 8-digit code.";
+    return "Enter the final 4-digit verification code.";
   };
 
   return (
@@ -188,17 +254,17 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
             Admin Access
           </DialogTitle>
           <DialogDescription>
-            Enter the {step === 'code3' ? "final" : step === 'code1' ? "primary" : "secondary"} access code.
+            {getDescription()}
           </DialogDescription>
         </DialogHeader>
 
         {/* Progress Indicator */}
         <div className="flex items-center justify-center gap-2 py-2">
-          {[1, 2, 3].map((s) => (
+          {[1, 2, 3, 4].map((s) => (
             <div
               key={s}
               className={cn(
-                "w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium transition-all",
+                "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all",
                 s < getStepNumber()
                   ? "bg-primary text-primary-foreground"
                   : s === getStepNumber()
@@ -212,29 +278,63 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="accessCode" className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <KeyRound className="w-4 h-4 text-muted-foreground" />
-                {getStepLabel()}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {getCurrentCode().length}/{getCodeLength()} digits
-              </span>
-            </Label>
-            <Input
-              id="accessCode"
-              type="password"
-              inputMode="numeric"
-              value={getCurrentCode()}
-              onChange={(e) => setCurrentCode(e.target.value)}
-              placeholder={"•".repeat(getCodeLength())}
-              autoComplete="off"
-              className="text-center text-lg tracking-widest font-mono"
-              maxLength={getCodeLength()}
-              autoFocus
-            />
-          </div>
+          {step === 'login' ? (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@example.com"
+                  autoComplete="email"
+                  autoFocus
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+              </div>
+            </>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="accessCode" className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <KeyRound className="w-4 h-4 text-muted-foreground" />
+                  {getStepLabel()}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {getCurrentCode().length}/{getCodeLength()} digits
+                </span>
+              </Label>
+              <Input
+                id="accessCode"
+                type="password"
+                inputMode="numeric"
+                value={getCurrentCode()}
+                onChange={(e) => setCurrentCode(e.target.value)}
+                placeholder={"•".repeat(getCodeLength())}
+                autoComplete="off"
+                className="text-center text-lg tracking-widest font-mono"
+                maxLength={getCodeLength()}
+                autoFocus
+              />
+            </div>
+          )}
 
           {error && (
             <p className="text-sm text-destructive bg-destructive/10 p-2 rounded">
@@ -247,9 +347,9 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={step === 'code1' ? handleCancel : handleBack}
+              onClick={step === 'login' ? handleCancel : handleBack}
             >
-              {step === 'code1' ? "Cancel" : "Back"}
+              {step === 'login' ? "Cancel" : "Back"}
             </Button>
             <Button
               type="submit"
@@ -259,10 +359,15 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Verifying...
+                  {step === 'login' ? "Signing in..." : "Verifying..."}
                 </>
               ) : step === 'code3' ? (
                 "Access Dashboard"
+              ) : step === 'login' ? (
+                <>
+                  Sign In
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </>
               ) : (
                 <>
                   Next
