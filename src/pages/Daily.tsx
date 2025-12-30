@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, X, Check, Sparkles, Heart } from "lucide-react";
+import { Plus, X, Check, Sparkles, Heart, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import MoodCheckModal from "@/components/MoodCheckModal";
 import PatternReleaseModal from "@/components/PatternReleaseModal";
 import QualityCultivateModal from "@/components/QualityCultivateModal";
-
+import FeatureInfoModal from "@/components/FeatureInfoModal";
 interface Pattern {
   id: string;
   pattern_name: string;
@@ -109,6 +109,9 @@ const Daily = () => {
   // Quality cultivation modal state
   const [showQualityModal, setShowQualityModal] = useState(false);
   const [selectedQuality, setSelectedQuality] = useState<Quality | null>(null);
+
+  // Feature info modal state
+  const [showDeconstructInfo, setShowDeconstructInfo] = useState(false);
 
   // Fetch daily quote
   useEffect(() => {
@@ -365,6 +368,23 @@ const Daily = () => {
         qualityName={selectedQuality?.quality_name || ""}
         onComplete={handleCultivateQuality}
       />
+      <FeatureInfoModal
+        isOpen={showDeconstructInfo}
+        onClose={() => setShowDeconstructInfo(false)}
+        title="What is Vision Deconstruction?"
+        description="Vision deconstruction is a powerful technique for turning your dreams and goals into reality. Instead of feeling overwhelmed by big aspirations, this tool helps you break them down into clear, actionable steps."
+        howItWorks={[
+          "Enter a vision, goal, or dream you want to achieve",
+          "The app generates 6 practical steps to guide you",
+          "Use these steps as a roadmap for your journey",
+        ]}
+        examples={[
+          "Build a consistent meditation practice",
+          "Become more confident in social situations",
+          "Create better work-life balance",
+          "Master a creative skill",
+        ]}
+      />
       <AppLayout>
         {/* Daily Focus Card */}
         <div className="mt-4">
@@ -411,7 +431,16 @@ const Daily = () => {
 
         {/* Deconstruct section */}
         <section className="mt-10">
-          <h2 className="text-label mb-6">DECONSTRUCT A VISION</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-label">DECONSTRUCT A VISION</h2>
+            <button
+              onClick={() => setShowDeconstructInfo(true)}
+              className="p-2 rounded-full border border-border hover:bg-secondary transition-colors"
+              aria-label="About this feature"
+            >
+              <HelpCircle className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
 
           <div className="card-embrace">
             <input
