@@ -9,6 +9,9 @@ import { useToast } from '@/hooks/use-toast';
 import { usePremium } from '@/hooks/usePremium';
 import UpgradeModal from '@/components/UpgradeModal';
 import ReferralRewardsSection from '@/components/ReferralRewardsSection';
+import DuoActivityFeed from '@/components/DuoActivityFeed';
+import DuoMotivation from '@/components/DuoMotivation';
+
 interface SharedStreak {
   id: string;
   partner_1: string;
@@ -21,6 +24,7 @@ interface SharedStreak {
 interface PartnerProfile {
   nickname: string;
   referral_code: string;
+  current_streak?: number;
 }
 
 const Duo = () => {
@@ -34,6 +38,8 @@ const Duo = () => {
   const [isJoining, setIsJoining] = useState(false);
   const [sharedStreak, setSharedStreak] = useState<SharedStreak | null>(null);
   const [partnerName, setPartnerName] = useState<string>('');
+  const [partnerId, setPartnerId] = useState<string>('');
+  const [partnerStreak, setPartnerStreak] = useState<number>(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
@@ -65,16 +71,19 @@ const Duo = () => {
       if (streaks) {
         setSharedStreak(streaks);
         
-        // Get partner's name
-        const partnerId = streaks.partner_1 === user.id ? streaks.partner_2 : streaks.partner_1;
+        // Get partner's info
+        const pId = streaks.partner_1 === user.id ? streaks.partner_2 : streaks.partner_1;
+        setPartnerId(pId);
+        
         const { data: partnerProfile } = await supabase
           .from('profiles')
-          .select('nickname')
-          .eq('user_id', partnerId)
+          .select('nickname, current_streak')
+          .eq('user_id', pId)
           .maybeSingle();
         
         if (partnerProfile) {
           setPartnerName(partnerProfile.nickname);
+          setPartnerStreak(partnerProfile.current_streak || 0);
         }
       }
 
@@ -108,7 +117,7 @@ const Duo = () => {
       // Find partner by referral code
       const { data: partner, error: partnerError } = await supabase
         .from('profiles')
-        .select('user_id, nickname')
+        .select('user_id, nickname, current_streak')
         .eq('referral_code', friendCode.trim().toLowerCase())
         .maybeSingle();
 
@@ -155,6 +164,8 @@ const Duo = () => {
 
       toast({ title: 'Success!', description: `You're now connected with ${partner.nickname}!` });
       setPartnerName(partner.nickname);
+      setPartnerId(partner.user_id);
+      setPartnerStreak(partner.current_streak || 0);
       
       // Refetch data
       const { data: newStreak } = await supabase
@@ -185,6 +196,8 @@ const Duo = () => {
 
       setSharedStreak(null);
       setPartnerName('');
+      setPartnerId('');
+      setPartnerStreak(0);
       toast({ title: 'Duo Ended', description: 'You have left the duo' });
     } catch {
       toast({ title: 'Error', description: 'Failed to leave duo', variant: 'destructive' });
@@ -245,51 +258,87 @@ const Duo = () => {
 
       {/* Shared Streak Display */}
       {sharedStreak ? (
-        <section className="mb-8">
-          <div className="relative card-embrace-premium text-center py-10">
-            {/* Glowing aura effect */}
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-accent/20 via-accent/40 to-accent/20 blur-2xl animate-pulse opacity-60" />
-            
-            <div className="relative z-10">
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <Users className="w-8 h-8 text-accent" />
-                <span className="text-xl font-serif italic text-foreground">
-                  You & {partnerName}
-                </span>
-              </div>
+        <>
+          <section className="mb-6">
+            <div className="relative card-embrace-premium text-center py-10">
+              {/* Glowing aura effect */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-accent/20 via-accent/40 to-accent/20 blur-2xl animate-pulse opacity-60" />
               
-              {/* Large streak counter */}
-              <div className="relative inline-block">
-                <div className="absolute inset-0 rounded-full bg-accent/30 blur-3xl animate-pro-glow" />
-                <div className="relative flex items-center justify-center w-40 h-40 rounded-full border-4 border-accent/60 bg-gradient-to-br from-accent/20 to-accent/5">
-                  <div className="text-center">
-                    <Flame className="w-10 h-10 mx-auto text-accent mb-1" />
-                    <span className="text-5xl font-bold text-foreground">
-                      {sharedStreak.streak_count}
-                    </span>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      days together
-                    </p>
+              <div className="relative z-10">
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <Users className="w-8 h-8 text-accent" />
+                  <span className="text-xl font-serif italic text-foreground">
+                    You & {partnerName}
+                  </span>
+                </div>
+                
+                {/* Large streak counter */}
+                <div className="relative inline-block">
+                  <div className="absolute inset-0 rounded-full bg-accent/30 blur-3xl animate-pro-glow" />
+                  <div className="relative flex items-center justify-center w-40 h-40 rounded-full border-4 border-accent/60 bg-gradient-to-br from-accent/20 to-accent/5">
+                    <div className="text-center">
+                      <Flame className="w-10 h-10 mx-auto text-accent mb-1" />
+                      <span className="text-5xl font-bold text-foreground">
+                        {sharedStreak.streak_count}
+                      </span>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        days together
+                      </p>
+                    </div>
                   </div>
                 </div>
+
+                <p className="text-sm text-muted-foreground mt-6">
+                  Last sync: {new Date(sharedStreak.last_sync).toLocaleDateString()}
+                </p>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-4 text-destructive hover:text-destructive"
+                  onClick={leaveDuo}
+                >
+                  <Unlink className="w-4 h-4 mr-2" />
+                  End Duo
+                </Button>
               </div>
-
-              <p className="text-sm text-muted-foreground mt-6">
-                Last sync: {new Date(sharedStreak.last_sync).toLocaleDateString()}
-              </p>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-4 text-destructive hover:text-destructive"
-                onClick={leaveDuo}
-              >
-                <Unlink className="w-4 h-4 mr-2" />
-                End Duo
-              </Button>
             </div>
-          </div>
-        </section>
+          </section>
+
+          {/* Partner Profile Card */}
+          <section className="mb-6">
+            <h2 className="text-label mb-4">PARTNER STATS</h2>
+            <div className="card-embrace">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                  <Users className="w-6 h-6 text-accent" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-serif italic text-foreground">{partnerName}</p>
+                  <p className="text-xs text-muted-foreground">Your growth partner</p>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center gap-1 text-accent">
+                    <Flame className="w-4 h-4" />
+                    <span className="font-bold">{partnerStreak}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">their streak</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Duo Motivation */}
+          <section className="mb-6">
+            <DuoMotivation streak={sharedStreak.streak_count} partnerName={partnerName} />
+          </section>
+
+          {/* Partner Activity Feed */}
+          <section className="mb-8">
+            <h2 className="text-label mb-4">PARTNER ACTIVITY</h2>
+            <DuoActivityFeed partnerId={partnerId} />
+          </section>
+        </>
       ) : (
         /* Empty State - Start First Duo */
         <section className="mb-8">

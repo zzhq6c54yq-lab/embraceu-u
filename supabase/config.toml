@@ -29,3 +29,15 @@ verify_jwt = false
 
 [functions.elevenlabs-tts]
 verify_jwt = false
+
+[functions.pause-subscription]
+verify_jwt = false
+
+[functions.cancel-subscription]
+verify_jwt = false
+
+[functions.resume-subscription]
+verify_jwt = false
+
+[functions.get-subscription-details]
+verify_jwt = false
