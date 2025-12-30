@@ -120,16 +120,37 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
     setIsLoading(true);
 
     try {
-      // Send all three codes to the edge function for server-side validation
-      const { data, error: fnError } = await supabase.functions.invoke('fetch-admin-stats', {
-        headers: {
-          'x-admin-code-1': code1,
-          'x-admin-code-2': code2,
-          'x-admin-code-3': code3,
-        }
-      });
+      // Get the current session token
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
 
-      if (fnError) {
+      if (!accessToken) {
+        setError("Session expired. Please login again.");
+        setStep('login');
+        setIsLoading(false);
+        return;
+      }
+
+      // Send all three codes to the edge function for server-side validation
+      // Using fetch directly to ensure custom headers are sent properly
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-admin-stats`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'x-admin-code-1': code1,
+            'x-admin-code-2': code2,
+            'x-admin-code-3': code3,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Admin verification failed:", errorData);
         setError("Invalid access codes");
         // Reset to code1 step on failure
         setStep('code1');
@@ -139,6 +160,8 @@ const AdminAccessModal = ({ open, onOpenChange, onSuccess }: AdminAccessModalPro
         setIsLoading(false);
         return;
       }
+
+      const data = await response.json();
 
       // Store session marker
       sessionStorage.setItem("admin_verified", "true");
