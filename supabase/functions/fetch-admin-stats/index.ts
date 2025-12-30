@@ -160,6 +160,81 @@ serve(async (req) => {
       .order("created_at", { ascending: false })
       .limit(20);
 
+    // ===== CHART DATA: Get daily signups for last 14 days =====
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    fourteenDaysAgo.setHours(0, 0, 0, 0);
+
+    const { data: signupsLast14Days } = await supabaseAdmin
+      .from("profiles")
+      .select("created_at")
+      .gte("created_at", fourteenDaysAgo.toISOString())
+      .order("created_at", { ascending: true });
+
+    // Get daily moods and rituals for last 14 days
+    const { data: moodsLast14Days } = await supabaseAdmin
+      .from("mood_entries")
+      .select("created_at")
+      .gte("created_at", fourteenDaysAgo.toISOString());
+
+    const { data: ritualsLast14Days } = await supabaseAdmin
+      .from("rituals_completed")
+      .select("created_at")
+      .gte("created_at", fourteenDaysAgo.toISOString());
+
+    // Aggregate by day
+    const signupsByDay: Record<string, number> = {};
+    const moodsByDay: Record<string, number> = {};
+    const ritualsByDay: Record<string, number> = {};
+
+    // Initialize all 14 days
+    for (let i = 0; i < 14; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - (13 - i));
+      const dateStr = date.toISOString().split("T")[0];
+      signupsByDay[dateStr] = 0;
+      moodsByDay[dateStr] = 0;
+      ritualsByDay[dateStr] = 0;
+    }
+
+    // Count signups
+    signupsLast14Days?.forEach((p) => {
+      const dateStr = new Date(p.created_at).toISOString().split("T")[0];
+      if (signupsByDay[dateStr] !== undefined) signupsByDay[dateStr]++;
+    });
+
+    // Count moods
+    moodsLast14Days?.forEach((m) => {
+      const dateStr = new Date(m.created_at).toISOString().split("T")[0];
+      if (moodsByDay[dateStr] !== undefined) moodsByDay[dateStr]++;
+    });
+
+    // Count rituals
+    ritualsLast14Days?.forEach((r) => {
+      const dateStr = new Date(r.created_at).toISOString().split("T")[0];
+      if (ritualsByDay[dateStr] !== undefined) ritualsByDay[dateStr]++;
+    });
+
+    // Format chart data
+    const chartData = {
+      signupsByDay: Object.entries(signupsByDay).map(([date, count]) => ({
+        date,
+        label: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        count
+      })),
+      activityByDay: Object.entries(moodsByDay).map(([date, moods]) => ({
+        date,
+        label: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        moods,
+        rituals: ritualsByDay[date] || 0
+      }))
+    };
+
+    logStep("Chart data compiled", { 
+      signupDays: chartData.signupsByDay.length,
+      activityDays: chartData.activityByDay.length 
+    });
+
     // Get Pro subscribers from Stripe
     let proSubscribers: any[] = [];
     if (stripeKey) {
@@ -211,6 +286,7 @@ serve(async (req) => {
         moods: recentMoods || [],
         rituals: recentRituals || [],
       },
+      chartData,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
