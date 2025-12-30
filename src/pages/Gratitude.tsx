@@ -4,12 +4,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Heart, Plus, Sparkles, Calendar, Crown, Lock, Trash2 } from "lucide-react";
+import { Heart, Plus, Sparkles, Calendar, Crown, Lock, Trash2, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { format, isToday, startOfDay, differenceInCalendarDays } from "date-fns";
 import UpgradeModal from "@/components/UpgradeModal";
+import VoiceJournal from "@/components/VoiceJournal";
 
 interface GratitudeEntry {
   id: string;
@@ -259,6 +260,15 @@ const Gratitude = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Voice Journal - Pro Feature */}
+          {isPremium && (
+            <VoiceJournal 
+              title="Voice Gratitude"
+              placeholder="Speak or type what you're grateful for..."
+              onTranscriptionComplete={(text) => setNewGratitude(text)}
+            />
+          )}
 
           {/* History Section - Pro Feature */}
           {isPremium ? (

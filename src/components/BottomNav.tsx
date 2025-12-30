@@ -10,6 +10,7 @@ import {
   Sparkles,
   Link2,
   Layers,
+  Trophy,
 } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
 import thriveMtIcon from "@/assets/thrive-mt-icon.png";
@@ -30,6 +31,10 @@ const navSlides = [
   [
     { path: "/gratitude", label: "Gratitude", icon: Sparkles },
     { path: "/rituals", label: "Rituals", icon: Layers },
+    { path: "/challenge", label: "Challenge", icon: Trophy },
+    { path: "/about", label: "", icon: null, isLogo: true },
+  ],
+  [
     { path: "/duo", label: "Duo", icon: Link2, isPro: true },
     { path: "/about", label: "", icon: null, isLogo: true },
   ],
@@ -43,8 +48,13 @@ const BottomNav = () => {
 
   // Determine which slide the current route belongs to
   const getSlideForRoute = useCallback((pathname: string) => {
-    const slide2Paths = ["/gratitude", "/rituals", "/duo", "/about"];
-    return slide2Paths.includes(pathname) ? 1 : 0;
+    const slide2Paths = ["/gratitude", "/rituals", "/challenge"];
+    const slide3Paths = ["/duo"];
+    if (slide3Paths.includes(pathname)) return 2;
+    if (slide2Paths.includes(pathname)) return 1;
+    // About appears on both slide 2 and 3, default to slide 1
+    if (pathname === "/about") return 1;
+    return 0;
   }, []);
 
   // Scroll to correct slide when route changes
