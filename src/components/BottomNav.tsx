@@ -9,6 +9,7 @@ import {
   Heart,
   Sparkles,
   Link2,
+  Layers,
 } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
 import thriveMtIcon from "@/assets/thrive-mt-icon.png";
@@ -28,7 +29,7 @@ const navSlides = [
   ],
   [
     { path: "/gratitude", label: "Gratitude", icon: Sparkles },
-    { path: "/challenge", label: "Challenge", icon: Heart },
+    { path: "/rituals", label: "Rituals", icon: Layers },
     { path: "/duo", label: "Duo", icon: Link2, isPro: true },
     { path: "/about", label: "", icon: null, isLogo: true },
   ],
@@ -42,7 +43,7 @@ const BottomNav = () => {
 
   // Determine which slide the current route belongs to
   const getSlideForRoute = useCallback((pathname: string) => {
-    const slide2Paths = ["/gratitude", "/challenge", "/duo", "/about"];
+    const slide2Paths = ["/gratitude", "/rituals", "/duo", "/about"];
     return slide2Paths.includes(pathname) ? 1 : 0;
   }, []);
 
