@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import { LogOut, Settings, User } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import ProfileSettings from "@/components/ProfileSettings";
-import AvatarSelector, { AVATAR_OPTIONS } from "@/components/AvatarSelector";
+import AvatarSelector from "@/components/AvatarSelector";
+import { AvatarDisplay } from "@/components/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -58,7 +59,7 @@ const Profile = () => {
     navigate("/");
   };
 
-  const currentAvatarOption = AVATAR_OPTIONS.find((a) => a.id === avatarUrl);
+  
 
   if (isLoading) {
     return (
@@ -76,12 +77,12 @@ const Profile = () => {
       <div className="mt-2 mb-8 text-center">
         <div
           className={cn(
-            "w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center text-5xl",
+            "w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden",
             "border-2 border-primary/30 shadow-lg",
             isPremium && "animate-pro-glow-subtle"
           )}
         >
-          {currentAvatarOption?.emoji || "👤"}
+          <AvatarDisplay avatarUrl={avatarUrl} size={96} />
         </div>
         <h1 className="font-serif italic text-3xl text-foreground mb-1">
           {nickname || "Your Profile"}
