@@ -9,7 +9,7 @@ interface SEOHeadProps {
   noIndex?: boolean;
 }
 
-const BASE_URL = "https://embraceu.app";
+const BASE_URL = "https://embraceu-mt.com";
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`;
 
 export const SEOHead = ({
