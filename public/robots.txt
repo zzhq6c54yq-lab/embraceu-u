@@ -1,5 +1,5 @@
 # EmbraceU - Mindfulness & Personal Growth App
-# https://embraceu.app
+# https://embraceu-mt.com
 
 User-agent: Googlebot
 Allow: /
@@ -32,7 +32,7 @@ Allow: /
 Crawl-delay: 2
 
 # Sitemap location
-Sitemap: https://embraceu.app/sitemap.xml
+Sitemap: https://embraceu-mt.com/sitemap.xml
 
 # Disallow private/auth areas from indexing
 Disallow: /daily
