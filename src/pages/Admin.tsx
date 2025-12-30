@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,8 +26,20 @@ import {
   Sparkles,
   Smartphone,
   Timer,
-  AlertTriangle
+  AlertTriangle,
+  BarChart3
 } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid
+} from "recharts";
 
 interface AdminStats {
   totalUsers: number;
@@ -70,6 +82,11 @@ interface RecentActivity {
   rituals: Array<{ id: string; ritual_type: string; created_at: string; user_id: string }>;
 }
 
+interface ChartData {
+  signupsByDay: Array<{ date: string; label: string; count: number }>;
+  activityByDay: Array<{ date: string; label: string; moods: number; rituals: number }>;
+}
+
 const formatDuration = (seconds: number): string => {
   if (!seconds || seconds < 60) return "< 1m";
   const hours = Math.floor(seconds / 3600);
@@ -89,6 +106,7 @@ const formatSessionTime = (ms: number | null): string => {
 
 const Admin = () => {
   const navigate = useNavigate();
+  const proSubscribersRef = useRef<HTMLElement>(null);
   const { 
     isAdmin, 
     isLoading: adminLoading, 
@@ -103,6 +121,7 @@ const Admin = () => {
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [proSubscribers, setProSubscribers] = useState<ProSubscriber[]>([]);
   const [recentActivity, setRecentActivity] = useState<RecentActivity>({ moods: [], rituals: [] });
+  const [chartData, setChartData] = useState<ChartData | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
@@ -138,6 +157,7 @@ const Admin = () => {
       setUsers(data.users || []);
       setProSubscribers(data.proSubscribers || []);
       setRecentActivity(data.recentActivity || { moods: [], rituals: [] });
+      setChartData(data.chartData || null);
       setLastUpdated(new Date());
     } catch (error) {
       console.error("Error fetching admin data:", error);
@@ -163,6 +183,9 @@ const Admin = () => {
         { event: 'INSERT', schema: 'public', table: 'profiles' },
         (payload) => {
           console.log('New signup:', payload);
+          toast.success("New user signed up!", {
+            description: `${(payload.new as any).nickname || 'New user'} just joined!`,
+          });
           fetchAdminData();
         }
       )
@@ -354,9 +377,116 @@ const Admin = () => {
               </div>
             </section>
 
+            {/* Engagement Charts */}
+            {chartData && (
+              <section className="mb-8">
+                <h2 className="text-label mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-primary" />
+                  ENGAGEMENT TRENDS (Last 14 Days)
+                </h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Signups Chart */}
+                  <div className="card-embrace p-4">
+                    <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-emerald-500" />
+                      New Signups
+                    </h3>
+                    <div className="h-[200px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData.signupsByDay}>
+                          <defs>
+                            <linearGradient id="signupGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis 
+                            dataKey="label" 
+                            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                            tickLine={false}
+                            axisLine={false}
+                            allowDecimals={false}
+                          />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              fontSize: '12px'
+                            }}
+                            labelStyle={{ color: 'hsl(var(--foreground))' }}
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="count" 
+                            stroke="hsl(var(--primary))" 
+                            strokeWidth={2}
+                            fill="url(#signupGradient)" 
+                            name="Signups"
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Activity Chart */}
+                  <div className="card-embrace p-4">
+                    <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
+                      <Activity className="w-4 h-4 text-pink-500" />
+                      Daily Activity
+                    </h3>
+                    <div className="h-[200px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={chartData.activityByDay}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis 
+                            dataKey="label" 
+                            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                            tickLine={false}
+                            axisLine={false}
+                            allowDecimals={false}
+                          />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              fontSize: '12px'
+                            }}
+                            labelStyle={{ color: 'hsl(var(--foreground))' }}
+                          />
+                          <Bar dataKey="moods" fill="#ec4899" name="Moods" radius={[2, 2, 0, 0]} />
+                          <Bar dataKey="rituals" fill="#06b6d4" name="Rituals" radius={[2, 2, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex justify-center gap-6 mt-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm bg-pink-500" /> Moods
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm bg-cyan-500" /> Rituals
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Pro Subscribers */}
-              <section className="lg:col-span-1">
+              <section className="lg:col-span-1" ref={proSubscribersRef}>
                 <h2 className="text-label mb-4 flex items-center gap-2">
                   <Crown className="w-4 h-4 text-amber-500" />
                   PRO SUBSCRIBERS ({proSubscribers.length})
@@ -473,12 +603,19 @@ const Admin = () => {
                 <Button
                   variant="outline"
                   className="justify-start h-auto py-4"
-                  onClick={() => navigate("/progress")}
+                  onClick={() => {
+                    proSubscribersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Highlight effect
+                    proSubscribersRef.current?.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+                    setTimeout(() => {
+                      proSubscribersRef.current?.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+                    }, 2000);
+                  }}
                 >
                   <CreditCard className="w-5 h-5 mr-3 text-primary" />
                   <div className="text-left">
                     <p className="font-medium">View Subscriptions</p>
-                    <p className="text-sm text-muted-foreground">Manage premium users</p>
+                    <p className="text-sm text-muted-foreground">Jump to Pro subscribers</p>
                   </div>
                 </Button>
                 <Button
