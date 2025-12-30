@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 interface PremiumContextType {
   isPremium: boolean;
+  isLifetime: boolean;
   isLoading: boolean;
   subscriptionEnd: string | null;
   togglePremium: () => void;
@@ -20,6 +21,7 @@ const PremiumContext = createContext<PremiumContextType | undefined>(undefined);
 export const PremiumProvider = ({ children }: { children: ReactNode }) => {
   const { user, session } = useAuth();
   const [isPremium, setIsPremiumState] = useState(false);
+  const [isLifetime, setIsLifetime] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -87,6 +89,7 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
         setIsPremiumState(isNowPremium);
       }
 
+      setIsLifetime(data?.isLifetime === true);
       setSubscriptionEnd(data?.subscription_end || null);
     } catch (error) {
       console.error('Error checking subscription:', error);
@@ -121,6 +124,7 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
       checkSubscription();
     } else {
       setIsPremiumState(false);
+      setIsLifetime(false);
       setSubscriptionEnd(null);
       setHasCheckedInitially(false);
     }
@@ -180,6 +184,7 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
   return (
     <PremiumContext.Provider value={{ 
       isPremium, 
+      isLifetime,
       isLoading,
       subscriptionEnd,
       togglePremium, 

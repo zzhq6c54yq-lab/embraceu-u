@@ -7,6 +7,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Lifetime product ID from Stripe
+const LIFETIME_PRODUCT_ID = "prod_ThYOSoy84TwCDH";
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
@@ -46,7 +49,7 @@ serve(async (req) => {
     
     if (customers.data.length === 0) {
       logStep("No customer found, returning unsubscribed");
-      return new Response(JSON.stringify({ subscribed: false }), {
+      return new Response(JSON.stringify({ subscribed: false, isLifetime: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
@@ -55,6 +58,7 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Check for active subscription first
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
@@ -64,6 +68,7 @@ serve(async (req) => {
     const hasActiveSub = subscriptions.data.length > 0;
     let subscriptionEnd = null;
     let productId = null;
+    let isLifetime = false;
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
@@ -93,13 +98,42 @@ serve(async (req) => {
         productId 
       });
     } else {
-      logStep("No active subscription found");
+      logStep("No active subscription found, checking for lifetime purchase");
+      
+      // Check for lifetime one-time purchase via checkout sessions
+      const checkoutSessions = await stripe.checkout.sessions.list({
+        customer: customerId,
+        status: 'complete',
+        limit: 100,
+      });
+
+      for (const session of checkoutSessions.data) {
+        if (session.mode === 'payment' && session.payment_status === 'paid') {
+          // Get line items for this session
+          const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+          
+          for (const item of lineItems.data) {
+            const priceProduct = item.price?.product;
+            if (priceProduct === LIFETIME_PRODUCT_ID) {
+              isLifetime = true;
+              productId = LIFETIME_PRODUCT_ID;
+              logStep("Lifetime purchase found", { sessionId: session.id, productId });
+              break;
+            }
+          }
+          
+          if (isLifetime) break;
+        }
+      }
     }
 
+    const hasAccess = hasActiveSub || isLifetime;
+
     return new Response(JSON.stringify({
-      subscribed: hasActiveSub,
+      subscribed: hasAccess,
+      isLifetime: isLifetime,
       product_id: productId,
-      subscription_end: subscriptionEnd
+      subscription_end: isLifetime ? null : subscriptionEnd
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

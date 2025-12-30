@@ -15,7 +15,8 @@ import {
   Palette, 
   BookOpen,
   Check,
-  Lock
+  Lock,
+  Infinity
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -79,7 +80,7 @@ const proFeatures = [
 ];
 
 const ProFeatures = () => {
-  const { isPremium } = usePremium();
+  const { isPremium, isLifetime } = usePremium();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   return (
@@ -94,19 +95,26 @@ const ProFeatures = () => {
                 ? "bg-gradient-to-br from-accent to-primary animate-glow-pulse" 
                 : "bg-gradient-to-br from-primary/20 to-accent/20"
             )}>
-              <Crown className={cn(
-                "w-10 h-10",
-                isPremium ? "text-primary-foreground" : "text-primary"
-              )} />
+              {isPremium && isLifetime ? (
+                <Infinity className="w-10 h-10 text-primary-foreground" />
+              ) : (
+                <Crown className={cn(
+                  "w-10 h-10",
+                  isPremium ? "text-primary-foreground" : "text-primary"
+                )} />
+              )}
             </div>
             
             {isPremium ? (
               <>
                 <h1 className="text-3xl font-display font-bold text-foreground">
-                  You're a Pro! ✨
+                  {isLifetime ? "Lifetime Pro Member! 🌟" : "You're a Pro! ✨"}
                 </h1>
                 <p className="text-muted-foreground">
-                  All features are unlocked. Enjoy your growth journey.
+                  {isLifetime 
+                    ? "You have permanent access to all features. Thank you for your support!"
+                    : "All features are unlocked. Enjoy your growth journey."
+                  }
                 </p>
               </>
             ) : (

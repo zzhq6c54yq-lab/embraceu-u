@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Crown, Check, Sparkles, Diamond, Loader2, RefreshCcw } from "lucide-react";
+import { Crown, Check, Sparkles, Diamond, Loader2, RefreshCcw, Infinity, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface UpgradeModalProps {
   open: boolean;
@@ -20,14 +21,17 @@ const features = [
   "Unlimited gratitude entries",
 ];
 
+type PlanType = 'monthly' | 'lifetime';
+
 const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const { session } = useAuth();
   const { toast } = useToast();
   const { checkSubscription } = usePremium();
   const [isLoading, setIsLoading] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>('lifetime');
 
-  const handleUpgrade = async () => {
+  const handleUpgrade = async (plan: PlanType) => {
     setIsLoading(true);
     try {
       // Get fresh session to ensure token is valid
@@ -43,7 +47,8 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('create-checkout');
+      const functionName = plan === 'lifetime' ? 'create-lifetime-checkout' : 'create-checkout';
+      const { data, error } = await supabase.functions.invoke(functionName);
 
       if (error) {
         throw error;
@@ -67,7 +72,7 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-transparent border-0 backdrop-blur-xl max-w-sm mx-auto p-0 overflow-visible">
+      <DialogContent className="bg-transparent border-0 backdrop-blur-xl max-w-md mx-auto p-0 overflow-visible">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card via-card to-secondary/50 border border-accent/30 p-8">
           {/* Luxurious ambient glow effects */}
           <div className="absolute -top-32 -right-32 w-64 h-64 bg-gradient-to-br from-accent/30 via-accent/15 to-transparent rounded-full blur-3xl animate-luxe-float" />
@@ -98,17 +103,66 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
           {/* Premium separator */}
           <div className="premium-separator my-6" />
 
-          <div className="relative z-10 space-y-4">
+          {/* Plan Selection */}
+          <div className="relative z-10 grid grid-cols-2 gap-3 mb-6">
+            {/* Monthly Plan */}
+            <button
+              onClick={() => setSelectedPlan('monthly')}
+              className={cn(
+                "relative p-4 rounded-2xl border-2 transition-all duration-300 text-left",
+                selectedPlan === 'monthly'
+                  ? "border-accent bg-accent/10"
+                  : "border-border/50 bg-card/50 hover:border-border"
+              )}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="w-4 h-4 text-accent" />
+                <span className="text-sm font-semibold text-foreground">Monthly</span>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-foreground">$0.99</span>
+                <span className="text-xs text-muted-foreground">/mo</span>
+              </div>
+            </button>
+
+            {/* Lifetime Plan */}
+            <button
+              onClick={() => setSelectedPlan('lifetime')}
+              className={cn(
+                "relative p-4 rounded-2xl border-2 transition-all duration-300 text-left",
+                selectedPlan === 'lifetime'
+                  ? "border-accent bg-accent/10"
+                  : "border-border/50 bg-card/50 hover:border-border"
+              )}
+            >
+              {/* Best Value Badge */}
+              <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-gradient-to-r from-accent to-primary rounded-full">
+                <span className="text-[10px] font-bold text-accent-foreground uppercase tracking-wide">Best Value</span>
+              </div>
+              
+              <div className="flex items-center gap-2 mb-2">
+                <Infinity className="w-4 h-4 text-accent" />
+                <span className="text-sm font-semibold text-foreground">Lifetime</span>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-foreground">$7.99</span>
+                <span className="text-xs text-muted-foreground">once</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">Pay once, own forever</p>
+            </button>
+          </div>
+
+          <div className="relative z-10 space-y-3">
             {features.map((feature, index) => (
               <div 
                 key={feature} 
-                className="flex items-center gap-4 group"
+                className="flex items-center gap-3 group"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-accent/30 to-accent/10 flex items-center justify-center border border-accent/30 group-hover:scale-110 transition-transform">
-                  <Check className="w-3.5 h-3.5 text-accent" />
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-accent/30 to-accent/10 flex items-center justify-center border border-accent/30 group-hover:scale-110 transition-transform">
+                  <Check className="w-3 h-3 text-accent" />
                 </div>
-                <span className="text-sm text-foreground font-medium">{feature}</span>
+                <span className="text-sm text-foreground">{feature}</span>
               </div>
             ))}
           </div>
@@ -117,13 +171,8 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
           <div className="premium-separator my-6" />
 
           <div className="relative z-10 text-center">
-            <div className="mb-6">
-              <span className="text-4xl font-bold premium-gold-text">$0.99</span>
-              <span className="text-muted-foreground ml-1">/month</span>
-            </div>
-            
             <Button
-              onClick={handleUpgrade}
+              onClick={() => handleUpgrade(selectedPlan)}
               disabled={isLoading}
               className="w-full btn-premium text-base py-6"
             >
@@ -132,10 +181,15 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                   Loading...
                 </>
+              ) : selectedPlan === 'lifetime' ? (
+                <>
+                  <Infinity className="w-5 h-5 mr-2" />
+                  Get Lifetime Access - $7.99
+                </>
               ) : (
                 <>
                   <Crown className="w-5 h-5 mr-2" />
-                  Upgrade Now
+                  Subscribe - $0.99/month
                 </>
               )}
             </Button>
