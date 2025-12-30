@@ -4,8 +4,11 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { usePremium } from "@/hooks/usePremium";
 import { Bookmark, BookmarkCheck, CalendarDays, Sparkles } from "lucide-react";
 import InsightScheduleModal from "@/components/InsightScheduleModal";
+import UpgradeModal from "@/components/UpgradeModal";
+import TextToSpeech from "@/components/TextToSpeech";
 import { format, isToday } from "date-fns";
 
 const categories = [
@@ -87,9 +90,11 @@ interface SavedInsight {
 
 const Explore = () => {
   const { user } = useAuth();
+  const { isPremium } = usePremium();
   const [activeCategory, setActiveCategory] = useState("PRESENCE");
   const [savedInsights, setSavedInsights] = useState<SavedInsight[]>([]);
   const [todaysFocus, setTodaysFocus] = useState<SavedInsight[]>([]);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Schedule modal state
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -296,29 +301,37 @@ const Explore = () => {
               </p>
 
               <div className="mt-4 flex items-center justify-between">
-                <button
-                  onClick={() => handleSaveClick(insight.text, activeCategory)}
-                  className={cn(
-                    "flex items-center gap-2 text-xs font-semibold tracking-wider uppercase transition-colors",
-                    isSaved
-                      ? "text-primary"
-                      : isAccent
-                        ? "text-success-foreground/70 hover:text-success-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {isSaved ? (
-                    <>
-                      <BookmarkCheck className="w-4 h-4" />
-                      SAVED
-                    </>
-                  ) : (
-                    <>
-                      <Bookmark className="w-4 h-4" />
-                      SAVE INSIGHT
-                    </>
-                  )}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleSaveClick(insight.text, activeCategory)}
+                    className={cn(
+                      "flex items-center gap-2 text-xs font-semibold tracking-wider uppercase transition-colors",
+                      isSaved
+                        ? "text-primary"
+                        : isAccent
+                          ? "text-success-foreground/70 hover:text-success-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {isSaved ? (
+                      <>
+                        <BookmarkCheck className="w-4 h-4" />
+                        SAVED
+                      </>
+                    ) : (
+                      <>
+                        <Bookmark className="w-4 h-4" />
+                        SAVE INSIGHT
+                      </>
+                    )}
+                  </button>
+                  
+                  <TextToSpeech 
+                    text={insight.text} 
+                    size="sm"
+                    onUpgradeClick={() => setShowUpgradeModal(true)}
+                  />
+                </div>
 
                 {savedData?.scheduled_date && !savedData.is_practiced && (
                   <span className={cn(
@@ -334,6 +347,7 @@ const Explore = () => {
           );
         })}
       </div>
+      <UpgradeModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
     </AppLayout>
   );
 };

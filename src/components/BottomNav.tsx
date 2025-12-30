@@ -6,11 +6,12 @@ import {
   Wind, 
   RefreshCw, 
   Compass, 
-  Heart,
   Sparkles,
   Link2,
   Layers,
   Trophy,
+  TrendingUp,
+  Crown,
 } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
 import thriveMtIcon from "@/assets/thrive-mt-icon.png";
@@ -32,10 +33,11 @@ const navSlides = [
     { path: "/gratitude", label: "Gratitude", icon: Sparkles },
     { path: "/rituals", label: "Rituals", icon: Layers },
     { path: "/challenge", label: "Challenge", icon: Trophy },
-    { path: "/about", label: "", icon: null, isLogo: true },
+    { path: "/progress", label: "Progress", icon: TrendingUp },
   ],
   [
     { path: "/duo", label: "Duo", icon: Link2, isPro: true },
+    { path: "/pro", label: "Pro", icon: Crown, showProGlow: true },
     { path: "/about", label: "", icon: null, isLogo: true },
   ],
 ] as const;
@@ -48,12 +50,10 @@ const BottomNav = () => {
 
   // Determine which slide the current route belongs to
   const getSlideForRoute = useCallback((pathname: string) => {
-    const slide2Paths = ["/gratitude", "/rituals", "/challenge"];
-    const slide3Paths = ["/duo"];
+    const slide2Paths = ["/gratitude", "/rituals", "/challenge", "/progress"];
+    const slide3Paths = ["/duo", "/pro", "/about"];
     if (slide3Paths.includes(pathname)) return 2;
     if (slide2Paths.includes(pathname)) return 1;
-    // About appears on both slide 2 and 3, default to slide 1
-    if (pathname === "/about") return 1;
     return 0;
   }, []);
 
@@ -96,6 +96,7 @@ const BottomNav = () => {
                     const isActive = location.pathname === item.path;
                     const Icon = item.icon;
                     const showProBadge = 'isPro' in item && item.isPro && !isPremium;
+                    const showProGlow = 'showProGlow' in item && item.showProGlow;
 
                     return (
                       <RouterNavLink
@@ -123,12 +124,16 @@ const BottomNav = () => {
                           </div>
                         ) : (
                           Icon && (
-                            <div className="relative">
+                            <div className={cn(
+                              "relative",
+                              showProGlow && "animate-glow-pulse"
+                            )}>
                               <Icon 
                                 className={cn(
                                   "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-200 flex-shrink-0",
                                   isActive ? "text-primary" : "text-muted-foreground",
-                                  item.path === "/duo" && "animate-link-pulse text-accent"
+                                  item.path === "/duo" && "animate-link-pulse text-accent",
+                                  showProGlow && "text-amber-500"
                                 )} 
                                 strokeWidth={isActive ? 2.5 : 2}
                               />
