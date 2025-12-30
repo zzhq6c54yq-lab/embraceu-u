@@ -1,141 +1,70 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useAdminStats } from "@/hooks/useAdminStats";
+import { useAdminRealtime } from "@/hooks/useAdminRealtime";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Loader2, Crown, Sparkles, CreditCard, Calendar } from "lucide-react";
 import AdminAccessModal from "@/components/AdminAccessModal";
 import { toast } from "sonner";
 import { 
-  Users, 
-  CreditCard, 
-  Activity, 
-  ArrowLeft,
-  Crown,
-  Calendar,
-  Heart,
-  Wind,
-  Target,
-  BookOpen,
-  Loader2,
-  RefreshCw,
-  LogOut,
-  Zap,
-  TrendingUp,
-  Clock,
-  Sparkles,
-  Smartphone,
-  Timer,
-  AlertTriangle,
-  BarChart3,
-  Bell,
-  Send
+  Users, Activity, Heart, Wind, Target, BookOpen, TrendingUp 
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+
 import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid
-} from "recharts";
+  AdminHeader,
+  AdminStatCard,
+  AdminCharts,
+  AdminUserCard,
+  AdminUserSearch,
+  AdminActivityItem,
+  AdminProSubscriberCard,
+  AdminNotificationForm,
+  AdminExportButton
+} from "@/components/admin";
 
-interface AdminStats {
-  totalUsers: number;
-  totalMoods: number;
-  totalRituals: number;
-  totalPatterns: number;
-  totalInsights: number;
-  totalGratitude: number;
-  activeToday: number;
-  newSignupsToday: number;
-  proSubscribers: number;
-}
-
-interface UserInfo {
-  user_id: string;
-  nickname: string;
-  current_streak: number;
-  longest_streak: number;
-  created_at: string;
-  theme_preference: string;
-  referral_count: number;
-  pwa_installed: boolean;
-  pwa_installed_at: string | null;
-  total_time_spent_seconds: number;
-  last_session_duration_seconds: number;
-}
-
-interface ProSubscriber {
-  id: string;
-  email: string;
-  name: string;
-  status: string;
-  currentPeriodEnd: string;
-  created: string;
-  plan: string;
-}
-
-interface RecentActivity {
-  moods: Array<{ id: string; mood: string; created_at: string; user_id: string }>;
-  rituals: Array<{ id: string; ritual_type: string; created_at: string; user_id: string }>;
-}
-
-interface ChartData {
-  signupsByDay: Array<{ date: string; label: string; count: number }>;
-  activityByDay: Array<{ date: string; label: string; moods: number; rituals: number }>;
-}
-
-const formatDuration = (seconds: number): string => {
-  if (!seconds || seconds < 60) return "< 1m";
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-  return `${minutes}m`;
-};
-
-const formatSessionTime = (ms: number | null): string => {
-  if (!ms) return "--:--";
-  const minutes = Math.floor(ms / 60000);
-  const seconds = Math.floor((ms % 60000) / 1000);
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-};
+import type { StatCardConfig, UserInfo, ProSubscriber } from "@/types/admin";
 
 const Admin = () => {
   const navigate = useNavigate();
   const proSubscribersRef = useRef<HTMLElement>(null);
-  const { 
-    isAdmin, 
-    isLoading: adminLoading, 
-    checkAdminStatus, 
+  
+  const {
+    isAdmin,
+    isLoading: adminLoading,
+    checkAdminStatus,
     clearAdminStatus,
     sessionTimeRemaining,
-    showTimeoutWarning 
+    showTimeoutWarning
   } = useAdminAuth();
+
   const [showAccessModal, setShowAccessModal] = useState(false);
-  
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [users, setUsers] = useState<UserInfo[]>([]);
-  const [proSubscribers, setProSubscribers] = useState<ProSubscriber[]>([]);
-  const [recentActivity, setRecentActivity] = useState<RecentActivity>({ moods: [], rituals: [] });
-  const [chartData, setChartData] = useState<ChartData | null>(null);
-  const [isLoadingData, setIsLoadingData] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  
-  // Push notification state
-  const [notificationTitle, setNotificationTitle] = useState("");
-  const [notificationBody, setNotificationBody] = useState("");
-  const [notificationTarget, setNotificationTarget] = useState<"all" | "pro">("all");
-  const [isSendingNotification, setIsSendingNotification] = useState(false);
+
+  const {
+    stats,
+    users,
+    proSubscribers,
+    chartData,
+    activityFeed,
+    isLoading: isLoadingData,
+    lastUpdated,
+    fetchData,
+    searchQuery,
+    setSearchQuery,
+    activeFilter,
+    setActiveFilter,
+    filteredUsers,
+    updateStats,
+    updateRecentActivity
+  } = useAdminStats();
+
+  // Set up realtime subscriptions
+  useAdminRealtime({
+    isAdmin,
+    onNewSignup: fetchData,
+    updateStats,
+    updateRecentActivity
+  });
 
   // Show timeout warning toast
   useEffect(() => {
@@ -147,104 +76,19 @@ const Admin = () => {
     }
   }, [showTimeoutWarning]);
 
+  // Show access modal if not admin
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
       setShowAccessModal(true);
     }
   }, [isAdmin, adminLoading]);
 
-  const fetchAdminData = useCallback(async () => {
-    if (!isAdmin) return;
-    
-    setIsLoadingData(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('fetch-admin-stats');
-      
-      if (error) {
-        console.error("Error fetching admin stats:", error);
-        return;
-      }
-
-      setStats(data.stats);
-      setUsers(data.users || []);
-      setProSubscribers(data.proSubscribers || []);
-      setRecentActivity(data.recentActivity || { moods: [], rituals: [] });
-      setChartData(data.chartData || null);
-      setLastUpdated(new Date());
-    } catch (error) {
-      console.error("Error fetching admin data:", error);
-    } finally {
-      setIsLoadingData(false);
-    }
-  }, [isAdmin]);
-
+  // Fetch data when admin
   useEffect(() => {
     if (isAdmin) {
-      fetchAdminData();
+      fetchData();
     }
-  }, [isAdmin, fetchAdminData]);
-
-  // Set up realtime subscriptions for live updates
-  useEffect(() => {
-    if (!isAdmin) return;
-
-    const profilesChannel = supabase
-      .channel('admin-profiles')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'profiles' },
-        (payload) => {
-          console.log('New signup:', payload);
-          toast.success("New user signed up!", {
-            description: `${(payload.new as any).nickname || 'New user'} just joined!`,
-          });
-          fetchAdminData();
-        }
-      )
-      .subscribe();
-
-    const moodsChannel = supabase
-      .channel('admin-moods')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'mood_entries' },
-        (payload) => {
-          console.log('New mood entry:', payload);
-          setRecentActivity(prev => ({
-            ...prev,
-            moods: [payload.new as any, ...prev.moods.slice(0, 19)]
-          }));
-          setStats(prev => prev ? { 
-            ...prev, 
-            totalMoods: prev.totalMoods + 1,
-            activeToday: prev.activeToday + 1 
-          } : prev);
-        }
-      )
-      .subscribe();
-
-    const ritualsChannel = supabase
-      .channel('admin-rituals')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'rituals_completed' },
-        (payload) => {
-          console.log('New ritual completed:', payload);
-          setRecentActivity(prev => ({
-            ...prev,
-            rituals: [payload.new as any, ...prev.rituals.slice(0, 19)]
-          }));
-          setStats(prev => prev ? { ...prev, totalRituals: prev.totalRituals + 1 } : prev);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(profilesChannel);
-      supabase.removeChannel(moodsChannel);
-      supabase.removeChannel(ritualsChannel);
-    };
-  }, [isAdmin, fetchAdminData]);
+  }, [isAdmin, fetchData]);
 
   const handleAccessSuccess = () => {
     checkAdminStatus();
@@ -255,68 +99,7 @@ const Admin = () => {
     navigate("/");
   };
 
-  const handleSendNotification = async () => {
-    if (!notificationTitle.trim() || !notificationBody.trim()) {
-      toast.error("Please enter both title and message");
-      return;
-    }
-    
-    setIsSendingNotification(true);
-    try {
-      // Get admin passcodes from sessionStorage
-      const passcode1 = sessionStorage.getItem('admin_passcode_1');
-      const passcode2 = sessionStorage.getItem('admin_passcode_2');
-      const passcode3 = sessionStorage.getItem('admin_passcode_3');
-      
-      const { data, error } = await supabase.functions.invoke('send-push-notification', {
-        body: {
-          title: notificationTitle.trim(),
-          body: notificationBody.trim(),
-          pro_only: notificationTarget === "pro",
-          data: { type: 'admin_announcement' }
-        },
-        headers: {
-          'x-admin-passcode-1': passcode1 || '',
-          'x-admin-passcode-2': passcode2 || '',
-          'x-admin-passcode-3': passcode3 || ''
-        }
-      });
-
-      if (error) {
-        console.error('Push notification error:', error);
-        toast.error("Failed to send notification", { description: error.message });
-        return;
-      }
-
-      console.log('Push notification result:', data);
-      toast.success("Notification sent!", {
-        description: `Sent: ${data?.sent || 0}, Failed: ${data?.failed || 0}`
-      });
-      
-      // Clear form
-      setNotificationTitle("");
-      setNotificationBody("");
-    } catch (err) {
-      console.error('Error sending notification:', err);
-      toast.error("Failed to send notification");
-    } finally {
-      setIsSendingNotification(false);
-    }
-  };
-
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return date.toLocaleDateString();
-  };
-
+  // Loading state
   if (adminLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -325,11 +108,12 @@ const Admin = () => {
     );
   }
 
+  // Not admin - show access modal
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <AdminAccessModal 
-          open={showAccessModal} 
+        <AdminAccessModal
+          open={showAccessModal}
           onOpenChange={(open) => {
             setShowAccessModal(open);
             if (!open) navigate("/");
@@ -340,7 +124,7 @@ const Admin = () => {
     );
   }
 
-  const statCards = [
+  const statCards: StatCardConfig[] = [
     { icon: Users, label: "Total Users", value: stats?.totalUsers || 0, color: "text-blue-500" },
     { icon: TrendingUp, label: "New Today", value: stats?.newSignupsToday || 0, color: "text-emerald-500" },
     { icon: Crown, label: "Pro Subscribers", value: stats?.proSubscribers || 0, color: "text-amber-500" },
@@ -351,69 +135,35 @@ const Admin = () => {
     { icon: BookOpen, label: "Insights", value: stats?.totalInsights || 0, color: "text-purple-500" },
   ];
 
-  const activityFeed = [
-    ...recentActivity.moods.map(m => ({ type: 'mood' as const, ...m })),
-    ...recentActivity.rituals.map(r => ({ type: 'ritual' as const, ...r })),
-  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 15);
+  // Prepare export data
+  const usersExportData = users.map(u => ({
+    nickname: u.nickname,
+    streak: u.current_streak,
+    longest_streak: u.longest_streak,
+    joined: u.created_at,
+    referrals: u.referral_count,
+    pwa_installed: u.pwa_installed ? 'Yes' : 'No',
+    total_time_minutes: Math.round(u.total_time_spent_seconds / 60)
+  }));
+
+  const proExportData = proSubscribers.map(s => ({
+    name: s.name,
+    email: s.email,
+    plan: s.plan,
+    status: s.status,
+    renewal_date: s.currentPeriodEnd
+  }));
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/")}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="font-serif italic text-xl text-foreground flex items-center gap-2">
-                <Crown className="w-5 h-5 text-primary" />
-                Admin Dashboard
-              </h1>
-              <p className="text-sm text-muted-foreground flex items-center gap-2">
-                <Zap className="w-3 h-3 text-green-500" />
-                Live updates enabled
-                {lastUpdated && (
-                  <span className="text-xs">• Last sync: {formatTimeAgo(lastUpdated.toISOString())}</span>
-                )}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Session Timer */}
-            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-              showTimeoutWarning 
-                ? 'bg-amber-500/20 text-amber-600' 
-                : 'bg-muted text-muted-foreground'
-            }`}>
-              {showTimeoutWarning && <AlertTriangle className="w-3 h-3" />}
-              <Timer className="w-3 h-3" />
-              <span>{formatSessionTime(sessionTimeRemaining)}</span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchAdminData}
-              disabled={isLoadingData}
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingData ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Exit
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AdminHeader
+        lastUpdated={lastUpdated}
+        sessionTimeRemaining={sessionTimeRemaining}
+        showTimeoutWarning={showTimeoutWarning}
+        isLoadingData={isLoadingData}
+        onRefresh={fetchData}
+        onLogout={handleLogout}
+      />
 
       <main className="container mx-auto px-4 py-8">
         {isLoadingData && !stats ? (
@@ -427,151 +177,43 @@ const Admin = () => {
               <h2 className="text-label mb-4">OVERVIEW</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {statCards.map((stat) => (
-                  <div key={stat.label} className="card-embrace text-center py-5">
-                    <stat.icon className={`w-6 h-6 mx-auto mb-2 ${stat.color}`} />
-                    <p className="text-2xl font-semibold text-foreground mb-1">
-                      {stat.value.toLocaleString()}
-                    </p>
-                    <p className="text-label text-xs">{stat.label}</p>
-                  </div>
+                  <AdminStatCard
+                    key={stat.label}
+                    icon={stat.icon}
+                    label={stat.label}
+                    value={stat.value}
+                    color={stat.color}
+                    isLoading={isLoadingData && !stats}
+                  />
                 ))}
               </div>
             </section>
 
             {/* Engagement Charts */}
-            {chartData && (
-              <section className="mb-8">
-                <h2 className="text-label mb-4 flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-primary" />
-                  ENGAGEMENT TRENDS (Last 14 Days)
-                </h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Signups Chart */}
-                  <div className="card-embrace p-4">
-                    <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-emerald-500" />
-                      New Signups
-                    </h3>
-                    <div className="h-[200px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData.signupsByDay}>
-                          <defs>
-                            <linearGradient id="signupGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                          <XAxis 
-                            dataKey="label" 
-                            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                            tickLine={false}
-                            axisLine={false}
-                          />
-                          <YAxis 
-                            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                            tickLine={false}
-                            axisLine={false}
-                            allowDecimals={false}
-                          />
-                          <Tooltip 
-                            contentStyle={{ 
-                              backgroundColor: 'hsl(var(--card))',
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px',
-                              fontSize: '12px'
-                            }}
-                            labelStyle={{ color: 'hsl(var(--foreground))' }}
-                          />
-                          <Area 
-                            type="monotone" 
-                            dataKey="count" 
-                            stroke="hsl(var(--primary))" 
-                            strokeWidth={2}
-                            fill="url(#signupGradient)" 
-                            name="Signups"
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
+            {chartData && <AdminCharts chartData={chartData} />}
 
-                  {/* Activity Chart */}
-                  <div className="card-embrace p-4">
-                    <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
-                      <Activity className="w-4 h-4 text-pink-500" />
-                      Daily Activity
-                    </h3>
-                    <div className="h-[200px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData.activityByDay}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                          <XAxis 
-                            dataKey="label" 
-                            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                            tickLine={false}
-                            axisLine={false}
-                          />
-                          <YAxis 
-                            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                            tickLine={false}
-                            axisLine={false}
-                            allowDecimals={false}
-                          />
-                          <Tooltip 
-                            contentStyle={{ 
-                              backgroundColor: 'hsl(var(--card))',
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px',
-                              fontSize: '12px'
-                            }}
-                            labelStyle={{ color: 'hsl(var(--foreground))' }}
-                          />
-                          <Bar dataKey="moods" fill="#ec4899" name="Moods" radius={[2, 2, 0, 0]} />
-                          <Bar dataKey="rituals" fill="#06b6d4" name="Rituals" radius={[2, 2, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                    <div className="flex justify-center gap-6 mt-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-3 h-3 rounded-sm bg-pink-500" /> Moods
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-3 h-3 rounded-sm bg-cyan-500" /> Rituals
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            )}
-
+            {/* Three Column Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Pro Subscribers */}
               <section className="lg:col-span-1" ref={proSubscribersRef}>
-                <h2 className="text-label mb-4 flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-amber-500" />
-                  PRO SUBSCRIBERS ({proSubscribers.length})
-                </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-label flex items-center gap-2">
+                    <Crown className="w-4 h-4 text-amber-500" />
+                    PRO SUBSCRIBERS ({proSubscribers.length})
+                  </h2>
+                  <AdminExportButton<Record<string, unknown>>
+                    data={proExportData as unknown as Record<string, unknown>[]}
+                    filename="pro_subscribers"
+                    label="Export"
+                  />
+                </div>
                 <div className="card-embrace max-h-[400px] overflow-y-auto">
                   {proSubscribers.length === 0 ? (
                     <p className="text-muted-foreground text-center py-6">No Pro subscribers yet</p>
                   ) : (
                     <div className="divide-y divide-border">
                       {proSubscribers.map((sub) => (
-                        <div key={sub.id} className="p-3">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium text-foreground text-sm">{sub.name}</p>
-                              <p className="text-xs text-muted-foreground">{sub.email}</p>
-                            </div>
-                            <Badge variant="secondary" className="text-xs bg-amber-500/10 text-amber-600">
-                              {sub.plan}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Renews: {new Date(sub.currentPeriodEnd).toLocaleDateString()}
-                          </p>
-                        </div>
+                        <AdminProSubscriberCard key={sub.id} subscriber={sub} />
                       ))}
                     </div>
                   )}
@@ -590,25 +232,7 @@ const Admin = () => {
                   ) : (
                     <div className="divide-y divide-border">
                       {activityFeed.map((item) => (
-                        <div key={item.id} className="p-3 flex items-center gap-3">
-                          {item.type === 'mood' ? (
-                            <Heart className="w-4 h-4 text-pink-500 flex-shrink-0" />
-                          ) : (
-                            <Wind className="w-4 h-4 text-cyan-500 flex-shrink-0" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-foreground truncate">
-                              {item.type === 'mood' 
-                                ? `Mood: ${(item as any).mood}`
-                                : `Ritual: ${(item as any).ritual_type}`
-                              }
-                            </p>
-                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {formatTimeAgo(item.created_at)}
-                            </p>
-                          </div>
-                        </div>
+                        <AdminActivityItem key={item.id} item={item} />
                       ))}
                     </div>
                   )}
@@ -617,39 +241,33 @@ const Admin = () => {
 
               {/* Users List */}
               <section className="lg:col-span-1">
-                <h2 className="text-label mb-4">USERS ({users.length})</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-label">USERS ({users.length})</h2>
+                  <AdminExportButton<Record<string, unknown>>
+                    data={usersExportData as unknown as Record<string, unknown>[]}
+                    filename="users"
+                    label="Export"
+                  />
+                </div>
                 <div className="card-embrace max-h-[400px] overflow-y-auto">
-                  {users.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-6">No users yet</p>
+                  <div className="p-3 border-b border-border">
+                    <AdminUserSearch
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                      activeFilter={activeFilter}
+                      onFilterChange={setActiveFilter}
+                      totalCount={users.length}
+                      filteredCount={filteredUsers.length}
+                    />
+                  </div>
+                  {filteredUsers.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-6">
+                      {users.length === 0 ? "No users yet" : "No matching users"}
+                    </p>
                   ) : (
                     <div className="divide-y divide-border">
-                      {users.slice(0, 50).map((u) => (
-                        <div key={u.user_id} className="p-3">
-                          <div className="flex items-center justify-between mb-1">
-                            <p className="font-medium text-foreground text-sm">{u.nickname || "—"}</p>
-                            <span className="flex items-center gap-1 text-orange-500 text-sm">
-                              🔥 {u.current_streak}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            Joined {new Date(u.created_at).toLocaleDateString()}
-                            {u.referral_count > 0 && ` • ${u.referral_count} referrals`}
-                          </p>
-                          <div className="flex items-center gap-3 mt-1.5">
-                            {/* PWA Status */}
-                            <span className={`flex items-center gap-1 text-xs ${
-                              u.pwa_installed ? 'text-green-600' : 'text-muted-foreground'
-                            }`}>
-                              <Smartphone className="w-3 h-3" />
-                              {u.pwa_installed ? 'PWA' : 'Web'}
-                            </span>
-                            {/* Time Spent */}
-                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              {formatDuration(u.total_time_spent_seconds)}
-                            </span>
-                          </div>
-                        </div>
+                      {filteredUsers.slice(0, 50).map((user) => (
+                        <AdminUserCard key={user.user_id} user={user} />
                       ))}
                     </div>
                   )}
@@ -658,83 +276,7 @@ const Admin = () => {
             </div>
 
             {/* Send Announcement */}
-            <section className="mt-8">
-              <h2 className="text-label mb-4 flex items-center gap-2">
-                <Bell className="w-4 h-4 text-primary" />
-                SEND ANNOUNCEMENT
-              </h2>
-              <div className="card-embrace p-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="notification-title" className="text-sm font-medium mb-2 block">
-                      Title
-                    </Label>
-                    <Input
-                      id="notification-title"
-                      placeholder="Notification title..."
-                      value={notificationTitle}
-                      onChange={(e) => setNotificationTitle(e.target.value)}
-                      maxLength={100}
-                      className="bg-background"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="notification-body" className="text-sm font-medium mb-2 block">
-                      Message
-                    </Label>
-                    <Textarea
-                      id="notification-body"
-                      placeholder="Your announcement message..."
-                      value={notificationBody}
-                      onChange={(e) => setNotificationBody(e.target.value)}
-                      maxLength={500}
-                      rows={3}
-                      className="bg-background resize-none"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium mb-3 block">Send to</Label>
-                    <RadioGroup 
-                      value={notificationTarget} 
-                      onValueChange={(val) => setNotificationTarget(val as "all" | "pro")}
-                      className="flex gap-6"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="all" id="target-all" />
-                        <Label htmlFor="target-all" className="cursor-pointer">All Users</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="pro" id="target-pro" />
-                        <Label htmlFor="target-pro" className="cursor-pointer flex items-center gap-1">
-                          <Crown className="w-3.5 h-3.5 text-amber-500" />
-                          Pro Subscribers Only
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  <Button
-                    onClick={handleSendNotification}
-                    disabled={isSendingNotification || !notificationTitle.trim() || !notificationBody.trim()}
-                    className="w-full"
-                  >
-                    {isSendingNotification ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4 mr-2" />
-                        Send Notification
-                      </>
-                    )}
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Notifications will be sent to users who have installed the app and enabled push notifications.
-                  </p>
-                </div>
-              </div>
-            </section>
+            <AdminNotificationForm />
 
             {/* Quick Actions */}
             <section className="mt-8">
@@ -745,7 +287,6 @@ const Admin = () => {
                   className="justify-start h-auto py-4"
                   onClick={() => {
                     proSubscribersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Highlight effect
                     proSubscribersRef.current?.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
                     setTimeout(() => {
                       proSubscribersRef.current?.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
