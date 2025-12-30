@@ -11,6 +11,34 @@ import { Input } from "@/components/ui/input";
 import { format, isToday, startOfDay, differenceInCalendarDays } from "date-fns";
 import UpgradeModal from "@/components/UpgradeModal";
 import VoiceJournal from "@/components/VoiceJournal";
+import OnboardingTour from "@/components/OnboardingTour";
+
+const gratitudeTourSteps = [
+  {
+    target: "[data-tour='gratitude-header']",
+    title: "Your Gratitude Journal",
+    description: "Daily gratitude practice rewires your brain for happiness. Take a moment to appreciate the good in your life.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='gratitude-input']",
+    title: "Add Your Gratitude",
+    description: "Type what you're grateful for today. It can be big or small - a sunny morning, a kind word, or a warm meal.",
+    position: "bottom" as const,
+  },
+  {
+    target: "[data-tour='gratitude-today']",
+    title: "Today's Reflections",
+    description: "See all the things you've been grateful for today. Review them when you need a positivity boost.",
+    position: "top" as const,
+  },
+  {
+    target: "[data-tour='gratitude-history']",
+    title: "Your Journey",
+    description: "Pro users can view their full gratitude history and track their streak of consecutive days.",
+    position: "top" as const,
+  },
+];
 
 interface GratitudeEntry {
   id: string;
@@ -155,10 +183,14 @@ const Gratitude = () => {
 
   return (
     <AppLayout>
+      <OnboardingTour
+        steps={gratitudeTourSteps}
+        storageKey="embraceu-gratitude-tour-completed"
+      />
       <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 p-6 pb-24">
         <div className="max-w-2xl mx-auto space-y-8">
           {/* Header */}
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-4" data-tour="gratitude-header">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 mb-2">
               <Heart className="w-8 h-8 text-primary" fill="currentColor" />
             </div>
@@ -186,7 +218,7 @@ const Gratitude = () => {
           )}
 
           {/* Input Section */}
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50" data-tour="gratitude-input">
             <CardContent className="p-6 space-y-4">
               <div className="flex items-center gap-2 text-muted-foreground mb-2">
                 <Calendar className="w-4 h-4" />
@@ -235,7 +267,7 @@ const Gratitude = () => {
 
               {/* Today's Entries */}
               {todayEntries.length > 0 && (
-                <div className="space-y-2 pt-4 border-t border-border/30">
+                <div className="space-y-2 pt-4 border-t border-border/30" data-tour="gratitude-today">
                   <h3 className="text-sm font-medium text-muted-foreground">
                     Today's gratitude
                   </h3>
@@ -271,6 +303,7 @@ const Gratitude = () => {
           )}
 
           {/* History Section - Pro Feature */}
+          <div data-tour="gratitude-history">
           {isPremium ? (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
@@ -327,6 +360,7 @@ const Gratitude = () => {
               </CardContent>
             </Card>
           )}
+          </div>
         </div>
       </div>
 
