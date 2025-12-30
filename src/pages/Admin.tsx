@@ -27,8 +27,14 @@ import {
   Smartphone,
   Timer,
   AlertTriangle,
-  BarChart3
+  BarChart3,
+  Bell,
+  Send
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import {
   AreaChart,
   Area,
@@ -124,6 +130,12 @@ const Admin = () => {
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  
+  // Push notification state
+  const [notificationTitle, setNotificationTitle] = useState("");
+  const [notificationBody, setNotificationBody] = useState("");
+  const [notificationTarget, setNotificationTarget] = useState<"all" | "pro">("all");
+  const [isSendingNotification, setIsSendingNotification] = useState(false);
 
   // Show timeout warning toast
   useEffect(() => {
@@ -241,6 +253,55 @@ const Admin = () => {
   const handleLogout = async () => {
     await clearAdminStatus();
     navigate("/");
+  };
+
+  const handleSendNotification = async () => {
+    if (!notificationTitle.trim() || !notificationBody.trim()) {
+      toast.error("Please enter both title and message");
+      return;
+    }
+    
+    setIsSendingNotification(true);
+    try {
+      // Get admin passcodes from sessionStorage
+      const passcode1 = sessionStorage.getItem('admin_passcode_1');
+      const passcode2 = sessionStorage.getItem('admin_passcode_2');
+      const passcode3 = sessionStorage.getItem('admin_passcode_3');
+      
+      const { data, error } = await supabase.functions.invoke('send-push-notification', {
+        body: {
+          title: notificationTitle.trim(),
+          body: notificationBody.trim(),
+          pro_only: notificationTarget === "pro",
+          data: { type: 'admin_announcement' }
+        },
+        headers: {
+          'x-admin-passcode-1': passcode1 || '',
+          'x-admin-passcode-2': passcode2 || '',
+          'x-admin-passcode-3': passcode3 || ''
+        }
+      });
+
+      if (error) {
+        console.error('Push notification error:', error);
+        toast.error("Failed to send notification", { description: error.message });
+        return;
+      }
+
+      console.log('Push notification result:', data);
+      toast.success("Notification sent!", {
+        description: `Sent: ${data?.sent || 0}, Failed: ${data?.failed || 0}`
+      });
+      
+      // Clear form
+      setNotificationTitle("");
+      setNotificationBody("");
+    } catch (err) {
+      console.error('Error sending notification:', err);
+      toast.error("Failed to send notification");
+    } finally {
+      setIsSendingNotification(false);
+    }
   };
 
   const formatTimeAgo = (dateString: string) => {
@@ -595,6 +656,85 @@ const Admin = () => {
                 </div>
               </section>
             </div>
+
+            {/* Send Announcement */}
+            <section className="mt-8">
+              <h2 className="text-label mb-4 flex items-center gap-2">
+                <Bell className="w-4 h-4 text-primary" />
+                SEND ANNOUNCEMENT
+              </h2>
+              <div className="card-embrace p-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="notification-title" className="text-sm font-medium mb-2 block">
+                      Title
+                    </Label>
+                    <Input
+                      id="notification-title"
+                      placeholder="Notification title..."
+                      value={notificationTitle}
+                      onChange={(e) => setNotificationTitle(e.target.value)}
+                      maxLength={100}
+                      className="bg-background"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="notification-body" className="text-sm font-medium mb-2 block">
+                      Message
+                    </Label>
+                    <Textarea
+                      id="notification-body"
+                      placeholder="Your announcement message..."
+                      value={notificationBody}
+                      onChange={(e) => setNotificationBody(e.target.value)}
+                      maxLength={500}
+                      rows={3}
+                      className="bg-background resize-none"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium mb-3 block">Send to</Label>
+                    <RadioGroup 
+                      value={notificationTarget} 
+                      onValueChange={(val) => setNotificationTarget(val as "all" | "pro")}
+                      className="flex gap-6"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="all" id="target-all" />
+                        <Label htmlFor="target-all" className="cursor-pointer">All Users</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="pro" id="target-pro" />
+                        <Label htmlFor="target-pro" className="cursor-pointer flex items-center gap-1">
+                          <Crown className="w-3.5 h-3.5 text-amber-500" />
+                          Pro Subscribers Only
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  <Button
+                    onClick={handleSendNotification}
+                    disabled={isSendingNotification || !notificationTitle.trim() || !notificationBody.trim()}
+                    className="w-full"
+                  >
+                    {isSendingNotification ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Notification
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Notifications will be sent to users who have installed the app and enabled push notifications.
+                  </p>
+                </div>
+              </div>
+            </section>
 
             {/* Quick Actions */}
             <section className="mt-8">
