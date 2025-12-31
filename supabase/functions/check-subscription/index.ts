@@ -7,8 +7,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Lifetime product ID from Stripe
-const LIFETIME_PRODUCT_ID = "prod_ThYOSoy84TwCDH";
+// Product IDs from Stripe
+const LIFETIME_PRODUCT_ID = "prod_ThfBphrlNFCrAM";
+const BUNDLE_PRODUCT_ID = "prod_ThduP1oLhnt8Vz";
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -98,9 +99,9 @@ serve(async (req) => {
         productId 
       });
     } else {
-      logStep("No active subscription found, checking for lifetime purchase");
+      logStep("No active subscription found, checking for lifetime/bundle purchase");
       
-      // Check for lifetime one-time purchase via checkout sessions
+      // Check for lifetime or bundle one-time purchase via checkout sessions
       const checkoutSessions = await stripe.checkout.sessions.list({
         customer: customerId,
         status: 'complete',
@@ -114,20 +115,44 @@ serve(async (req) => {
           
           for (const item of lineItems.data) {
             const priceProduct = item.price?.product;
+            
+            // Check for lifetime purchase
             if (priceProduct === LIFETIME_PRODUCT_ID) {
               isLifetime = true;
               productId = LIFETIME_PRODUCT_ID;
               logStep("Lifetime purchase found", { sessionId: session.id, productId });
               break;
             }
+            
+            // Check for 3-month bundle purchase (treated as Pro access)
+            if (priceProduct === BUNDLE_PRODUCT_ID) {
+              // Bundle grants 3 months of access from purchase date
+              const purchaseDate = new Date(session.created * 1000);
+              const expiryDate = new Date(purchaseDate);
+              expiryDate.setMonth(expiryDate.getMonth() + 3);
+              
+              // Only grant access if bundle hasn't expired
+              if (expiryDate > new Date()) {
+                productId = BUNDLE_PRODUCT_ID;
+                subscriptionEnd = expiryDate.toISOString();
+                logStep("Active bundle purchase found", { 
+                  sessionId: session.id, 
+                  productId,
+                  expiresAt: subscriptionEnd 
+                });
+                break;
+              } else {
+                logStep("Expired bundle purchase found", { sessionId: session.id });
+              }
+            }
           }
           
-          if (isLifetime) break;
+          if (isLifetime || productId) break;
         }
       }
     }
 
-    const hasAccess = hasActiveSub || isLifetime;
+    const hasAccess = hasActiveSub || isLifetime || !!productId;
 
     return new Response(JSON.stringify({
       subscribed: hasAccess,
