@@ -59,7 +59,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1Sk9HJDrG8e7x5d4UTmmbH44", // EmbraceU Pro Lifetime $7.99 one-time
+          price: "price_1SkFqlDrG8e7x5d46l0IlVuB", // EmbraceU Pro Lifetime $24.99 one-time
           quantity: 1,
         },
       ],

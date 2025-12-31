@@ -9,7 +9,7 @@ const corsHeaders = {
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
+  console.log(`[CREATE-BUNDLE-CHECKOUT] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
@@ -53,16 +53,17 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://pigavlxphdpjsjiwohok.lovableproject.com";
     
+    // 3-Month Bundle - one-time payment
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1SkEFlDrG8e7x5d4tSl1RllF", // EmbraceU Pro $3.49/month
+          price: "price_1SkEcjDrG8e7x5d4G5RbHChY", // EmbraceU Pro 3-Month Bundle $8.25
           quantity: 1,
         },
       ],
-      mode: "subscription",
+      mode: "payment",
       success_url: `${origin}/daily?checkout=success`,
       cancel_url: `${origin}/daily?checkout=cancelled`,
     });
