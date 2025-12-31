@@ -21,7 +21,9 @@ import UpgradeModal from "@/components/UpgradeModal";
 import ImpactWrap from "@/components/ImpactWrap";
 import AIInsights from "@/components/AIInsights";
 import ExportProgress from "@/components/ExportProgress";
+import { MoodCorrelation } from "@/components/MoodCorrelation";
 import { Button } from "@/components/ui/button";
+import { Lock } from "lucide-react";
 import OnboardingTour from "@/components/OnboardingTour";
 
 const progressTourSteps = [
@@ -308,6 +310,26 @@ const Progress = () => {
       <div data-tour="progress-insights">
         <AIInsights onUpgradeClick={() => setShowUpgradeModal(true)} />
       </div>
+
+      {/* Mood Correlation Section - Pro Feature */}
+      <section className="mb-8" data-tour="progress-correlations">
+        <h2 className="text-label mb-4">MOOD PATTERNS</h2>
+        <div className="card-embrace">
+          {isPremium ? (
+            <MoodCorrelation />
+          ) : (
+            <div className="text-center py-6">
+              <Lock className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground mb-3">
+                Unlock mood correlation insights with Pro
+              </p>
+              <Button size="sm" onClick={() => setShowUpgradeModal(true)}>
+                Upgrade to Pro
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Activity Summary */}
       <section className="mb-8" data-tour="progress-activity">

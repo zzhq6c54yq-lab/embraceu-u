@@ -12,6 +12,7 @@ import { format, isToday, startOfDay, differenceInCalendarDays } from "date-fns"
 import UpgradeModal from "@/components/UpgradeModal";
 import VoiceJournal from "@/components/VoiceJournal";
 import OnboardingTour from "@/components/OnboardingTour";
+import { DailyPrompt } from "@/components/DailyPrompt";
 
 const gratitudeTourSteps = [
   {
@@ -216,6 +217,12 @@ const Gratitude = () => {
               </CardContent>
             </Card>
           )}
+
+          {/* Daily Prompt */}
+          <DailyPrompt 
+            category="gratitude" 
+            onUsePrompt={(prompt) => setNewGratitude(prompt)} 
+          />
 
           {/* Input Section */}
           <Card className="bg-card/50 backdrop-blur-sm border-border/50" data-tour="gratitude-input">

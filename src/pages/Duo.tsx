@@ -11,6 +11,8 @@ import UpgradeModal from '@/components/UpgradeModal';
 import ReferralRewardsSection from '@/components/ReferralRewardsSection';
 import DuoActivityFeed from '@/components/DuoActivityFeed';
 import DuoMotivation from '@/components/DuoMotivation';
+import { PartnerMoodCard } from '@/components/PartnerMoodCard';
+import { Switch } from '@/components/ui/switch';
 
 interface SharedStreak {
   id: string;
@@ -41,6 +43,7 @@ const Duo = () => {
   const [partnerId, setPartnerId] = useState<string>('');
   const [partnerStreak, setPartnerStreak] = useState<number>(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [shareMoodWithPartner, setShareMoodWithPartner] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -49,15 +52,18 @@ const Duo = () => {
     }
 
     const fetchData = async () => {
-      // Get user's referral code
+      // Get user's referral code and mood sharing preference
       const { data: profile } = await supabase
         .from('profiles')
-        .select('referral_code')
+        .select('referral_code, share_mood_with_partner')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (profile?.referral_code) {
-        setReferralCode(profile.referral_code);
+      if (profile) {
+        if (profile.referral_code) {
+          setReferralCode(profile.referral_code);
+        }
+        setShareMoodWithPartner(profile.share_mood_with_partner || false);
       }
 
       // Get shared streak if exists
@@ -204,6 +210,24 @@ const Duo = () => {
     }
   };
 
+  const toggleMoodSharing = async () => {
+    if (!user) return;
+    const newValue = !shareMoodWithPartner;
+    setShareMoodWithPartner(newValue);
+    
+    await supabase
+      .from('profiles')
+      .update({ share_mood_with_partner: newValue })
+      .eq('user_id', user.id);
+    
+    toast({
+      title: newValue ? 'Mood sharing enabled' : 'Mood sharing disabled',
+      description: newValue 
+        ? 'Your partner can now see your mood' 
+        : 'Your mood is now private'
+    });
+  };
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -324,6 +348,31 @@ const Duo = () => {
                   </div>
                   <p className="text-xs text-muted-foreground">their streak</p>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Partner Mood Card */}
+          <section className="mb-6">
+            <h2 className="text-label mb-4">PARTNER MOOD</h2>
+            <PartnerMoodCard partnerId={partnerId} partnerName={partnerName} />
+          </section>
+
+          {/* Privacy Settings */}
+          <section className="mb-6">
+            <h2 className="text-label mb-4">PRIVACY SETTINGS</h2>
+            <div className="card-embrace">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-foreground">Share my mood</p>
+                  <p className="text-xs text-muted-foreground">
+                    Let your partner see your current mood
+                  </p>
+                </div>
+                <Switch
+                  checked={shareMoodWithPartner}
+                  onCheckedChange={toggleMoodSharing}
+                />
               </div>
             </div>
           </section>
