@@ -35,6 +35,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Admin = lazy(() => import("./pages/Admin"));
 const ProFeatures = lazy(() => import("./pages/ProFeatures"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Challenges = lazy(() => import("./pages/Challenges"));
 
 // Exclusive content pages
 const GuidedMeditations = lazy(() => import("./pages/exclusive/GuidedMeditations"));
@@ -87,6 +88,7 @@ const App = () => (
                 <Route path="/rituals" element={<ProtectedRoute><Rituals /></ProtectedRoute>} />
                 <Route path="/pro" element={<ProtectedRoute><ProFeatures /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
                 
                 {/* Exclusive content routes - require premium */}
                 <Route path="/exclusive/meditations" element={<ProtectedRoute><GuidedMeditations /></ProtectedRoute>} />

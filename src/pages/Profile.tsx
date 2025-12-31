@@ -8,6 +8,7 @@ import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import ProfileSettings from "@/components/ProfileSettings";
 import AvatarSelector from "@/components/AvatarSelector";
 import { AvatarDisplay } from "@/components/avatar";
+import { AchievementBadges } from "@/components/AchievementBadges";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -93,6 +94,14 @@ const Profile = () => {
           </p>
         )}
       </div>
+
+      {/* Achievement Badges Section */}
+      <section className="mb-8">
+        <h2 className="text-label mb-4">YOUR ACHIEVEMENTS</h2>
+        <div className="card-embrace">
+          <AchievementBadges />
+        </div>
+      </section>
 
       {/* Avatar Section */}
       <section className="mb-8">
