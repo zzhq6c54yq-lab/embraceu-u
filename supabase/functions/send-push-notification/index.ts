@@ -6,11 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-admin-passcode-1, x-admin-passcode-2, x-admin-passcode-3',
 };
 
-// Admin passcodes (same as fetch-admin-stats)
-const ADMIN_PASSCODE_1 = "070606300428";
-const ADMIN_PASSCODE_2 = "06300428";
-const ADMIN_PASSCODE_3 = "0706";
-
 interface PushPayload {
   title: string;
   body: string;
@@ -19,15 +14,19 @@ interface PushPayload {
   pro_only?: boolean; // Send only to pro subscribers
 }
 
-// Verify admin access via passcode headers
+// Verify admin access via passcode headers using environment secrets
 function verifyAdminAccess(req: Request): boolean {
   const passcode1 = req.headers.get('x-admin-passcode-1');
   const passcode2 = req.headers.get('x-admin-passcode-2');
   const passcode3 = req.headers.get('x-admin-passcode-3');
   
-  return passcode1 === ADMIN_PASSCODE_1 && 
-         passcode2 === ADMIN_PASSCODE_2 && 
-         passcode3 === ADMIN_PASSCODE_3;
+  const adminCode1 = Deno.env.get('ADMIN_CODE_1');
+  const adminCode2 = Deno.env.get('ADMIN_CODE_2');
+  const adminCode3 = Deno.env.get('ADMIN_CODE_3');
+  
+  return passcode1 === adminCode1 && 
+         passcode2 === adminCode2 && 
+         passcode3 === adminCode3;
 }
 
 serve(async (req) => {
