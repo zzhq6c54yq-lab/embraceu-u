@@ -11,6 +11,7 @@ import PatternReleaseModal from "@/components/PatternReleaseModal";
 import QualityCultivateModal from "@/components/QualityCultivateModal";
 import FeatureInfoModal from "@/components/FeatureInfoModal";
 import OnboardingTour from "@/components/OnboardingTour";
+import { DailyPrompt } from "@/components/DailyPrompt";
 
 const dailyTourSteps = [
   {
@@ -454,6 +455,16 @@ const Daily = () => {
             HOW ARE YOU FEELING NOW?
           </button>
         </div>
+
+        {/* Daily Reflection Prompt */}
+        <section className="mt-8">
+          <DailyPrompt
+            category="reflection"
+            onUsePrompt={(prompt) => {
+              toast.info(`Reflect on: ${prompt}`);
+            }}
+          />
+        </section>
 
         {/* Gratitude Link Section */}
         <section className="mt-8" data-tour="gratitude">
