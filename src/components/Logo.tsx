@@ -24,7 +24,7 @@ const Logo = ({ className, showTagline = false, size = "md", isExiting = false, 
     md: { width: 240, height: 120 },
     lg: { width: 400, height: 200 },
     xl: { width: 600, height: 300 },
-    "2xl": { width: 560, height: 340 },
+    "2xl": { width: 700, height: 420 },
   };
 
   const s = sizes[size];
@@ -51,7 +51,7 @@ const Logo = ({ className, showTagline = false, size = "md", isExiting = false, 
         {/* EmbraceU logo with integrated text */}
         <div 
           className={cn(
-            "relative animate-float",
+            "relative animate-float md:scale-110 lg:scale-125",
             enableAdminAccess && "cursor-pointer hover:scale-105 transition-transform"
           )}
           style={{ width: s.width, height: s.height, maxWidth: "95vw" }}
