@@ -40,8 +40,13 @@ const Intro = () => {
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 
+      {/* Logo at Top */}
+      <div className="relative z-10 flex justify-center pt-8 pb-4">
+        <Logo size="lg" />
+      </div>
+
       {/* Features Section */}
-      <div className="relative z-10 px-6 py-12 md:py-16">
+      <div className="relative z-10 px-6 py-8 md:py-12">
         <h2 className="text-label text-center mb-10">WHAT AWAITS YOU</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
@@ -103,7 +108,7 @@ const Intro = () => {
             onClick={() => navigate("/auth")}
             className="btn-embrace mt-10 min-w-[200px] flex items-center justify-center gap-2 mx-auto"
           >
-            START YOUR JOURNEY
+            EMBRACE YOUR JOURNEY
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -112,7 +117,6 @@ const Intro = () => {
       {/* Footer */}
       <footer className="relative z-10 px-6 py-12 text-center">
         <div className="flex flex-col items-center gap-4">
-          <Logo size="sm" />
           <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground flex items-center gap-1.5">
             BY THRIVE MT
             <img src={thriveMtIcon} alt="Thrive MT" className="w-4 h-4 object-contain" />
