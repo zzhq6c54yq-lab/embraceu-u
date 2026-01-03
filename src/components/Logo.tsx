@@ -24,7 +24,7 @@ const Logo = ({ className, showTagline = false, size = "md", isExiting = false, 
     md: { width: 240, height: 120 },
     lg: { width: 400, height: 200 },
     xl: { width: 600, height: 300 },
-    "2xl": { width: 700, height: 420 },
+    "2xl": { width: 900, height: 540 },
   };
 
   const s = sizes[size];
@@ -51,10 +51,10 @@ const Logo = ({ className, showTagline = false, size = "md", isExiting = false, 
         {/* EmbraceU logo with integrated text */}
         <div 
           className={cn(
-            "relative animate-float md:scale-110 lg:scale-125",
+            "relative animate-float md:scale-125 lg:scale-150",
             enableAdminAccess && "cursor-pointer hover:scale-105 transition-transform"
           )}
-          style={{ width: s.width, height: s.height, maxWidth: "95vw" }}
+          style={{ width: s.width, height: s.height, maxWidth: "100vw" }}
           onClick={handleLogoClick}
         >
           <img
@@ -66,7 +66,7 @@ const Logo = ({ className, showTagline = false, size = "md", isExiting = false, 
 
         {/* Optional tagline */}
         {showTagline && (
-          <div className="flex flex-col items-center -mt-24 md:-mt-28">
+          <div className="flex flex-col items-center -mt-32 md:-mt-40">
             <p 
               className="text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium animate-text-shimmer"
             >

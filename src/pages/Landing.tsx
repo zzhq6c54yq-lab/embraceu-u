@@ -49,7 +49,7 @@ const Landing = () => {
       <div className="absolute inset-0 gradient-warm opacity-50 pointer-events-none" />
 
       {/* Hero Section */}
-      <main className="relative z-10 flex flex-col items-center px-6 pt-20 text-center">
+      <main className="relative z-10 flex flex-col items-center px-6 pt-2 text-center">
         <h1 className="sr-only">EmbraceU - Mental Wellness & Self-Growth App</h1>
         <Logo size="2xl" showTagline isExiting={isExiting} enableAdminAccess />
         <p className="mt-6 text-muted-foreground text-italic-serif text-lg md:text-xl leading-relaxed max-w-md">
