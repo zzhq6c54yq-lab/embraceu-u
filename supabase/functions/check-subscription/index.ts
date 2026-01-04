@@ -45,12 +45,56 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // FIRST: Check for active trial in database (no payment required)
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("trial_start_date, trial_end_date, trial_promo_code")
+      .eq("user_id", user.id)
+      .single();
+
+    if (profile?.trial_end_date) {
+      const trialEnd = new Date(profile.trial_end_date);
+      const now = new Date();
+      
+      if (trialEnd > now) {
+        // Active trial - calculate days remaining
+        const diffTime = trialEnd.getTime() - now.getTime();
+        const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        logStep("Active trial found", { 
+          trialEnd: profile.trial_end_date, 
+          daysRemaining,
+          promoCode: profile.trial_promo_code 
+        });
+        
+        return new Response(JSON.stringify({
+          subscribed: true,
+          isLifetime: false,
+          isTrial: true,
+          trialDaysRemaining: daysRemaining,
+          trialEndDate: profile.trial_end_date,
+          subscription_end: profile.trial_end_date
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      } else {
+        logStep("Trial expired", { trialEnd: profile.trial_end_date });
+      }
+    }
+
+    // SECOND: Check Stripe for paid subscriptions
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
       logStep("No customer found, returning unsubscribed");
-      return new Response(JSON.stringify({ subscribed: false, isLifetime: false }), {
+      return new Response(JSON.stringify({ 
+        subscribed: false, 
+        isLifetime: false,
+        isTrial: false,
+        trialExpired: !!profile?.trial_end_date // True if they had a trial that expired
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
@@ -157,6 +201,8 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       subscribed: hasAccess,
       isLifetime: isLifetime,
+      isTrial: false,
+      trialDaysRemaining: null,
       product_id: productId,
       subscription_end: isLifetime ? null : subscriptionEnd
     }), {

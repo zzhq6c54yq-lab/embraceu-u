@@ -5,6 +5,9 @@ import { useAuth } from "@/hooks/useAuth";
 interface PremiumContextType {
   isPremium: boolean;
   isLifetime: boolean;
+  isTrial: boolean;
+  trialDaysRemaining: number | null;
+  trialExpired: boolean;
   isLoading: boolean;
   subscriptionEnd: string | null;
   togglePremium: () => void;
@@ -14,6 +17,7 @@ interface PremiumContextType {
   completeCelebration: () => void;
   checkSubscription: () => Promise<void>;
   openCustomerPortal: () => Promise<void>;
+  activateTrial: (promoCode: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const PremiumContext = createContext<PremiumContextType | undefined>(undefined);
@@ -22,6 +26,9 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
   const { user, session } = useAuth();
   const [isPremium, setIsPremiumState] = useState(false);
   const [isLifetime, setIsLifetime] = useState(false);
+  const [isTrial, setIsTrial] = useState(false);
+  const [trialDaysRemaining, setTrialDaysRemaining] = useState<number | null>(null);
+  const [trialExpired, setTrialExpired] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -90,6 +97,9 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setIsLifetime(data?.isLifetime === true);
+      setIsTrial(data?.isTrial === true);
+      setTrialDaysRemaining(data?.trialDaysRemaining ?? null);
+      setTrialExpired(data?.trialExpired === true);
       setSubscriptionEnd(data?.subscription_end || null);
     } catch (error) {
       console.error('Error checking subscription:', error);
@@ -125,6 +135,9 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setIsPremiumState(false);
       setIsLifetime(false);
+      setIsTrial(false);
+      setTrialDaysRemaining(null);
+      setTrialExpired(false);
       setSubscriptionEnd(null);
       setHasCheckedInitially(false);
     }
@@ -181,10 +194,42 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isPremium, triggerCelebration]);
 
+  const activateTrial = useCallback(async (promoCode: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('activate-trial', {
+        body: { promoCode }
+      });
+
+      if (error) {
+        console.error('Error activating trial:', error);
+        return { success: false, error: error.message };
+      }
+
+      if (data?.error) {
+        return { success: false, error: data.error };
+      }
+
+      if (data?.success) {
+        // Trial activated - trigger celebration and refresh subscription state
+        triggerCelebration();
+        await checkSubscription();
+        return { success: true };
+      }
+
+      return { success: false, error: 'Unknown error' };
+    } catch (error) {
+      console.error('Error activating trial:', error);
+      return { success: false, error: 'Failed to activate trial' };
+    }
+  }, [triggerCelebration, checkSubscription]);
+
   return (
     <PremiumContext.Provider value={{ 
       isPremium, 
       isLifetime,
+      isTrial,
+      trialDaysRemaining,
+      trialExpired,
       isLoading,
       subscriptionEnd,
       togglePremium, 
@@ -194,6 +239,7 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
       completeCelebration,
       checkSubscription,
       openCustomerPortal,
+      activateTrial,
     }}>
       {children}
     </PremiumContext.Provider>
