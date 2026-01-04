@@ -12,6 +12,7 @@ import QualityCultivateModal from "@/components/QualityCultivateModal";
 import FeatureInfoModal from "@/components/FeatureInfoModal";
 import OnboardingTour from "@/components/OnboardingTour";
 import { DailyPrompt } from "@/components/DailyPrompt";
+import TrialCountdownBanner from "@/components/TrialCountdownBanner";
 
 const dailyTourSteps = [
   {
@@ -432,6 +433,9 @@ const Daily = () => {
         storageKey="embraceu-daily-tour-completed"
       />
       <AppLayout>
+        {/* Trial Countdown Banner */}
+        <TrialCountdownBanner />
+        
         {/* Daily Focus Card */}
         <div className="mt-4" data-tour="daily-focus">
           <div className="card-embrace relative overflow-hidden">

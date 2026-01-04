@@ -390,6 +390,9 @@ export type Database = {
           total_patterns_released: number | null
           total_rituals_completed: number | null
           total_time_spent_seconds: number | null
+          trial_end_date: string | null
+          trial_promo_code: string | null
+          trial_start_date: string | null
           updated_at: string
           user_id: string
         }
@@ -414,6 +417,9 @@ export type Database = {
           total_patterns_released?: number | null
           total_rituals_completed?: number | null
           total_time_spent_seconds?: number | null
+          trial_end_date?: string | null
+          trial_promo_code?: string | null
+          trial_start_date?: string | null
           updated_at?: string
           user_id: string
         }
@@ -438,6 +444,9 @@ export type Database = {
           total_patterns_released?: number | null
           total_rituals_completed?: number | null
           total_time_spent_seconds?: number | null
+          trial_end_date?: string | null
+          trial_promo_code?: string | null
+          trial_start_date?: string | null
           updated_at?: string
           user_id?: string
         }

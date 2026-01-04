@@ -29,8 +29,9 @@ const VALID_PROMO_CODES = ['MTSTRONG100'];
 const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const { session } = useAuth();
   const { toast } = useToast();
-  const { checkSubscription } = usePremium();
+  const { checkSubscription, activateTrial } = usePremium();
   const [isLoading, setIsLoading] = useState(false);
+  const [isActivatingTrial, setIsActivatingTrial] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('weekly');
   const [promoCode, setPromoCode] = useState('');
@@ -38,10 +39,51 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
 
   const isValidPromo = VALID_PROMO_CODES.includes(promoCode.toUpperCase().trim());
 
+  const handleActivateTrial = async () => {
+    setIsActivatingTrial(true);
+    try {
+      const { data: { session: freshSession } } = await supabase.auth.getSession();
+      
+      if (!freshSession?.access_token) {
+        toast({
+          title: "Please sign in",
+          description: "You need to be signed in to start your free trial.",
+          variant: "destructive",
+        });
+        setIsActivatingTrial(false);
+        return;
+      }
+
+      const result = await activateTrial(promoCode.toUpperCase().trim());
+      
+      if (result.success) {
+        toast({
+          title: "Welcome to Pro! 🎉",
+          description: "Your 7-day free trial is now active. Enjoy all Pro features!",
+        });
+        onOpenChange(false);
+      } else {
+        toast({
+          title: "Could not activate trial",
+          description: result.error || "Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error activating trial:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to activate trial. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsActivatingTrial(false);
+    }
+  };
+
   const handleUpgrade = async (plan: PlanType) => {
     setIsLoading(true);
     try {
-      // Get fresh session to ensure token is valid
       const { data: { session: freshSession } } = await supabase.auth.getSession();
       
       if (!freshSession?.access_token) {
@@ -63,14 +105,8 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
       
       const functionName = functionMap[plan];
       
-      // Pass promo code and plan type to the checkout function
-      // Only send promo code if it's a valid one
-      const trimmedCode = promoCode.toUpperCase().trim();
       const { data, error } = await supabase.functions.invoke(functionName, {
-        body: { 
-          promoCode: VALID_PROMO_CODES.includes(trimmedCode) ? trimmedCode : undefined,
-          planType: plan
-        }
+        body: { planType: plan }
       });
 
       if (error) {
@@ -78,7 +114,6 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
       }
 
       if (data?.url) {
-        // Redirect to Stripe Checkout (more reliable than popup)
         window.location.href = data.url;
       }
     } catch (error: any) {
@@ -297,7 +332,7 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
             </button>
             
             {showPromoInput && (
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 space-y-3">
                 <div className="relative flex-1">
                   <Input
                     placeholder="Enter code"
@@ -311,10 +346,30 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                   {isValidPromo && (
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-green-500">
                       <Gift className="w-4 h-4" />
-                      <span className="text-xs font-semibold">1 Week FREE!</span>
+                      <span className="text-xs font-semibold">7 Days FREE!</span>
                     </div>
                   )}
                 </div>
+                
+                {isValidPromo && (
+                  <Button
+                    onClick={handleActivateTrial}
+                    disabled={isActivatingTrial}
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
+                  >
+                    {isActivatingTrial ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Activating...
+                      </>
+                    ) : (
+                      <>
+                        <Gift className="w-4 h-4 mr-2" />
+                        Start 7-Day Free Trial - No Card Required
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
             )}
           </div>
