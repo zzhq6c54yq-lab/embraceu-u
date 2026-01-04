@@ -2,32 +2,42 @@ import { useEffect, useState } from "react";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Crown, Sparkles, Diamond, Star, Check, X, Heart, Zap, Headphones, FileText } from "lucide-react";
+import { Sparkles, Heart, Sun, Feather, Moon, Wind, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const features = [
-  { icon: Sparkles, text: "Your Peaceful, Uninterrupted Space", description: "Ad-free sanctuary" },
-  { icon: Diamond, text: "Curated Visual Experiences", description: "Premium themes" },
-  { icon: Heart, text: "Boundless Room for Gratitude", description: "Unlimited journaling" },
-  { icon: Zap, text: "Personal AI Wellness Guide", description: "Smart insights" },
-  { icon: Headphones, text: "Speak Your Truth Freely", description: "Voice journaling" },
-  { icon: FileText, text: "Beautiful Progress Reports", description: "PDF exports" },
+// Rotating opening affirmations
+const openingLines = [
+  { main: "Today, you chose yourself.", sub: "That takes courage. That takes love." },
+  { main: "Self-love isn't selfish.", sub: "It's survival. Welcome home." },
+  { main: "You've taken the most important step.", sub: "Believing you're worth it." },
+  { main: "Every journey to peace begins here.", sub: "With one brave, beautiful choice." },
 ];
 
-const headlines = [
-  "You've Taken a Powerful Step",
-  "Your Mental Wellness Elevated",
-  "Welcome to Your Sanctuary",
-  "Something Beautiful Awaits",
+// Affirmation sequence
+const affirmations = [
+  "Your peace matters",
+  "Your growth is sacred", 
+  "Your journey is honored here",
+];
+
+// Feature icons for orbital display
+const featureIcons = [
+  { Icon: Heart, label: "Unlimited Gratitude" },
+  { Icon: Sparkles, label: "AI Coach" },
+  { Icon: Sun, label: "Premium Themes" },
+  { Icon: Feather, label: "Voice Journal" },
+  { Icon: Moon, label: "Ad-Free Space" },
+  { Icon: Wind, label: "Breathing Exercises" },
 ];
 
 const ProRevealScreen = () => {
   const { showCelebration, completeCelebration, isTrial } = usePremium();
   const { user } = useAuth();
-  const [phase, setPhase] = useState<"hidden" | "intro" | "features" | "ready">("hidden");
-  const [featuresVisible, setFeaturesVisible] = useState<number[]>([]);
+  const [phase, setPhase] = useState<"hidden" | "acknowledgment" | "affirmations" | "sanctuary" | "ready">("hidden");
+  const [currentAffirmation, setCurrentAffirmation] = useState(0);
   const [nickname, setNickname] = useState<string | null>(null);
-  const [headline] = useState(() => headlines[Math.floor(Math.random() * headlines.length)]);
+  const [openingLine] = useState(() => openingLines[Math.floor(Math.random() * openingLines.length)]);
+  const [showLotus, setShowLotus] = useState(false);
 
   // Fetch user's nickname
   useEffect(() => {
@@ -47,312 +57,434 @@ const ProRevealScreen = () => {
 
   useEffect(() => {
     if (showCelebration) {
-      // Wait for explosion celebration, then show reveal
-      const introTimer = setTimeout(() => {
-        setPhase("intro");
-      }, 3000);
+      // Phase 1: Personal Acknowledgment (after explosion)
+      const ackTimer = setTimeout(() => {
+        setPhase("acknowledgment");
+      }, 3500);
 
-      const featuresTimer = setTimeout(() => {
-        setPhase("features");
-        // Stagger feature reveals
-        features.forEach((_, index) => {
-          setTimeout(() => {
-            setFeaturesVisible(prev => [...prev, index]);
-          }, 200 + index * 180);
-        });
-      }, 4500);
+      // Phase 2: Affirmation Scroll
+      const affirmTimer = setTimeout(() => {
+        setPhase("affirmations");
+      }, 6000);
 
+      // Cycle through affirmations
+      const aff1 = setTimeout(() => setCurrentAffirmation(1), 8000);
+      const aff2 = setTimeout(() => setCurrentAffirmation(2), 10000);
+
+      // Phase 3: Sanctuary Welcome
+      const sanctuaryTimer = setTimeout(() => {
+        setPhase("sanctuary");
+        setShowLotus(true);
+      }, 12000);
+
+      // Phase 4: Ready
       const readyTimer = setTimeout(() => {
         setPhase("ready");
-      }, 6500);
+      }, 14000);
 
       return () => {
-        clearTimeout(introTimer);
-        clearTimeout(featuresTimer);
+        clearTimeout(ackTimer);
+        clearTimeout(affirmTimer);
+        clearTimeout(aff1);
+        clearTimeout(aff2);
+        clearTimeout(sanctuaryTimer);
         clearTimeout(readyTimer);
       };
     } else {
       setPhase("hidden");
-      setFeaturesVisible([]);
+      setCurrentAffirmation(0);
+      setShowLotus(false);
     }
   }, [showCelebration]);
 
   const handleContinue = () => {
     completeCelebration();
     setPhase("hidden");
-    setFeaturesVisible([]);
   };
 
   if (phase === "hidden") return null;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-6">
-      {/* Deep navy backdrop with orbs */}
+      {/* Deep elegant backdrop with aurora effect */}
       <div 
-        className="absolute inset-0 animate-fade-in"
+        className="absolute inset-0"
         style={{
-          background: "linear-gradient(135deg, hsl(225, 35%, 8%) 0%, hsl(260, 30%, 10%) 50%, hsl(225, 40%, 6%) 100%)",
+          background: "linear-gradient(135deg, hsl(225, 35%, 6%) 0%, hsl(260, 30%, 8%) 30%, hsl(280, 25%, 10%) 60%, hsl(225, 40%, 5%) 100%)",
         }}
         onClick={phase === "ready" ? handleContinue : undefined}
       >
-        {/* Floating ambient orbs */}
-        {[...Array(6)].map((_, i) => (
+        {/* Aurora wave effect */}
+        <div className="absolute inset-0 overflow-hidden opacity-40">
+          <div 
+            className="absolute inset-0 animate-aurora-wave"
+            style={{
+              background: "linear-gradient(45deg, transparent 30%, hsl(270, 50%, 50% / 0.1) 45%, hsl(195, 60%, 50% / 0.08) 55%, transparent 70%)",
+              backgroundSize: "400% 400%",
+            }}
+          />
+          <div 
+            className="absolute inset-0 animate-aurora-wave"
+            style={{
+              background: "linear-gradient(-45deg, transparent 30%, hsl(320, 40%, 50% / 0.08) 45%, hsl(45, 50%, 50% / 0.06) 55%, transparent 70%)",
+              backgroundSize: "400% 400%",
+              animationDelay: "2s",
+            }}
+          />
+        </div>
+
+        {/* Floating light orbs */}
+        {[...Array(8)].map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full animate-orb-float pointer-events-none"
             style={{
-              left: `${10 + i * 15}%`,
-              top: `${20 + (i % 3) * 25}%`,
-              width: 100 + i * 30,
-              height: 100 + i * 30,
-              background: i % 2 === 0
-                ? "radial-gradient(circle, hsl(270, 40%, 60% / 0.08) 0%, transparent 70%)"
-                : "radial-gradient(circle, hsl(195, 50%, 60% / 0.06) 0%, transparent 70%)",
-              animationDelay: `${i * 0.5}s`,
+              left: `${10 + i * 12}%`,
+              top: `${15 + (i % 4) * 20}%`,
+              width: 80 + i * 25,
+              height: 80 + i * 25,
+              background: i % 3 === 0
+                ? "radial-gradient(circle, hsl(270, 45%, 65% / 0.1) 0%, transparent 70%)"
+                : i % 3 === 1
+                ? "radial-gradient(circle, hsl(195, 55%, 65% / 0.08) 0%, transparent 70%)"
+                : "radial-gradient(circle, hsl(45, 40%, 70% / 0.06) 0%, transparent 70%)",
+              animationDelay: `${i * 0.7}s`,
+              animationDuration: `${12 + i * 2}s`,
             }}
           />
         ))}
 
-        {/* Particle mist effect */}
-        <div className="absolute inset-0 overflow-hidden opacity-30">
-          {[...Array(30)].map((_, i) => (
+        {/* Gentle particle mist */}
+        <div className="absolute inset-0 overflow-hidden opacity-25">
+          {[...Array(40)].map((_, i) => (
             <div
               key={`mist-${i}`}
-              className="absolute w-1 h-1 rounded-full bg-white/40 animate-particle-mist"
+              className="absolute w-1 h-1 rounded-full bg-white/50 animate-particle-mist"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${8 + Math.random() * 4}s`,
+                animationDelay: `${Math.random() * 8}s`,
+                animationDuration: `${10 + Math.random() * 6}s`,
               }}
             />
           ))}
         </div>
       </div>
       
-      {/* Main Content Card */}
-      <div className="relative z-10 w-full max-w-lg transition-all duration-700 animate-reveal-card">
-        <div 
-          className="relative overflow-hidden rounded-3xl p-6 md:p-8"
-          style={{
-            background: "linear-gradient(135deg, hsl(225, 30%, 15% / 0.95) 0%, hsl(260, 25%, 12% / 0.98) 50%, hsl(225, 35%, 10% / 0.95) 100%)",
-            border: "1px solid hsl(45, 20%, 80% / 0.15)",
-            boxShadow: "0 0 80px hsl(270, 40%, 60% / 0.15), 0 25px 80px hsl(225, 40%, 5% / 0.6), inset 0 1px 0 hsl(45, 20%, 90% / 0.1)",
-          }}
-        >
-          {/* Platinum accent line at top */}
-          <div 
-            className="absolute top-0 left-0 right-0 h-px"
-            style={{
-              background: "linear-gradient(90deg, transparent 0%, hsl(45, 20%, 85% / 0.4) 30%, hsl(45, 25%, 90% / 0.6) 50%, hsl(45, 20%, 85% / 0.4) 70%, transparent 100%)",
-            }}
-          />
-          
-          {/* Close button */}
-          {phase === "ready" && (
-            <button 
-              onClick={handleContinue}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/10 transition-colors z-20"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-          
-          {/* Decorative floating elements */}
-          <Diamond className="absolute top-6 left-6 w-4 h-4 text-white/20 animate-sparkle-float" />
-          <Star className="absolute top-12 right-12 w-3 h-3 text-white/15 animate-sparkle-float fill-current" style={{ animationDelay: "0.8s" }} />
-          <Sparkles className="absolute bottom-20 right-6 w-5 h-5 text-white/15 animate-sparkle-float" style={{ animationDelay: "0.5s" }} />
+      {/* Breathing container - gentle pulse */}
+      <div 
+        className={`relative z-10 w-full max-w-xl transition-all duration-1000 ${
+          phase === "acknowledgment" || phase === "affirmations" ? "animate-breathing" : ""
+        }`}
+      >
+        {/* Close button */}
+        {phase === "ready" && (
+          <button 
+            onClick={handleContinue}
+            className="absolute -top-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/10 transition-colors z-20 backdrop-blur-sm"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
 
-          {/* Content */}
-          <div className="relative z-10 text-center space-y-6">
-            {/* Membership emblem */}
-            <div className="flex justify-center mb-4 transition-all duration-700 animate-badge-reveal">
-              <div 
-                className="w-28 h-28 md:w-32 md:h-32 rounded-full flex items-center justify-center"
+        {/* Phase 1: Personal Acknowledgment */}
+        {(phase === "acknowledgment" || phase === "affirmations") && (
+          <div className={`text-center space-y-6 transition-all duration-700 ${phase === "affirmations" ? "opacity-0 scale-95" : "opacity-100"}`}>
+            {/* Golden light emanating from center */}
+            <div 
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full animate-heartbeat-glow"
+              style={{
+                background: "radial-gradient(circle, hsl(45, 40%, 75% / 0.15) 0%, hsl(45, 30%, 60% / 0.05) 40%, transparent 70%)",
+              }}
+            />
+            
+            {/* Personalized greeting */}
+            {nickname && (
+              <p 
+                className="text-xl md:text-2xl font-serif italic animate-text-fade-up"
+                style={{ color: "hsl(45, 25%, 85%)" }}
+              >
+                {nickname},
+              </p>
+            )}
+            
+            {/* Main acknowledgment */}
+            <h1 
+              className="text-3xl md:text-5xl font-serif font-light leading-tight animate-text-fade-up"
+              style={{ 
+                color: "hsl(45, 20%, 95%)",
+                animationDelay: "0.3s",
+                textShadow: "0 0 60px hsl(45, 30%, 80% / 0.3)",
+              }}
+            >
+              {openingLine.main}
+            </h1>
+            
+            {/* Sub text */}
+            <p 
+              className="text-lg md:text-xl font-serif italic animate-text-fade-up"
+              style={{ 
+                color: "hsl(270, 20%, 80%)",
+                animationDelay: "0.6s",
+              }}
+            >
+              {openingLine.sub}
+            </p>
+          </div>
+        )}
+
+        {/* Phase 2: Affirmation Scroll */}
+        {phase === "affirmations" && (
+          <div className="text-center animate-fade-in">
+            {affirmations.map((affirmation, index) => (
+              <h2
+                key={affirmation}
+                className={`text-3xl md:text-5xl font-serif font-light transition-all duration-1000 absolute inset-0 flex items-center justify-center ${
+                  currentAffirmation === index ? "opacity-100 scale-100" : "opacity-0 scale-95"
+                }`}
                 style={{
-                  background: "linear-gradient(135deg, hsl(45, 20%, 92%) 0%, hsl(45, 25%, 85%) 40%, hsl(45, 20%, 78%) 70%, hsl(45, 25%, 88%) 100%)",
-                  boxShadow: "0 0 60px hsl(45, 20%, 85% / 0.4), 0 0 100px hsl(270, 40%, 70% / 0.2), inset 0 2px 10px hsl(45, 30%, 95% / 0.5)",
-                  border: "2px solid hsl(45, 25%, 80% / 0.3)",
+                  color: "hsl(45, 20%, 95%)",
+                  textShadow: "0 0 80px hsl(45, 30%, 80% / 0.4)",
                 }}
               >
-                <Crown 
-                  className="w-14 h-14 md:w-16 md:h-16" 
-                  style={{ color: "hsl(225, 30%, 25%)" }}
+                {affirmation}
+              </h2>
+            ))}
+          </div>
+        )}
+
+        {/* Phase 3 & 4: Sanctuary Welcome */}
+        {(phase === "sanctuary" || phase === "ready") && (
+          <div className="text-center space-y-8 animate-fade-in">
+            {/* Lotus bloom symbol */}
+            {showLotus && (
+              <div className="relative flex justify-center mb-8">
+                <div className="relative animate-lotus-bloom">
+                  {/* Lotus petals using CSS */}
+                  <div 
+                    className="w-32 h-32 md:w-40 md:h-40 relative"
+                    style={{
+                      filter: "drop-shadow(0 0 40px hsl(45, 40%, 80% / 0.4))",
+                    }}
+                  >
+                    {/* Center */}
+                    <div 
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full"
+                      style={{
+                        background: "radial-gradient(circle, hsl(45, 40%, 90%) 0%, hsl(45, 35%, 75%) 100%)",
+                        boxShadow: "0 0 20px hsl(45, 40%, 80% / 0.6)",
+                      }}
+                    />
+                    {/* Petals */}
+                    {[...Array(8)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="absolute top-1/2 left-1/2 origin-bottom animate-petal-unfold"
+                        style={{
+                          width: "20px",
+                          height: "45px",
+                          marginLeft: "-10px",
+                          marginTop: "-45px",
+                          transform: `rotate(${i * 45}deg)`,
+                          animationDelay: `${i * 0.1}s`,
+                        }}
+                      >
+                        <div 
+                          className="w-full h-full rounded-full"
+                          style={{
+                            background: `linear-gradient(to top, hsl(${45 + i * 5}, 35%, 85%) 0%, hsl(${50 + i * 5}, 40%, 92%) 100%)`,
+                            boxShadow: `0 0 15px hsl(45, 40%, 80% / 0.3)`,
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Pulsing heart glow behind lotus */}
+                <div 
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full animate-heartbeat-glow"
+                  style={{
+                    background: "radial-gradient(circle, hsl(320, 40%, 70% / 0.1) 0%, transparent 60%)",
+                  }}
                 />
               </div>
-            </div>
-            
-            {/* Welcome text */}
-            <div className="space-y-3 transition-all duration-700 animate-text-fade-up" style={{ animationDelay: "0.3s" }}>
-              {/* Personalized greeting */}
-              {nickname && (
-                <p 
-                  className="text-lg font-serif italic"
-                  style={{ color: "hsl(270, 25%, 80%)" }}
-                >
-                  Welcome, {nickname}
-                </p>
-              )}
-              
-              <h1 
-                className="text-2xl md:text-3xl font-serif font-bold"
+            )}
+
+            {/* Sanctuary text */}
+            <div className="space-y-3">
+              <h2 
+                className="text-2xl md:text-4xl font-serif italic"
                 style={{
-                  background: "linear-gradient(135deg, hsl(45, 20%, 95%) 0%, hsl(45, 30%, 88%) 40%, hsl(270, 25%, 90%) 70%, hsl(45, 20%, 92%) 100%)",
+                  background: "linear-gradient(135deg, hsl(45, 25%, 95%) 0%, hsl(45, 35%, 85%) 40%, hsl(270, 25%, 90%) 70%, hsl(45, 20%, 92%) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
                 }}
               >
-                {headline}
-              </h1>
-              
+                Welcome to your sanctuary
+              </h2>
               <p 
-                className="text-sm md:text-base font-serif"
+                className="text-base md:text-lg"
                 style={{ color: "hsl(220, 20%, 70%)" }}
               >
                 {isTrial 
-                  ? "Your 7-day Pro experience has begun"
-                  : "Your commitment to self-care is inspiring"
+                  ? "Your 7-day journey of self-discovery begins"
+                  : "A space created just for you"
                 }
               </p>
             </div>
-            
-            {/* Premium separator */}
-            <div 
-              className="h-px mx-auto w-3/4"
-              style={{
-                background: "linear-gradient(90deg, transparent 0%, hsl(45, 20%, 70% / 0.3) 30%, hsl(45, 25%, 80% / 0.4) 50%, hsl(45, 20%, 70% / 0.3) 70%, transparent 100%)",
-              }}
-            />
-            
-            {/* Benefits showcase */}
-            {phase === "features" || phase === "ready" ? (
-              <div className="space-y-3 text-left max-h-[280px] overflow-y-auto custom-scrollbar">
-                <p 
-                  className="text-xs text-center font-medium uppercase tracking-widest mb-4"
-                  style={{ color: "hsl(270, 20%, 65%)" }}
-                >
-                  Your New Benefits
-                </p>
-                {features.map((feature, index) => (
-                  <div 
-                    key={feature.text}
-                    className={`
-                      flex items-center gap-3 p-3 rounded-xl transition-all duration-500
-                      ${featuresVisible.includes(index) 
-                        ? "opacity-100 translate-x-0" 
-                        : "opacity-0 -translate-x-6"
-                      }
-                    `}
-                    style={{
-                      background: featuresVisible.includes(index) 
-                        ? "linear-gradient(90deg, hsl(45, 20%, 85% / 0.06) 0%, transparent 100%)"
-                        : "transparent",
-                      border: featuresVisible.includes(index) 
-                        ? "1px solid hsl(45, 20%, 80% / 0.1)"
-                        : "1px solid transparent",
-                    }}
-                  >
-                    <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+
+            {/* Orbital feature icons */}
+            <div className="relative h-40 md:h-48 mt-8">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                {featureIcons.map((feature, index) => {
+                  const angle = (index / featureIcons.length) * 360;
+                  const radius = 70; // radius in pixels
+                  return (
+                    <div
+                      key={feature.label}
+                      className="absolute animate-orbit group"
                       style={{
-                        background: "linear-gradient(135deg, hsl(45, 20%, 90% / 0.15) 0%, hsl(270, 30%, 80% / 0.08) 100%)",
-                        border: "1px solid hsl(45, 20%, 80% / 0.15)",
+                        left: 0,
+                        top: 0,
+                        transform: `rotate(${angle}deg) translateX(${radius}px) rotate(-${angle}deg)`,
+                        animationDelay: `${index * 0.15}s`,
                       }}
                     >
-                      <feature.icon 
-                        className="w-5 h-5" 
-                        style={{ color: "hsl(45, 25%, 85%)" }}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span 
-                        className="text-sm font-medium block truncate"
-                        style={{ color: "hsl(45, 15%, 90%)" }}
+                      <div 
+                        className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+                        style={{
+                          background: "linear-gradient(135deg, hsl(225, 25%, 20% / 0.8) 0%, hsl(260, 20%, 15% / 0.9) 100%)",
+                          border: "1px solid hsl(45, 20%, 80% / 0.15)",
+                          boxShadow: "0 0 20px hsl(270, 30%, 60% / 0.15)",
+                        }}
                       >
-                        {feature.text}
-                      </span>
+                        <feature.Icon 
+                          className="w-5 h-5 md:w-6 md:h-6" 
+                          style={{ color: "hsl(45, 25%, 85%)" }}
+                        />
+                      </div>
+                      {/* Tooltip on hover */}
                       <span 
-                        className="text-xs block"
-                        style={{ color: "hsl(220, 15%, 55%)" }}
+                        className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ color: "hsl(220, 20%, 70%)" }}
                       >
-                        {feature.description}
+                        {feature.label}
                       </span>
                     </div>
-                    <Check 
-                      className="w-4 h-4 flex-shrink-0" 
-                      style={{ color: "hsl(150, 50%, 60%)" }}
-                    />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            ) : null}
-            
+            </div>
+
             {/* CTA Button */}
             {phase === "ready" && (
-              <div className="pt-4 animate-fade-in" style={{ animationDelay: "0.5s" }}>
+              <div className="pt-6 animate-fade-in" style={{ animationDelay: "0.5s" }}>
                 <Button
                   onClick={handleContinue}
-                  className="w-full py-6 text-base font-semibold tracking-wide rounded-full relative overflow-hidden group"
+                  className="px-10 py-6 text-base md:text-lg font-serif italic tracking-wide rounded-full relative overflow-hidden group"
                   style={{
-                    background: "linear-gradient(135deg, hsl(45, 20%, 90%) 0%, hsl(45, 25%, 82%) 50%, hsl(45, 20%, 88%) 100%)",
+                    background: "linear-gradient(135deg, hsl(45, 25%, 92%) 0%, hsl(45, 30%, 85%) 50%, hsl(45, 25%, 90%) 100%)",
                     color: "hsl(225, 35%, 18%)",
-                    border: "1px solid hsl(45, 25%, 85% / 0.5)",
-                    boxShadow: "0 0 40px hsl(45, 20%, 80% / 0.3), 0 8px 30px hsl(225, 40%, 5% / 0.4)",
+                    border: "1px solid hsl(45, 25%, 88% / 0.5)",
+                    boxShadow: "0 0 50px hsl(45, 25%, 85% / 0.3), 0 10px 40px hsl(225, 40%, 5% / 0.4)",
                   }}
                 >
                   {/* Shimmer effect */}
                   <div 
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     style={{
-                      background: "linear-gradient(90deg, transparent 0%, hsl(45, 30%, 95% / 0.4) 50%, transparent 100%)",
-                      animation: "shimmer-sweep 2s ease-in-out infinite",
+                      background: "linear-gradient(90deg, transparent 0%, hsl(45, 35%, 98% / 0.5) 50%, transparent 100%)",
+                      animation: "shimmer-sweep 2.5s ease-in-out infinite",
                     }}
                   />
-                  <Sparkles className="w-5 h-5 mr-2 relative z-10" />
-                  <span className="relative z-10">Begin Your Enhanced Journey</span>
+                  <span className="relative z-10">Enter your sanctuary</span>
                 </Button>
               </div>
             )}
           </div>
-        </div>
+        )}
       </div>
 
       <style>{`
-        @keyframes reveal-card {
-          0% {
-            opacity: 0;
-            transform: scale(0.9) translateY(30px);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-        
-        @keyframes badge-reveal {
-          0% {
-            opacity: 0;
-            transform: scale(0) rotateY(-180deg);
-          }
-          60% {
-            opacity: 1;
-            transform: scale(1.1) rotateY(-15deg);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1) rotateY(0deg);
-          }
-        }
-        
         @keyframes text-fade-up {
           0% {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
           }
           100% {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+        
+        @keyframes breathing {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.02);
+          }
+        }
+        
+        @keyframes aurora-wave {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+        
+        @keyframes heartbeat-glow {
+          0%, 100% {
+            opacity: 0.6;
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+          }
+        }
+        
+        @keyframes lotus-bloom {
+          0% {
+            opacity: 0;
+            transform: scale(0.5) rotate(-30deg);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.1) rotate(5deg);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+          }
+        }
+        
+        @keyframes petal-unfold {
+          0% {
+            opacity: 0;
+            transform: rotate(var(--rotation, 0deg)) scaleY(0);
+          }
+          100% {
+            opacity: 1;
+            transform: rotate(var(--rotation, 0deg)) scaleY(1);
+          }
+        }
+        
+        @keyframes orbit {
+          0% {
+            opacity: 0;
+            transform: rotate(var(--start-angle, 0deg)) translateX(0) rotate(calc(-1 * var(--start-angle, 0deg)));
+          }
+          100% {
+            opacity: 1;
+            transform: rotate(var(--start-angle, 0deg)) translateX(70px) rotate(calc(-1 * var(--start-angle, 0deg)));
           }
         }
         
@@ -361,29 +493,35 @@ const ProRevealScreen = () => {
           100% { transform: translateX(100%); }
         }
         
-        .animate-reveal-card {
-          animation: reveal-card 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        
-        .animate-badge-reveal {
-          animation: badge-reveal 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        
         .animate-text-fade-up {
-          animation: text-fade-up 0.7s ease-out forwards;
+          animation: text-fade-up 1s ease-out forwards;
+          opacity: 0;
         }
         
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
+        .animate-breathing {
+          animation: breathing 4s ease-in-out infinite;
         }
         
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
+        .animate-aurora-wave {
+          animation: aurora-wave 15s ease-in-out infinite;
         }
         
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: hsl(45, 20%, 60% / 0.3);
-          border-radius: 4px;
+        .animate-heartbeat-glow {
+          animation: heartbeat-glow 3s ease-in-out infinite;
+        }
+        
+        .animate-lotus-bloom {
+          animation: lotus-bloom 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        .animate-petal-unfold {
+          animation: petal-unfold 0.8s ease-out forwards;
+          opacity: 0;
+        }
+        
+        .animate-orbit {
+          animation: orbit 0.8s ease-out forwards;
+          opacity: 0;
         }
       `}</style>
     </div>
