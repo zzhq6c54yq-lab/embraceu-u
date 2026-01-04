@@ -156,14 +156,15 @@ const ProCelebration = () => {
     // Start confetti rain at reveal
     setTimeout(() => setShowConfettiRain(true), 1800);
 
-    // Phase timing - extended for cinematic drama
+    // Phase timing - extended for the 4-phase emotional journey
     const portalTimeout = setTimeout(() => setPhase("explode"), 1000);
     const revealTimeout = setTimeout(() => setPhase("reveal"), 2000);
-    const fadeTimeout = setTimeout(() => setPhase("fade"), 4500);
+    // Don't fade out - let ProRevealScreen take over seamlessly
+    const fadeTimeout = setTimeout(() => setPhase("fade"), 3200);
     const doneTimeout = setTimeout(() => {
       setPhase("done");
-      completeCelebration();
-    }, 5000);
+      // Don't call completeCelebration here - ProRevealScreen handles it
+    }, 3500);
 
     // Keep confetti going after celebration ends
     const confettiTimeout = setTimeout(() => setShowConfettiRain(false), 10000);
