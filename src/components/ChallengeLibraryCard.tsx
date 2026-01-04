@@ -47,7 +47,7 @@ const iconColorMap: Record<string, string> = {
   emerald: "text-emerald-500",
 };
 
-export const ChallengeLibraryCard = ({ template }: ChallengeLibraryCardProps) => {
+const ChallengeLibraryCard = ({ template }: ChallengeLibraryCardProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [completedCount, setCompletedCount] = useState(0);
@@ -145,3 +145,6 @@ export const ChallengeLibraryCard = ({ template }: ChallengeLibraryCardProps) =>
     </div>
   );
 };
+
+export { ChallengeLibraryCard };
+export default ChallengeLibraryCard;
