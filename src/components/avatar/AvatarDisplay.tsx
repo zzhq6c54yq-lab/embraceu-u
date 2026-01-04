@@ -1,4 +1,5 @@
-import { parseAvatarConfig, AvatarConfig, defaultAvatarConfig } from "./avatarParts";
+import { forwardRef } from "react";
+import { parseAvatarConfig } from "./avatarParts";
 import AvatarCanvas from "./AvatarCanvas";
 
 interface AvatarDisplayProps {
@@ -35,12 +36,12 @@ const LEGACY_AVATARS: Record<string, string> = {
   sparkles: "✨",
 };
 
-const AvatarDisplay = ({ 
+const AvatarDisplay = forwardRef<HTMLDivElement, AvatarDisplayProps>(({ 
   avatarUrl, 
   size = 40, 
   className = "",
   fallbackEmoji = "👤"
-}: AvatarDisplayProps) => {
+}, ref) => {
   // If it's a new avatar config, render the SVG avatar
   if (isAvatarConfig(avatarUrl)) {
     const config = parseAvatarConfig(avatarUrl || null);
@@ -55,12 +56,15 @@ const AvatarDisplay = ({
 
   return (
     <div 
+      ref={ref}
       className={`flex items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-accent/20 ${className}`}
       style={{ width: size, height: size }}
     >
       <span style={{ fontSize }}>{legacyEmoji || fallbackEmoji}</span>
     </div>
   );
-};
+});
+
+AvatarDisplay.displayName = "AvatarDisplay";
 
 export default AvatarDisplay;
