@@ -86,6 +86,7 @@ export type Database = {
           day_number: number
           id: string
           reflection: string | null
+          template_id: string | null
           user_id: string
         }
         Insert: {
@@ -94,6 +95,7 @@ export type Database = {
           day_number: number
           id?: string
           reflection?: string | null
+          template_id?: string | null
           user_id: string
         }
         Update: {
@@ -102,7 +104,84 @@ export type Database = {
           day_number?: number
           id?: string
           reflection?: string | null
+          template_id?: string | null
           user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_progress_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_template_days: {
+        Row: {
+          created_at: string
+          day_number: number
+          description: string
+          id: string
+          template_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          day_number: number
+          description: string
+          id?: string
+          template_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          day_number?: number
+          description?: string
+          id?: string
+          template_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_template_days_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_templates: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          icon_name: string
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
         }
         Relationships: []
       }
