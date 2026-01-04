@@ -24,7 +24,6 @@ const Reframe = lazy(() => import("./pages/Reframe"));
 const Explore = lazy(() => import("./pages/Explore"));
 const Library = lazy(() => import("./pages/Library"));
 const Progress = lazy(() => import("./pages/Progress"));
-const Challenge = lazy(() => import("./pages/Challenge"));
 const Gratitude = lazy(() => import("./pages/Gratitude"));
 const Duo = lazy(() => import("./pages/Duo"));
 const Rituals = lazy(() => import("./pages/Rituals"));
@@ -35,7 +34,8 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Admin = lazy(() => import("./pages/Admin"));
 const ProFeatures = lazy(() => import("./pages/ProFeatures"));
 const Profile = lazy(() => import("./pages/Profile"));
-const Challenges = lazy(() => import("./pages/Challenges"));
+const ChallengeLibrary = lazy(() => import("./pages/ChallengeLibrary"));
+const ChallengeDetail = lazy(() => import("./pages/ChallengeDetail"));
 
 // Exclusive content pages
 const GuidedMeditations = lazy(() => import("./pages/exclusive/GuidedMeditations"));
@@ -82,13 +82,13 @@ const App = () => (
                 <Route path="/explore" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
                 <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
                 <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
-                <Route path="/challenge" element={<ProtectedRoute><Challenge /></ProtectedRoute>} />
                 <Route path="/gratitude" element={<ProtectedRoute><Gratitude /></ProtectedRoute>} />
                 <Route path="/duo" element={<ProtectedRoute><Duo /></ProtectedRoute>} />
                 <Route path="/rituals" element={<ProtectedRoute><Rituals /></ProtectedRoute>} />
                 <Route path="/pro" element={<ProtectedRoute><ProFeatures /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
+                <Route path="/challenges" element={<ProtectedRoute><ChallengeLibrary /></ProtectedRoute>} />
+                <Route path="/challenges/:slug" element={<ProtectedRoute><ChallengeDetail /></ProtectedRoute>} />
                 
                 {/* Exclusive content routes - require premium */}
                 <Route path="/exclusive/meditations" element={<ProtectedRoute><GuidedMeditations /></ProtectedRoute>} />
