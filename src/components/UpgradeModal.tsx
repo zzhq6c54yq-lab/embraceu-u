@@ -64,9 +64,11 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
       const functionName = functionMap[plan];
       
       // Pass promo code and plan type to the checkout function
+      // Only send promo code if it's a valid one
+      const trimmedCode = promoCode.toUpperCase().trim();
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: { 
-          promoCode: promoCode.toUpperCase().trim(),
+          promoCode: VALID_PROMO_CODES.includes(trimmedCode) ? trimmedCode : undefined,
           planType: plan
         }
       });
