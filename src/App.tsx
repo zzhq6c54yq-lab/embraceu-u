@@ -2,7 +2,7 @@ import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PremiumProvider } from "@/hooks/usePremium";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
@@ -89,6 +89,7 @@ const App = () => (
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/challenges" element={<ProtectedRoute><ChallengeLibrary /></ProtectedRoute>} />
                 <Route path="/challenges/:slug" element={<ProtectedRoute><ChallengeDetail /></ProtectedRoute>} />
+                <Route path="/challenge" element={<Navigate to="/challenges" replace />} />
                 
                 {/* Exclusive content routes - require premium */}
                 <Route path="/exclusive/meditations" element={<ProtectedRoute><GuidedMeditations /></ProtectedRoute>} />
