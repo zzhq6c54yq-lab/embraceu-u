@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
-import { Bookmark, BookmarkCheck, CalendarDays, Sparkles } from "lucide-react";
+import { Bookmark, BookmarkCheck, CalendarDays, Sparkles, MessageCircle, ArrowRight, Crown } from "lucide-react";
 import InsightScheduleModal from "@/components/InsightScheduleModal";
 import UpgradeModal from "@/components/UpgradeModal";
 import TextToSpeech from "@/components/TextToSpeech";
 import InsightSearch from "@/components/InsightSearch";
 import { format, isToday } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 const categories = [
   "PRESENCE",
@@ -90,6 +92,7 @@ interface SavedInsight {
 }
 
 const Explore = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { isPremium } = usePremium();
   const [activeCategory, setActiveCategory] = useState("PRESENCE");
@@ -230,6 +233,26 @@ const Explore = () => {
         }}
         onUpgradeClick={() => setShowUpgradeModal(true)}
       />
+
+      {/* AI Coach CTA */}
+      <button
+        onClick={() => isPremium ? navigate("/coach") : setShowUpgradeModal(true)}
+        className="w-full mb-6 p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 flex items-center gap-4 hover:from-primary/15 hover:to-primary/10 transition-all group"
+      >
+        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <MessageCircle className="w-6 h-6 text-primary" />
+        </div>
+        <div className="flex-1 text-left">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-foreground">Chat with AI Coach</h3>
+            {!isPremium && (
+              <span className="text-[10px] font-bold bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">PRO</span>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">Get personalized guidance for your wellness journey</p>
+        </div>
+        <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+      </button>
 
       {/* Instructions Card */}
       <div className="bg-secondary/50 rounded-xl p-4 mb-6 space-y-2 text-sm">

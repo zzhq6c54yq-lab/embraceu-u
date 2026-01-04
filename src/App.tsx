@@ -27,6 +27,7 @@ const Progress = lazy(() => import("./pages/Progress"));
 const Gratitude = lazy(() => import("./pages/Gratitude"));
 const Duo = lazy(() => import("./pages/Duo"));
 const Rituals = lazy(() => import("./pages/Rituals"));
+const Coach = lazy(() => import("./pages/Coach"));
 const Install = lazy(() => import("./pages/Install"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
@@ -85,6 +86,7 @@ const App = () => (
                 <Route path="/gratitude" element={<ProtectedRoute><Gratitude /></ProtectedRoute>} />
                 <Route path="/duo" element={<ProtectedRoute><Duo /></ProtectedRoute>} />
                 <Route path="/rituals" element={<ProtectedRoute><Rituals /></ProtectedRoute>} />
+                <Route path="/coach" element={<ProtectedRoute><Coach /></ProtectedRoute>} />
                 <Route path="/pro" element={<ProtectedRoute><ProFeatures /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/challenges" element={<ProtectedRoute><ChallengeLibrary /></ProtectedRoute>} />
