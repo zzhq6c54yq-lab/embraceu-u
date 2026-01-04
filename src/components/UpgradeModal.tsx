@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Crown, Check, Sparkles, Diamond, Loader2, RefreshCcw, Infinity, Zap, Calendar } from "lucide-react";
+import { Crown, Check, Sparkles, Diamond, Loader2, RefreshCcw, Infinity, Zap, Calendar, Tag, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +22,9 @@ const features = [
   "Unlimited gratitude entries",
 ];
 
-type PlanType = 'monthly' | 'bundle' | 'lifetime';
+type PlanType = 'weekly' | 'monthly' | 'bundle' | 'lifetime';
+
+const VALID_PROMO_CODES = ['MTSTRONG100'];
 
 const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const { session } = useAuth();
@@ -29,7 +32,11 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const { checkSubscription } = usePremium();
   const [isLoading, setIsLoading] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<PlanType>('lifetime');
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>('weekly');
+  const [promoCode, setPromoCode] = useState('');
+  const [showPromoInput, setShowPromoInput] = useState(false);
+
+  const isValidPromo = VALID_PROMO_CODES.includes(promoCode.toUpperCase().trim());
 
   const handleUpgrade = async (plan: PlanType) => {
     setIsLoading(true);
@@ -48,13 +55,21 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
       }
 
       const functionMap: Record<PlanType, string> = {
+        weekly: 'create-checkout',
         monthly: 'create-checkout',
         bundle: 'create-bundle-checkout',
         lifetime: 'create-lifetime-checkout',
       };
       
       const functionName = functionMap[plan];
-      const { data, error } = await supabase.functions.invoke(functionName);
+      
+      // Pass promo code and plan type to the checkout function
+      const { data, error } = await supabase.functions.invoke(functionName, {
+        body: { 
+          promoCode: promoCode.toUpperCase().trim(),
+          planType: plan
+        }
+      });
 
       if (error) {
         throw error;
@@ -101,11 +116,18 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
             Get 3-Month Bundle - $8.25
           </>
         );
-      default:
+      case 'monthly':
         return (
           <>
             <Crown className="w-5 h-5 mr-2" />
             Subscribe - $3.49/month
+          </>
+        );
+      default:
+        return (
+          <>
+            <Crown className="w-5 h-5 mr-2" />
+            {isValidPromo ? 'Get 1 Week FREE!' : 'Subscribe - $0.99/week'}
           </>
         );
     }
@@ -144,8 +166,38 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
           {/* Premium separator */}
           <div className="premium-separator my-6" />
 
-          {/* Plan Selection - 3 tiers */}
+          {/* Plan Selection - 4 tiers */}
           <div className="relative z-10 space-y-3 mb-6">
+            {/* Weekly Plan - NEW */}
+            <button
+              onClick={() => setSelectedPlan('weekly')}
+              className={cn(
+                "w-full relative p-4 rounded-2xl border-2 transition-all duration-300 text-left flex items-center justify-between",
+                selectedPlan === 'weekly'
+                  ? "border-accent bg-accent/10"
+                  : "border-border/50 bg-card/50 hover:border-border"
+              )}
+            >
+              {/* Try It Badge */}
+              <div className="absolute -top-2 right-4 px-2 py-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full">
+                <span className="text-[10px] font-bold text-white uppercase tracking-wide">Try It</span>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-accent" />
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-foreground block">Weekly</span>
+                  <span className="text-xs text-muted-foreground">Try Pro risk-free</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-bold text-foreground">$0.99</span>
+                <span className="text-xs text-muted-foreground">/week</span>
+              </div>
+            </button>
+
             {/* Monthly Plan */}
             <button
               onClick={() => setSelectedPlan('monthly')}
@@ -158,7 +210,7 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-accent" />
+                  <Crown className="w-5 h-5 text-accent" />
                 </div>
                 <div>
                   <span className="text-sm font-semibold text-foreground block">Monthly</span>
@@ -230,6 +282,39 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                 <span className="text-xs text-muted-foreground"> once</span>
               </div>
             </button>
+          </div>
+
+          {/* Promo Code Section */}
+          <div className="relative z-10 mb-4">
+            <button
+              onClick={() => setShowPromoInput(!showPromoInput)}
+              className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Tag className="w-3.5 h-3.5" />
+              Have a promo code?
+            </button>
+            
+            {showPromoInput && (
+              <div className="mt-3 flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    placeholder="Enter code"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    className={cn(
+                      "text-sm uppercase",
+                      isValidPromo && "border-green-500 bg-green-500/10"
+                    )}
+                  />
+                  {isValidPromo && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-green-500">
+                      <Gift className="w-4 h-4" />
+                      <span className="text-xs font-semibold">1 Week FREE!</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="relative z-10 space-y-3">

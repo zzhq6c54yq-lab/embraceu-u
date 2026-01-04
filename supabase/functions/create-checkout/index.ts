@@ -7,6 +7,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Promo code to Stripe coupon ID mapping
+const PROMO_CODES: Record<string, string> = {
+  "MTSTRONG100": "vCMxaodP", // 100% off first week
+};
+
+// Price IDs for different plans
+const PRICE_IDS = {
+  weekly: "price_1SlvctDrG8e7x5d4iXYt5qEt", // $0.99/week
+  monthly: "price_1SkEFlDrG8e7x5d4tSl1RllF", // $3.49/month
+};
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
@@ -39,6 +50,12 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Parse request body for promo code and plan type
+    const body = await req.json().catch(() => ({}));
+    const promoCode = body?.promoCode?.toUpperCase()?.trim();
+    const planType = body?.planType || 'weekly';
+    logStep("Request body parsed", { promoCode: promoCode || 'none', planType });
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     
     // Check if customer already exists
@@ -53,21 +70,39 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://pigavlxphdpjsjiwohok.lovableproject.com";
     
-    const session = await stripe.checkout.sessions.create({
+    // Determine the correct price based on plan type
+    const priceId = planType === 'monthly' ? PRICE_IDS.monthly : PRICE_IDS.weekly;
+    logStep("Selected price", { priceId, planType });
+
+    // Check for valid promo code
+    const couponId = promoCode ? PROMO_CODES[promoCode] : undefined;
+    if (promoCode) {
+      logStep("Promo code check", { promoCode, valid: !!couponId });
+    }
+
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1SkEFlDrG8e7x5d4tSl1RllF", // EmbraceU Pro $3.49/month
+          price: priceId,
           quantity: 1,
         },
       ],
       mode: "subscription",
       success_url: `${origin}/daily?checkout=success`,
       cancel_url: `${origin}/daily?checkout=cancelled`,
-    });
+    };
 
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    // Apply coupon if valid promo code provided
+    if (couponId) {
+      sessionConfig.discounts = [{ coupon: couponId }];
+      logStep("Applying coupon", { couponId });
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
+
+    logStep("Checkout session created", { sessionId: session.id, url: session.url, hasCoupon: !!couponId });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
