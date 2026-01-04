@@ -66,6 +66,7 @@ serve(async (req) => {
       mode: "payment", // One-time payment, not subscription
       success_url: `${origin}/daily?checkout=success&type=lifetime`,
       cancel_url: `${origin}/pro?checkout=cancelled`,
+      allow_promotion_codes: true, // Enable promo code input on Stripe checkout
     });
 
     logStep("Lifetime checkout session created", { sessionId: session.id, url: session.url });

@@ -92,10 +92,13 @@ serve(async (req) => {
       mode: "subscription",
       success_url: `${origin}/daily?checkout=success`,
       cancel_url: `${origin}/daily?checkout=cancelled`,
+      allow_promotion_codes: true, // Enable promo code input on Stripe checkout
     };
 
-    // Apply coupon if valid promo code provided
+    // Apply coupon if valid promo code provided (passed from app)
     if (couponId) {
+      // When using discounts, we can't also use allow_promotion_codes
+      delete sessionConfig.allow_promotion_codes;
       sessionConfig.discounts = [{ coupon: couponId }];
       logStep("Applying coupon", { couponId });
     }

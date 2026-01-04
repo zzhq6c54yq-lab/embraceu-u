@@ -66,6 +66,7 @@ serve(async (req) => {
       mode: "payment",
       success_url: `${origin}/daily?checkout=success`,
       cancel_url: `${origin}/daily?checkout=cancelled`,
+      allow_promotion_codes: true, // Enable promo code input on Stripe checkout
     });
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });

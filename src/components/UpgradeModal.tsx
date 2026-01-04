@@ -137,7 +137,7 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-transparent border-0 backdrop-blur-xl max-w-md mx-auto p-0 overflow-visible">
+      <DialogContent className="bg-transparent border-0 backdrop-blur-xl max-w-md mx-auto p-0 max-h-[90vh] overflow-y-auto">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card via-card to-secondary/50 border border-accent/30 p-8">
           {/* Luxurious ambient glow effects */}
           <div className="absolute -top-32 -right-32 w-64 h-64 bg-gradient-to-br from-accent/30 via-accent/15 to-transparent rounded-full blur-3xl animate-luxe-float" />
