@@ -1,7 +1,8 @@
-import { ReactNode } from "react";
+import { ReactNode, useState, useCallback } from "react";
 import BottomNav from "./BottomNav";
 import AppHeader from "./AppHeader";
 import AdBanner from "./AdBanner";
+import HelpButton from "./HelpButton";
 import { cn } from "@/lib/utils";
 import { usePremium } from "@/hooks/usePremium";
 
@@ -10,15 +11,23 @@ interface AppLayoutProps {
   showHeader?: boolean;
   showNav?: boolean;
   className?: string;
+  onReplayTour?: () => void;
 }
 
 const AppLayout = ({ 
   children, 
   showHeader = true, 
   showNav = true,
-  className 
+  className,
+  onReplayTour
 }: AppLayoutProps) => {
   const { isPremium } = usePremium();
+  const [tourKey, setTourKey] = useState(0);
+  
+  const handleReplayTour = useCallback(() => {
+    setTourKey(prev => prev + 1);
+    onReplayTour?.();
+  }, [onReplayTour]);
   
   // Calculate bottom padding based on nav + ad banner + safe area
   // Nav: ~52px, Ad banner: ~60px (when shown), safe area: variable
@@ -45,9 +54,11 @@ const AppLayout = ({
         </div>
       </main>
       <AdBanner />
+      <HelpButton onReplayTour={handleReplayTour} />
       {showNav && <BottomNav />}
     </div>
   );
 };
 
+export { type AppLayoutProps };
 export default AppLayout;

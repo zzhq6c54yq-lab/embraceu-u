@@ -13,9 +13,10 @@ interface OnboardingTourProps {
   steps: TourStep[];
   storageKey: string;
   onComplete?: () => void;
+  forceShow?: boolean;
 }
 
-const OnboardingTour = ({ steps, storageKey, onComplete }: OnboardingTourProps) => {
+const OnboardingTour = ({ steps, storageKey, onComplete, forceShow = false }: OnboardingTourProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
@@ -24,12 +25,13 @@ const OnboardingTour = ({ steps, storageKey, onComplete }: OnboardingTourProps) 
 
   useEffect(() => {
     const hasSeenTour = localStorage.getItem(storageKey);
-    if (!hasSeenTour) {
+    if (forceShow || !hasSeenTour) {
       // Small delay to let the page render
+      setCurrentStep(0);
       const timer = setTimeout(() => setIsVisible(true), 500);
       return () => clearTimeout(timer);
     }
-  }, [storageKey]);
+  }, [storageKey, forceShow]);
 
   useEffect(() => {
     if (!isVisible) return;
