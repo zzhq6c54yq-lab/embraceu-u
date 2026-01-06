@@ -13,6 +13,7 @@ import FeatureInfoModal from "@/components/FeatureInfoModal";
 import OnboardingTour from "@/components/OnboardingTour";
 import { DailyPrompt } from "@/components/DailyPrompt";
 import TrialCountdownBanner from "@/components/TrialCountdownBanner";
+import InsightOfTheDay from "@/components/InsightOfTheDay";
 
 const dailyTourSteps = [
   {
@@ -459,6 +460,11 @@ const Daily = () => {
             HOW ARE YOU FEELING NOW?
           </button>
         </div>
+
+        {/* Insight of the Day */}
+        <section className="mt-8">
+          <InsightOfTheDay />
+        </section>
 
         {/* Daily Reflection Prompt */}
         <section className="mt-8">

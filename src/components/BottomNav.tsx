@@ -38,8 +38,8 @@ const navSlides = [
     { path: "/progress", label: "Progress", icon: TrendingUp },
   ],
   [
+    { path: "/memory-lane", label: "Memories", icon: Layers },
     { path: "/coach", label: "Coach", icon: MessageCircle, isPro: true },
-    { path: "/duo", label: "Duo", icon: Link2, isPro: true },
     { path: "/pro", label: "Pro", icon: Crown, showProGlow: true },
     { path: "/profile", label: "Profile", icon: User },
   ],

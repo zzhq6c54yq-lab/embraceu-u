@@ -3,6 +3,7 @@ import BottomNav from "./BottomNav";
 import AppHeader from "./AppHeader";
 import AdBanner from "./AdBanner";
 import HelpButton from "./HelpButton";
+import QuickActionsFAB from "./QuickActionsFAB";
 import { cn } from "@/lib/utils";
 import { usePremium } from "@/hooks/usePremium";
 
@@ -29,11 +30,9 @@ const AppLayout = ({
     onReplayTour?.();
   }, [onReplayTour]);
   
-  // Calculate bottom padding based on nav + ad banner + safe area
-  // Nav: ~52px, Ad banner: ~60px (when shown), safe area: variable
   const bottomPadding = isPremium 
-    ? "pb-[calc(60px+env(safe-area-inset-bottom,0px))]" // Just nav
-    : "pb-[calc(120px+env(safe-area-inset-bottom,0px))]"; // Nav + ad banner
+    ? "pb-[calc(60px+env(safe-area-inset-bottom,0px))]"
+    : "pb-[calc(120px+env(safe-area-inset-bottom,0px))]";
 
   return (
     <div className={cn(
@@ -54,6 +53,7 @@ const AppLayout = ({
         </div>
       </main>
       <AdBanner />
+      <QuickActionsFAB />
       <HelpButton onReplayTour={handleReplayTour} />
       {showNav && <BottomNav />}
     </div>

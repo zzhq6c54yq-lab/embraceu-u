@@ -37,6 +37,8 @@ const ProFeatures = lazy(() => import("./pages/ProFeatures"));
 const Profile = lazy(() => import("./pages/Profile"));
 const ChallengeLibrary = lazy(() => import("./pages/ChallengeLibrary"));
 const ChallengeDetail = lazy(() => import("./pages/ChallengeDetail"));
+const QuickRituals = lazy(() => import("./pages/QuickRituals"));
+const MemoryLane = lazy(() => import("./pages/MemoryLane"));
 
 // Exclusive content pages
 const GuidedMeditations = lazy(() => import("./pages/exclusive/GuidedMeditations"));
@@ -92,6 +94,8 @@ const App = () => (
                 <Route path="/challenges" element={<ProtectedRoute><ChallengeLibrary /></ProtectedRoute>} />
                 <Route path="/challenges/:slug" element={<ProtectedRoute><ChallengeDetail /></ProtectedRoute>} />
                 <Route path="/challenge" element={<Navigate to="/challenges" replace />} />
+                <Route path="/quick-rituals" element={<ProtectedRoute><QuickRituals /></ProtectedRoute>} />
+                <Route path="/memory-lane" element={<ProtectedRoute><MemoryLane /></ProtectedRoute>} />
                 
                 {/* Exclusive content routes - require premium */}
                 <Route path="/exclusive/meditations" element={<ProtectedRoute><GuidedMeditations /></ProtectedRoute>} />
