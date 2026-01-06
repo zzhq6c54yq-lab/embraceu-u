@@ -368,6 +368,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          morning_reminder: boolean | null
+          morning_reminder_time: string | null
+          streak_warning: boolean | null
+          updated_at: string | null
+          user_id: string
+          weekly_summary: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          morning_reminder?: boolean | null
+          morning_reminder_time?: string | null
+          streak_warning?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          weekly_summary?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          morning_reminder?: boolean | null
+          morning_reminder_time?: string | null
+          streak_warning?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          weekly_summary?: boolean | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -692,6 +725,27 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      streak_milestones: {
+        Row: {
+          celebrated_at: string | null
+          id: string
+          milestone_days: number
+          user_id: string
+        }
+        Insert: {
+          celebrated_at?: string | null
+          id?: string
+          milestone_days: number
+          user_id: string
+        }
+        Update: {
+          celebrated_at?: string | null
+          id?: string
+          milestone_days?: number
+          user_id?: string
+        }
+        Relationships: []
       }
       user_badges: {
         Row: {

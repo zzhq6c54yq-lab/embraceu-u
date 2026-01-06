@@ -25,6 +25,8 @@ import { MoodCorrelation } from "@/components/MoodCorrelation";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import OnboardingTour from "@/components/OnboardingTour";
+import WeeklyWellnessScore from "@/components/WeeklyWellnessScore";
+import MoodCalendarHeatmap from "@/components/MoodCalendarHeatmap";
 
 const progressTourSteps = [
   {
@@ -287,6 +289,9 @@ const Progress = () => {
         )}
       </div>
 
+      {/* Weekly Wellness Score */}
+      <WeeklyWellnessScore className="mb-8" />
+
       {/* Main Stats Grid */}
       <div className="grid grid-cols-2 gap-4 mb-8" data-tour="progress-stats">
         {statCards.map((stat) => (
@@ -305,6 +310,12 @@ const Progress = () => {
           </div>
         ))}
       </div>
+
+      {/* Mood Calendar Heatmap */}
+      <section className="mb-8">
+        <h2 className="text-label mb-4">MOOD CALENDAR</h2>
+        <MoodCalendarHeatmap />
+      </section>
 
       {/* AI Insights Section - Pro Feature */}
       <div data-tour="progress-insights">
