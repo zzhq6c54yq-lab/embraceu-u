@@ -14,6 +14,8 @@ import {
   Crown,
   User,
   MessageCircle,
+  Zap,
+  BookOpen,
 } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
 import thriveMtIcon from "@/assets/thrive-mt-icon.png";
@@ -24,7 +26,18 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 
-const navSlides = [
+import { LucideIcon } from "lucide-react";
+
+interface NavItem {
+  path: string;
+  label: string;
+  icon?: LucideIcon;
+  isPro?: boolean;
+  showProGlow?: boolean;
+  isLogo?: boolean;
+}
+
+const navSlides: NavItem[][] = [
   [
     { path: "/daily", label: "Daily", icon: Check },
     { path: "/breath", label: "Breath", icon: Wind },
@@ -38,12 +51,17 @@ const navSlides = [
     { path: "/progress", label: "Progress", icon: TrendingUp },
   ],
   [
-    { path: "/memory-lane", label: "Memories", icon: Layers },
+    { path: "/duo", label: "Duo", icon: Link2, isPro: true },
     { path: "/coach", label: "Coach", icon: MessageCircle, isPro: true },
-    { path: "/pro", label: "Pro", icon: Crown, showProGlow: true },
-    { path: "/profile", label: "Profile", icon: User },
+    { path: "/memory-lane", label: "Memories", icon: BookOpen },
+    { path: "/quick-rituals", label: "Quick", icon: Zap },
   ],
-] as const;
+  [
+    { path: "/profile", label: "Profile", icon: User },
+    { path: "/pro", label: "Pro", icon: Crown, showProGlow: true },
+    { path: "/about", label: "ThriveMT", isLogo: true },
+  ],
+];
 
 const BottomNav = () => {
   const location = useLocation();
@@ -54,7 +72,9 @@ const BottomNav = () => {
   // Determine which slide the current route belongs to
   const getSlideForRoute = useCallback((pathname: string) => {
     const slide2Paths = ["/gratitude", "/rituals", "/challenge", "/progress"];
-    const slide3Paths = ["/coach", "/duo", "/pro", "/profile"];
+    const slide3Paths = ["/duo", "/coach", "/memory-lane", "/quick-rituals"];
+    const slide4Paths = ["/profile", "/pro", "/about"];
+    if (slide4Paths.includes(pathname)) return 3;
     if (slide3Paths.includes(pathname)) return 2;
     if (slide2Paths.includes(pathname)) return 1;
     return 0;

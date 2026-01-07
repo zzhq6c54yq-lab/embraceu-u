@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, Bell } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import ProfileSettings from "@/components/ProfileSettings";
+import NotificationSettings from "@/components/NotificationSettings";
 import AvatarSelector from "@/components/AvatarSelector";
 import { AvatarDisplay } from "@/components/avatar";
 import { AchievementBadges } from "@/components/AchievementBadges";
@@ -119,6 +120,14 @@ const Profile = () => {
         <h2 className="text-label mb-4">PROFILE SETTINGS</h2>
         <div className="card-embrace">
           <ProfileSettings />
+        </div>
+      </section>
+
+      {/* Notification Settings Section */}
+      <section className="mb-8">
+        <h2 className="text-label mb-4">NOTIFICATION SETTINGS</h2>
+        <div className="card-embrace">
+          <NotificationSettings />
         </div>
       </section>
 

@@ -7,7 +7,7 @@ const MILESTONES = [7, 14, 30, 60, 100, 365];
 interface StreakMilestoneData {
   currentStreak: number;
   pendingMilestone: number | null;
-  celebrateMilestone: () => void;
+  celebrateMilestone: (milestone: number) => Promise<void>;
   checkMilestones: () => Promise<void>;
 }
 
@@ -55,14 +55,14 @@ export const useStreakMilestones = (): StreakMilestoneData => {
     }
   }, [user]);
 
-  const celebrateMilestone = useCallback(async () => {
-    if (!user || !pendingMilestone) return;
+  const celebrateMilestone = useCallback(async (milestone: number) => {
+    if (!user || !milestone) return;
 
     try {
       // Record the milestone as celebrated
       await supabase.from("streak_milestones").insert({
         user_id: user.id,
-        milestone_days: pendingMilestone,
+        milestone_days: milestone,
       });
 
       // Check for the next uncelebrated milestone
@@ -83,7 +83,7 @@ export const useStreakMilestones = (): StreakMilestoneData => {
     } catch (error) {
       console.error("Error celebrating milestone:", error);
     }
-  }, [user, pendingMilestone, currentStreak]);
+  }, [user, currentStreak]);
 
   useEffect(() => {
     checkMilestones();
