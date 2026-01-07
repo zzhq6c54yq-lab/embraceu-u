@@ -4,8 +4,10 @@ import AppHeader from "./AppHeader";
 import AdBanner from "./AdBanner";
 import HelpButton from "./HelpButton";
 import QuickActionsFAB from "./QuickActionsFAB";
+import StreakCelebration from "./StreakCelebration";
 import { cn } from "@/lib/utils";
 import { usePremium } from "@/hooks/usePremium";
+import { useStreakMilestones } from "@/hooks/useStreakMilestones";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -23,12 +25,19 @@ const AppLayout = ({
   onReplayTour
 }: AppLayoutProps) => {
   const { isPremium } = usePremium();
+  const { pendingMilestone, currentStreak, celebrateMilestone } = useStreakMilestones();
   const [tourKey, setTourKey] = useState(0);
   
   const handleReplayTour = useCallback(() => {
     setTourKey(prev => prev + 1);
     onReplayTour?.();
   }, [onReplayTour]);
+
+  const handleCelebrationClose = () => {
+    if (pendingMilestone) {
+      celebrateMilestone(pendingMilestone);
+    }
+  };
   
   const bottomPadding = isPremium 
     ? "pb-[calc(60px+env(safe-area-inset-bottom,0px))]"
@@ -56,6 +65,14 @@ const AppLayout = ({
       <QuickActionsFAB />
       <HelpButton onReplayTour={handleReplayTour} />
       {showNav && <BottomNav />}
+      
+      {/* Streak Celebration Modal */}
+      <StreakCelebration
+        isOpen={!!pendingMilestone}
+        onClose={handleCelebrationClose}
+        milestone={pendingMilestone || 7}
+        currentStreak={currentStreak}
+      />
     </div>
   );
 };

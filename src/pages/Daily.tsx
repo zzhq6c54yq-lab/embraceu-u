@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, X, Check, Sparkles, Heart, HelpCircle } from "lucide-react";
+import { Plus, X, Check, Sparkles, Heart, HelpCircle, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { toast } from "sonner";
@@ -464,6 +464,22 @@ const Daily = () => {
         {/* Insight of the Day */}
         <section className="mt-8">
           <InsightOfTheDay />
+        </section>
+
+        {/* Quick Rituals Link */}
+        <section className="mt-8">
+          <Link 
+            to="/quick-rituals" 
+            className="card-embrace flex items-center gap-4 hover:border-primary/50 transition-colors"
+          >
+            <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+              <Zap className="w-6 h-6 text-accent" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-serif italic text-lg text-foreground">Quick Rituals</h3>
+              <p className="text-sm text-muted-foreground">30-second wellness moments for busy days</p>
+            </div>
+          </Link>
         </section>
 
         {/* Daily Reflection Prompt */}
