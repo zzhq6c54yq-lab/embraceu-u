@@ -17,6 +17,7 @@ const Landing = lazy(() => import("./pages/Landing"));
 const About = lazy(() => import("./pages/About"));
 const Intro = lazy(() => import("./pages/Intro"));
 const Auth = lazy(() => import("./pages/Auth"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Daily = lazy(() => import("./pages/Daily"));
 const Space = lazy(() => import("./pages/Space"));
 const Breath = lazy(() => import("./pages/Breath"));
@@ -78,6 +79,7 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 
                 {/* Protected routes - require authentication */}
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/daily" element={<ProtectedRoute><Daily /></ProtectedRoute>} />
                 <Route path="/space" element={<ProtectedRoute><Space /></ProtectedRoute>} />
                 <Route path="/breath" element={<ProtectedRoute><Breath /></ProtectedRoute>} />

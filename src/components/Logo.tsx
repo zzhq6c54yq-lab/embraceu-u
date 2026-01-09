@@ -48,10 +48,15 @@ const Logo = ({ className, showTagline = false, size = "md", isExiting = false, 
   return (
     <>
       <div className={cn("flex flex-col items-center", className)}>
-        {/* EmbraceU logo with integrated text */}
+        {/* Logo with centered alignment */}
         <div 
           className={cn(
-            "relative animate-float w-[95vw] md:w-[90vw] lg:w-[85vw] max-w-[1200px] aspect-[5/3]",
+            "relative animate-float flex items-center justify-center",
+            size === "sm" && "w-32 h-16",
+            size === "md" && "w-48 h-24",
+            size === "lg" && "w-64 h-32",
+            size === "xl" && "w-80 h-40",
+            size === "2xl" && "w-[85vw] max-w-[600px] h-auto",
             enableAdminAccess && "cursor-pointer hover:scale-105 transition-transform"
           )}
           onClick={handleLogoClick}
@@ -63,16 +68,16 @@ const Logo = ({ className, showTagline = false, size = "md", isExiting = false, 
           />
         </div>
 
-        {/* Optional tagline */}
+        {/* Optional tagline - single instance with icon */}
         {showTagline && (
-          <div className="flex flex-col items-center -mt-16 md:-mt-20">
+          <div className="flex flex-col items-center mt-4">
             <p 
-              className="text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium animate-text-shimmer"
+              className="text-lg md:text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium animate-text-shimmer"
             >
               THE POWER OF PRESENCE
             </p>
             <p 
-              className="text-base italic text-muted-foreground/80 mt-1 flex items-center gap-2" 
+              className="text-sm md:text-base italic text-muted-foreground/80 mt-2 flex items-center gap-2" 
               style={{ 
                 fontFamily: "'Playfair Display', serif",
                 textShadow: "0 1px 8px hsl(210 30% 50% / 0.25)"
