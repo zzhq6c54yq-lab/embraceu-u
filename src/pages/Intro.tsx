@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Heart, Wind, Sparkles, BookOpen } from "lucide-react";
 import Logo from "@/components/Logo";
-import thriveMtIcon from "@/assets/thrive-mt-icon.png";
 import SEOHead from "@/components/SEOHead";
 
 const features = [
@@ -82,7 +81,7 @@ const Intro = () => {
       </div>
 
       {/* Daily Practice Section */}
-      <div className="relative z-10 px-6 py-12 md:py-16 flex-1">
+      <div className="relative z-10 px-6 py-12 md:py-16">
         <div className="max-w-md mx-auto text-center">
           <h2 className="text-label mb-4">YOUR DAILY PRACTICE</h2>
           <p className="text-muted-foreground font-serif italic mb-8">
@@ -103,29 +102,51 @@ const Intro = () => {
               <span className="text-xs text-muted-foreground">3 min</span>
             </div>
           </div>
-
-          <button
-            onClick={() => navigate("/auth")}
-            className="btn-embrace mt-10 min-w-[200px] flex items-center justify-center gap-2 mx-auto"
-          >
-            EMBRACE YOUR JOURNEY
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="relative z-10 px-6 py-12 text-center">
-        <div className="flex flex-col items-center gap-4">
-          <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground flex items-center gap-1.5">
-            BY THRIVE MT
-            <img src={thriveMtIcon} alt="Thrive MT" className="w-4 h-4 object-contain" />
-          </span>
-          <div className="w-2 h-2 rounded-full bg-primary/30" />
-          <p className="text-xs text-muted-foreground max-w-xs">
-            Crafted with intention for those seeking presence, purpose, and inner peace.
+      {/* Auth CTA Section */}
+      <div className="relative z-10 px-6 py-16 bg-gradient-to-b from-secondary/20 to-background">
+        <div className="max-w-md mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
+            <Sparkles className="w-4 h-4 text-accent" />
+            <span className="text-sm font-medium text-foreground">Join 10,000+ mindful souls</span>
+          </div>
+          
+          <h2 className="font-serif italic text-2xl md:text-3xl text-foreground mb-3">
+            Your Sanctuary Awaits
+          </h2>
+          <p className="text-muted-foreground mb-8">
+            Create your account to unlock personalized wellness tracking, guided sessions, and your growth journey.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => navigate("/auth")}
+              className="btn-embrace flex items-center justify-center gap-2"
+            >
+              CREATE FREE ACCOUNT
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => navigate("/auth?mode=login")}
+              className="btn-embrace-outline flex items-center justify-center gap-2"
+            >
+              SIGN IN
+            </button>
+          </div>
+
+          <p className="mt-6 text-xs text-muted-foreground">
+            ✨ Free forever • No credit card required
           </p>
         </div>
+      </div>
+
+      {/* Minimal footer */}
+      <footer className="relative z-10 px-6 py-8 text-center">
+        <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+          Crafted with intention for those seeking presence, purpose, and inner peace.
+        </p>
       </footer>
     </div>
   );
