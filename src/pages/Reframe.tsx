@@ -7,12 +7,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 const reframes: Record<string, string[]> = {
+  // Core Emotions
   failure: [
     "Learning opportunity",
     "Growth catalyst",
     "Stepping stone to mastery",
     "Feedback, not finality",
     "A lesson wrapped in disguise",
+    "Proof that I tried",
+    "Data for my next attempt",
   ],
   stuck: [
     "Preparing for breakthrough",
@@ -20,6 +23,7 @@ const reframes: Record<string, string[]> = {
     "In a cocoon of transformation",
     "Pausing for clarity",
     "Building inner strength",
+    "Resting before rising",
   ],
   "not enough": [
     "More than sufficient",
@@ -27,6 +31,7 @@ const reframes: Record<string, string[]> = {
     "Abundantly capable",
     "Perfectly in progress",
     "Worthy without condition",
+    "Exactly who I need to be",
   ],
   anxious: [
     "Excited about possibilities",
@@ -34,6 +39,7 @@ const reframes: Record<string, string[]> = {
     "Ready for growth",
     "Fully present",
     "Attuned to what matters",
+    "My body preparing me",
   ],
   overwhelmed: [
     "Rich with opportunities",
@@ -41,6 +47,7 @@ const reframes: Record<string, string[]> = {
     "Building capacity",
     "Practicing boundaries",
     "Growing through challenge",
+    "Capable of handling this",
   ],
   afraid: [
     "Courageous despite fear",
@@ -48,6 +55,7 @@ const reframes: Record<string, string[]> = {
     "Protecting something valuable",
     "Ready to expand comfort zone",
     "Brave in the face of uncertainty",
+    "Fear means I care",
   ],
   lonely: [
     "Enjoying solitude",
@@ -55,6 +63,7 @@ const reframes: Record<string, string[]> = {
     "Creating space for reflection",
     "Open to new connections",
     "Building inner companionship",
+    "Reconnecting with myself",
   ],
   angry: [
     "Passionate about boundaries",
@@ -62,6 +71,7 @@ const reframes: Record<string, string[]> = {
     "Clear about my values",
     "Motivated for change",
     "Speaking my truth",
+    "Protecting what matters",
   ],
   sad: [
     "Deeply feeling",
@@ -69,6 +79,7 @@ const reframes: Record<string, string[]> = {
     "Creating space for healing",
     "Honoring what matters",
     "Open to compassion",
+    "Allowing myself to feel",
   ],
   lost: [
     "On an adventure",
@@ -76,6 +87,7 @@ const reframes: Record<string, string[]> = {
     "Free from rigid plans",
     "Open to guidance",
     "Trusting the journey",
+    "Finding my own way",
   ],
   weak: [
     "Conserving energy wisely",
@@ -83,6 +95,7 @@ const reframes: Record<string, string[]> = {
     "Ready to receive help",
     "Building strength quietly",
     "Gentle with myself",
+    "Resting to recover",
   ],
   rejected: [
     "Redirected to better alignment",
@@ -90,22 +103,335 @@ const reframes: Record<string, string[]> = {
     "Learning about my worth",
     "Making space for the right fit",
     "Brave for showing up authentically",
+    "Protected from wrong paths",
+  ],
+  
+  // Self-Worth
+  worthless: [
+    "Inherently valuable",
+    "Worthy of love and respect",
+    "Precious beyond measure",
+    "My worth is not negotiable",
+    "Valuable just by existing",
+  ],
+  unlovable: [
+    "Worthy of deep love",
+    "Lovable as I am",
+    "Deserving of affection",
+    "Love starts with me",
+    "Open to receiving love",
+  ],
+  broken: [
+    "Beautifully imperfect",
+    "Healing in progress",
+    "Strong at the broken places",
+    "Whole beneath the cracks",
+    "Mending into something stronger",
+  ],
+  damaged: [
+    "Resilient and recovering",
+    "Scars tell my story",
+    "Healing is happening",
+    "Transformed by experience",
+    "Growing through adversity",
+  ],
+  flawed: [
+    "Perfectly imperfect",
+    "Human and relatable",
+    "Authentic and real",
+    "Flaws make me unique",
+    "Beautiful in my humanity",
+  ],
+  
+  // Capability
+  stupid: [
+    "Learning at my own pace",
+    "Wise in my own way",
+    "Growing my understanding",
+    "Smart in different ways",
+    "Curious and open to learning",
+  ],
+  incompetent: [
+    "Developing my skills",
+    "Capable of improvement",
+    "Learning through practice",
+    "More capable than I realize",
+    "Growing more competent daily",
+  ],
+  incapable: [
+    "Capable in many ways",
+    "Building new abilities",
+    "Learning to do hard things",
+    "More capable than I know",
+    "Discovering hidden strengths",
+  ],
+  useless: [
+    "Valuable and needed",
+    "Contributing in unique ways",
+    "My presence matters",
+    "Useful in ways I don't see",
+    "Purpose waiting to emerge",
+  ],
+  dumb: [
+    "Intelligent in my own way",
+    "Learning and growing",
+    "Clever when it counts",
+    "Smart in different areas",
+    "Wise through experience",
+  ],
+  
+  // Relationships
+  abandoned: [
+    "Free to find better connections",
+    "Making space for right people",
+    "Learning self-reliance",
+    "Opening to new relationships",
+    "Never truly alone",
+  ],
+  betrayed: [
+    "Learning about trust",
+    "Wiser about boundaries",
+    "Protected by this lesson",
+    "Stronger for surviving this",
+    "Free from false connections",
+  ],
+  used: [
+    "Learning my worth",
+    "Setting better boundaries",
+    "Recognizing my value",
+    "Wiser about intentions",
+    "Protecting my energy now",
+  ],
+  ignored: [
+    "Visible to the right people",
+    "Making myself heard",
+    "Worthy of attention",
+    "Finding my audience",
+    "My voice matters",
+  ],
+  unwanted: [
+    "Wanted by the right people",
+    "Belonging is coming",
+    "Valued for who I am",
+    "Creating my own belonging",
+    "Welcoming myself first",
+  ],
+  
+  // Work & Career
+  unemployable: [
+    "Skills waiting to be discovered",
+    "Creating my own opportunities",
+    "Valuable in unique ways",
+    "The right role is coming",
+    "Building my own path",
+  ],
+  mediocre: [
+    "Solid and consistent",
+    "Excellence in progress",
+    "Good enough is enough",
+    "Improving steadily",
+    "Mastery takes time",
+  ],
+  underqualified: [
+    "Learning quickly",
+    "Growing into the role",
+    "Bringing fresh perspective",
+    "Qualifications are developing",
+    "Potential over credentials",
+  ],
+  impostor: [
+    "Earning my place",
+    "Qualified through effort",
+    "Belonging here",
+    "Growing into my role",
+    "Proof of my capabilities",
+  ],
+  
+  // Future
+  hopeless: [
+    "Hope is renewable",
+    "Possibility exists",
+    "Change is always possible",
+    "Tomorrow brings new chances",
+    "Seeds of hope are planted",
+  ],
+  doomed: [
+    "Outcome is not fixed",
+    "Future is unwritten",
+    "I can change direction",
+    "Plot twist incoming",
+    "Destiny is in my hands",
+  ],
+  trapped: [
+    "Options are emerging",
+    "Freedom is possible",
+    "Finding my way out",
+    "Doors are opening",
+    "Escape routes exist",
+  ],
+  pointless: [
+    "Meaning is being created",
+    "Purpose is unfolding",
+    "Every moment matters",
+    "Significance in small things",
+    "Point is in the journey",
+  ],
+  
+  // Physical
+  ugly: [
+    "Uniquely beautiful",
+    "Attractive in my own way",
+    "Beauty beyond appearance",
+    "Seeing my true beauty",
+    "Attractive from within",
+  ],
+  fat: [
+    "My body is capable",
+    "Health over appearance",
+    "Body acceptance journey",
+    "Worthy at any size",
+    "My body serves me well",
+  ],
+  old: [
+    "Rich with experience",
+    "Wise and seasoned",
+    "Age brings wisdom",
+    "Still growing and evolving",
+    "Every age has beauty",
+  ],
+  
+  // Mental State
+  crazy: [
+    "Creatively wired",
+    "Thinking differently",
+    "Unique perspective",
+    "Neurodiverse and valid",
+    "Unconventionally brilliant",
+  ],
+  unstable: [
+    "Finding my balance",
+    "Navigating uncertainty",
+    "Building stability",
+    "Flexibility in motion",
+    "Adapting and adjusting",
+  ],
+  numb: [
+    "Protecting myself",
+    "Feeling will return",
+    "Healing in progress",
+    "Emotions are resting",
+    "Safety in stillness",
+  ],
+  empty: [
+    "Space for something new",
+    "Clearing for growth",
+    "Room for fulfillment",
+    "Quiet before creativity",
+    "Openness to receive",
+  ],
+  
+  // Common Sentences/Phrases
+  "i can't": [
+    "I'm learning how to",
+    "I haven't yet, but I will",
+    "Challenge accepted",
+    "I'm figuring it out",
+    "I'm finding my way",
+  ],
+  "i always": [
+    "I sometimes",
+    "I'm working on changing",
+    "Patterns can shift",
+    "Old habits are changing",
+    "I'm creating new patterns",
+  ],
+  "i never": [
+    "I haven't yet",
+    "There's always a first time",
+    "That's about to change",
+    "New beginnings ahead",
+    "Never say never",
+  ],
+  "i should": [
+    "I choose to",
+    "I want to",
+    "I could",
+    "It might be nice to",
+    "I'm considering",
+  ],
+  "too late": [
+    "Right on time",
+    "Perfect timing for me",
+    "Never too late to start",
+    "The best time is now",
+    "My timing is unique",
+  ],
+  "my fault": [
+    "A learning experience",
+    "Something I can grow from",
+    "Responsibility, not blame",
+    "An opportunity to improve",
+    "Part of being human",
+  ],
+  "no one cares": [
+    "The right people care",
+    "I care about myself",
+    "Care is coming my way",
+    "Connection is possible",
+    "Someone out there cares",
+  ],
+  "give up": [
+    "Take a strategic pause",
+    "Rest and reassess",
+    "Try a different approach",
+    "Pivot, don't quit",
+    "Regroup and return",
+  ],
+  "hate myself": [
+    "Learning to accept myself",
+    "Growing in self-compassion",
+    "Worthy of my own love",
+    "Practicing self-kindness",
+    "Deserving of gentleness",
+  ],
+  "mess up": [
+    "Learn and adjust",
+    "Grow from experience",
+    "Human moment",
+    "Opportunity to improve",
+    "Course correction available",
+  ],
+  "not good enough": [
+    "Good enough as I am",
+    "Improving every day",
+    "Exactly where I should be",
+    "Progress over perfection",
+    "My best is enough",
+  ],
+  "what's wrong with me": [
+    "Nothing, I'm human",
+    "I'm figuring things out",
+    "Growth in progress",
+    "Learning about myself",
+    "Being wonderfully complex",
   ],
 };
 
 const triggerWords = [
-  "Failure",
-  "Stuck",
-  "Anxious",
-  "Overwhelmed",
-  "Not enough",
-  "Afraid",
-  "Lonely",
-  "Angry",
-  "Sad",
-  "Lost",
-  "Weak",
-  "Rejected",
+  // Emotions
+  "Failure", "Stuck", "Anxious", "Overwhelmed", "Afraid", "Lonely", "Angry", "Sad", "Lost", "Weak", "Rejected",
+  // Self-Worth
+  "Not enough", "Worthless", "Unlovable", "Broken", "Damaged", "Flawed",
+  // Capability  
+  "Stupid", "Incompetent", "Useless", "Impostor",
+  // Relationships
+  "Abandoned", "Betrayed", "Ignored", "Unwanted",
+  // Future
+  "Hopeless", "Trapped", "Pointless",
+  // Mental State
+  "Empty", "Numb", "Unstable",
+  // Common Phrases
+  "I can't", "Too late", "My fault", "Give up", "Not good enough",
 ];
 
 const Reframe = () => {

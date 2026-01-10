@@ -158,9 +158,9 @@ const DuoActivityFeed = ({ partnerId }: DuoActivityFeedProps) => {
         <div key={activity.id} className="flex items-center gap-3 p-4">
           <div className={`
             w-8 h-8 rounded-full flex items-center justify-center
-            ${activity.type === 'mood' ? 'bg-pink-500/20 text-pink-500' : ''}
-            ${activity.type === 'ritual' ? 'bg-blue-500/20 text-blue-500' : ''}
-            ${activity.type === 'gratitude' ? 'bg-yellow-500/20 text-yellow-500' : ''}
+            ${activity.type === 'mood' ? 'bg-primary/20 text-primary' : ''}
+            ${activity.type === 'ritual' ? 'bg-accent/20 text-accent' : ''}
+            ${activity.type === 'gratitude' ? 'bg-success/20 text-success-foreground' : ''}
           `}>
             {getIcon(activity.type)}
           </div>
