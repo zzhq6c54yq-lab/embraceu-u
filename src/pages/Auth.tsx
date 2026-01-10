@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 import Logo from "@/components/Logo";
-import { Sparkles, Heart, Wind, BookOpen } from "lucide-react";
+import { Sparkles, Heart, Wind, BookOpen, ArrowLeft } from "lucide-react";
 
 const authSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -19,17 +19,39 @@ const features = [
   { icon: BookOpen, label: "Personal Library" },
 ];
 
+type AuthMode = "login" | "signup" | "forgot" | "reset";
+
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [isLogin, setIsLogin] = useState(searchParams.get("mode") === "login");
+  const [mode, setMode] = useState<AuthMode>(
+    searchParams.get("mode") === "login" ? "login" : "signup"
+  );
   const [nickname, setNickname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const isLogin = mode === "login";
+  const isForgot = mode === "forgot";
+  const isReset = mode === "reset";
+
   useEffect(() => {
-    // Check if already logged in
+    // Check for password reset token in URL
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get("access_token");
+    const type = hashParams.get("type");
+    
+    if (accessToken && type === "recovery") {
+      setMode("reset");
+    }
+  }, []);
+
+  useEffect(() => {
+    // Check if already logged in (skip for reset mode)
+    if (isReset) return;
+    
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -40,18 +62,80 @@ const Auth = () => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      if (event === "PASSWORD_RECOVERY") {
+        setMode("reset");
+      } else if (session && !isReset) {
         navigate("/dashboard");
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, isReset]);
 
-  // Update isLogin when URL changes
+  // Update mode when URL changes
   useEffect(() => {
-    setIsLogin(searchParams.get("mode") === "login");
+    const urlMode = searchParams.get("mode");
+    if (urlMode === "login") setMode("login");
+    else if (urlMode === "signup") setMode("signup");
   }, [searchParams]);
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      toast.success("Check your email for the reset link");
+      setMode("login");
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      toast.success("Password updated successfully!");
+      // Clear the hash from URL
+      window.history.replaceState(null, "", window.location.pathname);
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,6 +201,105 @@ const Auth = () => {
     }
   };
 
+  // Forgot Password View
+  if (isForgot) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col px-6 py-8">
+        <div className="absolute inset-0 gradient-warm opacity-30 pointer-events-none" />
+        
+        <div className="relative z-10 flex-1 flex flex-col max-w-md mx-auto w-full">
+          <div className="flex justify-center mb-6">
+            <Logo size="md" />
+          </div>
+
+          <button
+            onClick={() => setMode("login")}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Back to login</span>
+          </button>
+
+          <div className="text-center mb-8">
+            <h1 className="font-serif italic text-3xl md:text-4xl text-foreground mb-3">
+              Reset Password
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Enter your email and we'll send you a reset link
+            </p>
+          </div>
+
+          <form onSubmit={handleForgotPassword} className="flex flex-col gap-5">
+            <div>
+              <label className="text-label block mb-2">EMAIL</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Your email address"
+                className="input-embrace"
+                autoComplete="email"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="btn-embrace mt-2 w-full disabled:opacity-50"
+            >
+              {isLoading ? "..." : "SEND RESET LINK"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Reset Password View (after clicking email link)
+  if (isReset) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col px-6 py-8">
+        <div className="absolute inset-0 gradient-warm opacity-30 pointer-events-none" />
+        
+        <div className="relative z-10 flex-1 flex flex-col max-w-md mx-auto w-full">
+          <div className="flex justify-center mb-6">
+            <Logo size="md" />
+          </div>
+
+          <div className="text-center mb-8">
+            <h1 className="font-serif italic text-3xl md:text-4xl text-foreground mb-3">
+              Create New Password
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Enter your new password below
+            </p>
+          </div>
+
+          <form onSubmit={handleResetPassword} className="flex flex-col gap-5">
+            <div>
+              <label className="text-label block mb-2">NEW PASSWORD</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+                className="input-embrace"
+                autoComplete="new-password"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="btn-embrace mt-2 w-full disabled:opacity-50"
+            >
+              {isLoading ? "..." : "UPDATE PASSWORD"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col px-6 py-8">
@@ -205,6 +388,15 @@ const Auth = () => {
               className="input-embrace"
               autoComplete={isLogin ? "current-password" : "new-password"}
             />
+            {isLogin && (
+              <button
+                type="button"
+                onClick={() => setMode("forgot")}
+                className="mt-2 text-xs text-primary hover:underline"
+              >
+                Forgot password?
+              </button>
+            )}
           </div>
 
           <button
@@ -218,7 +410,7 @@ const Auth = () => {
 
         {/* Toggle auth mode */}
         <button
-          onClick={() => setIsLogin(!isLogin)}
+          onClick={() => setMode(isLogin ? "signup" : "login")}
           className="mt-6 text-sm text-center text-muted-foreground hover:text-foreground transition-colors"
         >
           {isLogin ? "New here? " : "Already have an account? "}
