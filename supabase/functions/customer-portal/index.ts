@@ -45,7 +45,15 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found for this user");
+      // User is on a trial or hasn't subscribed via Stripe yet
+      logStep("No Stripe customer found - user may be on trial");
+      return new Response(JSON.stringify({ 
+        error: "no_stripe_customer",
+        message: "You're currently on a trial. Subscribe to manage your subscription."
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200, // Return 200 with info, not 500 error
+      });
     }
 
     const customerId = customers.data[0].id;

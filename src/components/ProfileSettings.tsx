@@ -114,7 +114,13 @@ const ProfileSettings = () => {
   const handleManageSubscription = async () => {
     setIsOpeningPortal(true);
     try {
-      await openCustomerPortal();
+      const result = await openCustomerPortal();
+      if (result.isTrialUser) {
+        toast({
+          title: "Trial Active",
+          description: "You're currently on a trial. Subscribe to manage your subscription.",
+        });
+      }
     } finally {
       setIsOpeningPortal(false);
     }
