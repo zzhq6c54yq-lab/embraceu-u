@@ -16,7 +16,7 @@ interface PremiumContextType {
   triggerCelebration: () => void;
   completeCelebration: () => void;
   checkSubscription: () => Promise<void>;
-  openCustomerPortal: () => Promise<void>;
+  openCustomerPortal: () => Promise<{ success: boolean; isTrialUser?: boolean }>;
   activateTrial: (promoCode: string) => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -110,21 +110,30 @@ export const PremiumProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [hasCheckedInitially, triggerCelebration]);
 
-  const openCustomerPortal = useCallback(async () => {
-
+  const openCustomerPortal = useCallback(async (): Promise<{ success: boolean; isTrialUser?: boolean }> => {
     try {
       const { data, error } = await supabase.functions.invoke('customer-portal');
 
       if (error) {
         console.error('Error opening customer portal:', error);
-        return;
+        return { success: false };
+      }
+
+      // Handle trial users who don't have a Stripe customer
+      if (data?.error === "no_stripe_customer") {
+        console.log('User is on trial, no Stripe customer exists');
+        return { success: false, isTrialUser: true };
       }
 
       if (data?.url) {
         window.location.href = data.url;
+        return { success: true };
       }
+      
+      return { success: false };
     } catch (error) {
       console.error('Error opening customer portal:', error);
+      return { success: false };
     }
   }, []);
 

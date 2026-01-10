@@ -139,7 +139,12 @@ const Profile = () => {
             <Button
               variant="outline"
               className="w-full justify-start"
-              onClick={() => openCustomerPortal()}
+              onClick={async () => {
+                const result = await openCustomerPortal();
+                if (result.isTrialUser) {
+                  toast.info("You're on a trial. Subscribe to manage your subscription.");
+                }
+              }}
             >
               <Settings className="w-4 h-4 mr-2" />
               Manage Subscription
