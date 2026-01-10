@@ -9,7 +9,6 @@ import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { AppTracking } from "@/components/AppTracking";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ProCelebration from "@/components/ProCelebration";
-import ProRevealScreen from "@/components/ProRevealScreen";
 import { Loader2 } from "lucide-react";
 
 // Lazy load pages for better performance
@@ -65,7 +64,6 @@ const App = () => (
           <AppTracking />
           <Toaster position="top-center" />
           <ProCelebration />
-          <ProRevealScreen />
           <BrowserRouter>
             <Suspense fallback={<PageLoader />}>
               <Routes>
