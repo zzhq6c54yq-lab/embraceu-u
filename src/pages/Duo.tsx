@@ -11,6 +11,7 @@ import UpgradeModal from '@/components/UpgradeModal';
 import ReferralRewardsSection from '@/components/ReferralRewardsSection';
 import DuoActivityFeed from '@/components/DuoActivityFeed';
 import DuoMotivation from '@/components/DuoMotivation';
+import DuoActivities from '@/components/DuoActivities';
 import { PartnerMoodCard } from '@/components/PartnerMoodCard';
 import { Switch } from '@/components/ui/switch';
 
@@ -283,59 +284,78 @@ const Duo = () => {
       {/* Shared Streak Display */}
       {sharedStreak ? (
         <>
+          {/* Streak Header - Compact */}
           <section className="mb-6">
-            <div className="relative card-embrace-premium text-center py-10">
-              {/* Glowing aura effect */}
+            <div className="relative card-embrace-premium text-center py-6">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-accent/20 via-accent/40 to-accent/20 blur-2xl animate-pulse opacity-60" />
               
               <div className="relative z-10">
-                <div className="flex items-center justify-center gap-4 mb-6">
-                  <Users className="w-8 h-8 text-accent" />
-                  <span className="text-xl font-serif italic text-foreground">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Users className="w-6 h-6 text-accent" />
+                  <span className="text-lg font-serif italic text-foreground">
                     You & {partnerName}
                   </span>
                 </div>
                 
-                {/* Large streak counter */}
-                <div className="relative inline-block">
-                  <div className="absolute inset-0 rounded-full bg-accent/30 blur-3xl animate-pro-glow" />
-                  <div className="relative flex items-center justify-center w-40 h-40 rounded-full border-4 border-accent/60 bg-gradient-to-br from-accent/20 to-accent/5">
-                    <div className="text-center">
-                      <Flame className="w-10 h-10 mx-auto text-accent mb-1" />
-                      <span className="text-5xl font-bold text-foreground">
-                        {sharedStreak.streak_count}
-                      </span>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        days together
-                      </p>
-                    </div>
+                {/* Streak counter inline */}
+                <div className="flex items-center justify-center gap-3">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20">
+                    <Flame className="w-5 h-5 text-accent" />
+                    <span className="text-2xl font-bold text-foreground">
+                      {sharedStreak.streak_count}
+                    </span>
+                    <span className="text-sm text-muted-foreground">days</span>
                   </div>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                    onClick={leaveDuo}
+                  >
+                    <Unlink className="w-4 h-4" />
+                  </Button>
                 </div>
-
-                <p className="text-sm text-muted-foreground mt-6">
-                  Last sync: {new Date(sharedStreak.last_sync).toLocaleDateString()}
-                </p>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mt-4 text-destructive hover:text-destructive"
-                  onClick={leaveDuo}
-                >
-                  <Unlink className="w-4 h-4 mr-2" />
-                  End Duo
-                </Button>
               </div>
             </div>
           </section>
 
-          {/* Partner Profile Card */}
+          {/* DUO ACTIVITIES - Most Prominent Section */}
           <section className="mb-6">
-            <h2 className="text-label mb-4">PARTNER STATS</h2>
-            <div className="card-embrace">
+            <h2 className="text-label mb-4">TODAY'S ACTIVITIES</h2>
+            <DuoActivities
+              sharedStreakId={sharedStreak.id}
+              partnerId={partnerId}
+              partnerName={partnerName}
+              isPartner1={sharedStreak.partner_1 === user?.id}
+            />
+          </section>
+
+          {/* Partner Mood Card */}
+          <section className="mb-6">
+            <h2 className="text-label mb-4">PARTNER MOOD</h2>
+            <PartnerMoodCard partnerId={partnerId} partnerName={partnerName} />
+          </section>
+
+          {/* Duo Motivation */}
+          <section className="mb-6">
+            <DuoMotivation streak={sharedStreak.streak_count} partnerName={partnerName} />
+          </section>
+
+          {/* Partner Activity Feed */}
+          <section className="mb-6">
+            <h2 className="text-label mb-4">RECENT ACTIVITY</h2>
+            <DuoActivityFeed partnerId={partnerId} />
+          </section>
+
+          {/* Partner Stats + Privacy - Combined */}
+          <section className="mb-8">
+            <h2 className="text-label mb-4">PARTNER & SETTINGS</h2>
+            <div className="card-embrace space-y-4">
+              {/* Partner info */}
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-accent" />
+                <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-accent" />
                 </div>
                 <div className="flex-1">
                   <p className="font-serif italic text-foreground">{partnerName}</p>
@@ -349,22 +369,14 @@ const Duo = () => {
                   <p className="text-xs text-muted-foreground">their streak</p>
                 </div>
               </div>
-            </div>
-          </section>
 
-          {/* Partner Mood Card */}
-          <section className="mb-6">
-            <h2 className="text-label mb-4">PARTNER MOOD</h2>
-            <PartnerMoodCard partnerId={partnerId} partnerName={partnerName} />
-          </section>
+              {/* Divider */}
+              <div className="border-t border-border" />
 
-          {/* Privacy Settings */}
-          <section className="mb-6">
-            <h2 className="text-label mb-4">PRIVACY SETTINGS</h2>
-            <div className="card-embrace">
+              {/* Privacy toggle */}
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-foreground">Share my mood</p>
+                  <p className="font-medium text-foreground text-sm">Share my mood</p>
                   <p className="text-xs text-muted-foreground">
                     Let your partner see your current mood
                   </p>
@@ -375,17 +387,6 @@ const Duo = () => {
                 />
               </div>
             </div>
-          </section>
-
-          {/* Duo Motivation */}
-          <section className="mb-6">
-            <DuoMotivation streak={sharedStreak.streak_count} partnerName={partnerName} />
-          </section>
-
-          {/* Partner Activity Feed */}
-          <section className="mb-8">
-            <h2 className="text-label mb-4">PARTNER ACTIVITY</h2>
-            <DuoActivityFeed partnerId={partnerId} />
           </section>
         </>
       ) : (

@@ -275,6 +275,53 @@ export type Database = {
         }
         Relationships: []
       }
+      duo_activities: {
+        Row: {
+          activity_date: string | null
+          activity_type: string
+          both_revealed: boolean | null
+          created_at: string | null
+          id: string
+          partner_1_completed: boolean | null
+          partner_1_response: string | null
+          partner_2_completed: boolean | null
+          partner_2_response: string | null
+          shared_streak_id: string | null
+        }
+        Insert: {
+          activity_date?: string | null
+          activity_type: string
+          both_revealed?: boolean | null
+          created_at?: string | null
+          id?: string
+          partner_1_completed?: boolean | null
+          partner_1_response?: string | null
+          partner_2_completed?: boolean | null
+          partner_2_response?: string | null
+          shared_streak_id?: string | null
+        }
+        Update: {
+          activity_date?: string | null
+          activity_type?: string
+          both_revealed?: boolean | null
+          created_at?: string | null
+          id?: string
+          partner_1_completed?: boolean | null
+          partner_1_response?: string | null
+          partner_2_completed?: boolean | null
+          partner_2_response?: string | null
+          shared_streak_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duo_activities_shared_streak_id_fkey"
+            columns: ["shared_streak_id"]
+            isOneToOne: false
+            referencedRelation: "shared_streaks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gratitude_entries: {
         Row: {
           created_at: string

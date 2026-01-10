@@ -92,6 +92,15 @@ const breathPatterns: BreathPattern[] = [
     rest: 1,
     cycles: 8,
   },
+  {
+    name: "Deep Relaxation",
+    description: "Extended exhale for stress relief and deep calm.",
+    inhale: 5,
+    hold: 5,
+    exhale: 8,
+    rest: 2,
+    cycles: 4,
+  },
 ];
 
 const phaseLabels: Record<BreathPhase, string> = {
@@ -225,20 +234,29 @@ const Breath = () => {
         <p className="text-label">CONSCIOUS BREATHING FOR INNER CALM</p>
       </div>
 
-      {/* Pattern selector */}
-      <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide mb-6" data-tour="breath-patterns">
+      {/* Pattern selector - 2 row grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6" data-tour="breath-patterns">
         {breathPatterns.map((pattern) => (
           <button
             key={pattern.name}
             onClick={() => handlePatternSelect(pattern)}
             className={cn(
-              "px-4 py-2 rounded-full text-xs font-semibold tracking-wider whitespace-nowrap transition-all",
+              "p-4 rounded-xl text-left transition-all border",
               selectedPattern.name === pattern.name
-                ? "bg-foreground text-background"
-                : "bg-card border border-border text-muted-foreground hover:border-primary/50"
+                ? "bg-primary/10 border-primary text-foreground ring-2 ring-primary/30"
+                : "bg-card border-border text-muted-foreground hover:border-primary/50"
             )}
           >
-            {pattern.name.toUpperCase()}
+            <span className={cn(
+              "text-sm font-semibold block mb-1",
+              selectedPattern.name === pattern.name ? "text-foreground" : "text-foreground"
+            )}>
+              {pattern.name}
+            </span>
+            <span className="text-xs text-muted-foreground block">
+              {pattern.inhale}-{pattern.hold > 0 ? pattern.hold : '0'}-{pattern.exhale}
+              {pattern.rest > 0 ? `-${pattern.rest}` : ''} · {pattern.cycles} cycles
+            </span>
           </button>
         ))}
       </div>
