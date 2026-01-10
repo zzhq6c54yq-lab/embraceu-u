@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Crown, Sparkles, Heart, Sun, Feather, Moon, Wind, Star, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useCelebrationSound from "@/hooks/useCelebrationSound";
-
+import NebulaBackground from "./NebulaBackground";
 interface FloatingParticle {
   id: number;
   x: number;
@@ -53,23 +53,24 @@ const ProCelebration = () => {
   const [openingLine] = useState(() => openingLines[Math.floor(Math.random() * openingLines.length)]);
   const [showLotus, setShowLotus] = useState(false);
 
-  // Generate gentle floating particles
+  // Generate gentle floating particles - brighter colors for cosmic effect
   const generateParticles = useCallback(() => {
     const colors = [
-      "hsl(270, 50%, 85%)",   // Lavender
-      "hsl(195, 60%, 85%)",   // Cyan
-      "hsl(45, 30%, 90%)",    // Warm white
-      "hsl(320, 40%, 85%)",   // Pink
-      "hsl(220, 40%, 88%)",   // Silver blue
+      "hsl(320, 80%, 75%)",   // Bright pink
+      "hsl(195, 90%, 70%)",   // Bright cyan
+      "hsl(45, 90%, 75%)",    // Golden
+      "hsl(280, 70%, 75%)",   // Purple
+      "hsl(270, 60%, 80%)",   // Lavender
+      "hsl(180, 80%, 65%)",   // Teal
     ];
     
     const newParticles: FloatingParticle[] = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 60; i++) {
       newParticles.push({
         id: i,
         x: Math.random() * 100,
         y: 100 + Math.random() * 20, // Start below viewport
-        size: 2 + Math.random() * 4,
+        size: 2 + Math.random() * 5,
         delay: Math.random() * 4,
         duration: 8 + Math.random() * 6,
         color: colors[Math.floor(Math.random() * colors.length)],
@@ -150,36 +151,15 @@ const ProCelebration = () => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 overflow-hidden">
-      {/* Deep elegant backdrop with smooth fade */}
+      {/* Cosmic nebula backdrop */}
       <div 
         className={`absolute inset-0 transition-all duration-1000 ease-out ${
           phase === "breathe" ? "opacity-0" : "opacity-100"
         }`}
-        style={{
-          background: "linear-gradient(135deg, hsl(225, 35%, 6%) 0%, hsl(260, 30%, 8%) 30%, hsl(280, 25%, 10%) 60%, hsl(225, 40%, 5%) 100%)",
-        }}
         onClick={phase === "ready" ? handleContinue : undefined}
       >
-        {/* Aurora wave effect */}
-        <div className="absolute inset-0 overflow-hidden opacity-40">
-          <div 
-            className="absolute inset-0"
-            style={{
-              background: "linear-gradient(45deg, transparent 30%, hsl(270, 50%, 50% / 0.1) 45%, hsl(195, 60%, 50% / 0.08) 55%, transparent 70%)",
-              backgroundSize: "400% 400%",
-              animation: "aurora-wave 15s ease-in-out infinite",
-            }}
-          />
-          <div 
-            className="absolute inset-0"
-            style={{
-              background: "linear-gradient(-45deg, transparent 30%, hsl(320, 40%, 50% / 0.08) 45%, hsl(45, 50%, 50% / 0.06) 55%, transparent 70%)",
-              backgroundSize: "400% 400%",
-              animation: "aurora-wave 15s ease-in-out infinite",
-              animationDelay: "2s",
-            }}
-          />
-        </div>
+        {/* AI-generated cosmic nebula background */}
+        <NebulaBackground animated={phase !== "breathe"} />
 
         {/* Soft ambient glow at center */}
         <div 
@@ -187,28 +167,30 @@ const ProCelebration = () => {
             phase !== "breathe" ? "opacity-100 scale-100" : "opacity-0 scale-50"
           }`}
           style={{
-            background: "radial-gradient(circle, hsl(270, 40%, 60% / 0.15) 0%, hsl(225, 35%, 50% / 0.05) 40%, transparent 70%)",
+            background: "radial-gradient(circle, hsl(320, 60%, 70% / 0.2) 0%, hsl(280, 50%, 60% / 0.1) 40%, transparent 70%)",
             animation: phase !== "breathe" ? "gentle-pulse 4s ease-in-out infinite" : "none",
           }}
         />
 
-        {/* Floating light orbs - ambient background */}
-        {phase !== "breathe" && [...Array(8)].map((_, i) => (
+        {/* Floating light orbs - brighter cosmic colors */}
+        {phase !== "breathe" && [...Array(10)].map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full pointer-events-none"
             style={{
-              left: `${10 + i * 12}%`,
-              top: `${15 + (i % 4) * 20}%`,
-              width: 80 + i * 25,
-              height: 80 + i * 25,
-              background: i % 3 === 0
-                ? "radial-gradient(circle, hsl(270, 45%, 65% / 0.1) 0%, transparent 70%)"
-                : i % 3 === 1
-                ? "radial-gradient(circle, hsl(195, 55%, 65% / 0.08) 0%, transparent 70%)"
-                : "radial-gradient(circle, hsl(45, 40%, 70% / 0.06) 0%, transparent 70%)",
+              left: `${5 + i * 10}%`,
+              top: `${10 + (i % 5) * 18}%`,
+              width: 100 + i * 30,
+              height: 100 + i * 30,
+              background: i % 4 === 0
+                ? "radial-gradient(circle, hsl(320, 70%, 65% / 0.15) 0%, transparent 70%)"
+                : i % 4 === 1
+                ? "radial-gradient(circle, hsl(195, 80%, 60% / 0.12) 0%, transparent 70%)"
+                : i % 4 === 2
+                ? "radial-gradient(circle, hsl(280, 60%, 65% / 0.12) 0%, transparent 70%)"
+                : "radial-gradient(circle, hsl(45, 80%, 65% / 0.1) 0%, transparent 70%)",
               animation: "orb-drift 12s ease-in-out infinite",
-              animationDelay: `${i * 0.7}s`,
+              animationDelay: `${i * 0.6}s`,
             }}
           />
         ))}

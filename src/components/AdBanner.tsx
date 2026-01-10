@@ -14,7 +14,7 @@ const AdBanner = () => {
       {/* Position above bottom nav with safe area consideration */}
       <div 
         className="fixed left-0 right-0 z-40 px-3 sm:px-4 pb-1 sm:pb-2"
-        style={{ bottom: 'calc(52px + env(safe-area-inset-bottom, 0px))' }}
+        style={{ bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="max-w-lg mx-auto">
           <button
