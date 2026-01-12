@@ -41,6 +41,9 @@ const quickActions = [
   { icon: BookOpen, label: "Library", path: "/library", color: "bg-amber-500/10 text-amber-600" },
   { icon: Target, label: "Reframe", path: "/reframe", color: "bg-green-500/10 text-green-600" },
   { icon: TrendingUp, label: "Progress", path: "/progress", color: "bg-indigo-500/10 text-indigo-600" },
+  { icon: Moon, label: "Rituals", path: "/rituals", color: "bg-violet-500/10 text-violet-600" },
+  { icon: Calendar, label: "Challenges", path: "/challenges", color: "bg-rose-500/10 text-rose-600" },
+  { icon: Sun, label: "Daily", path: "/daily", color: "bg-orange-500/10 text-orange-600" },
 ];
 
 const Dashboard = () => {
