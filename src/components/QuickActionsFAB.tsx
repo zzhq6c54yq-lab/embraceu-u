@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Heart, Wind, Sparkles, Mic, Plus, X } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { Heart, Wind, Sparkles, Mic, Plus, X, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import MoodCheckModal from "./MoodCheckModal";
 import QuickGratitudeModal from "./QuickGratitudeModal";
 import VoiceJournal from "./VoiceJournal";
+import HelpDrawer from "./HelpDrawer";
+import { getHelpContentForRoute } from "@/lib/helpContent";
 
 interface QuickActionsFABProps {
   onQuickBreath?: () => void;
@@ -13,20 +16,29 @@ interface QuickActionsFABProps {
 
 const QuickActionsFAB = ({ onQuickBreath }: QuickActionsFABProps) => {
   const { user } = useAuth();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [showMoodModal, setShowMoodModal] = useState(false);
   const [showGratitudeModal, setShowGratitudeModal] = useState(false);
   const [showVoiceJournal, setShowVoiceJournal] = useState(false);
   const [showQuickBreath, setShowQuickBreath] = useState(false);
+  const [showHelpDrawer, setShowHelpDrawer] = useState(false);
   const [breathCount, setBreathCount] = useState(0);
 
+  const helpContent = getHelpContentForRoute(location.pathname);
+
   const handleAction = (action: string) => {
+    setIsOpen(false);
+    
+    if (action === "help") {
+      setShowHelpDrawer(true);
+      return;
+    }
+
     if (!user) {
       toast.error("Sign in to use quick actions");
       return;
     }
-
-    setIsOpen(false);
     
     switch (action) {
       case "mood":
@@ -61,6 +73,7 @@ const QuickActionsFAB = ({ onQuickBreath }: QuickActionsFABProps) => {
     { id: "breath", icon: Wind, label: "Breath", color: "text-blue-500" },
     { id: "gratitude", icon: Sparkles, label: "Gratitude", color: "text-yellow-500" },
     { id: "voice", icon: Mic, label: "Voice", color: "text-green-500" },
+    ...(helpContent ? [{ id: "help", icon: HelpCircle, label: "Help", color: "text-cyan-500" }] : []),
   ];
 
   return (
@@ -155,6 +168,13 @@ const QuickActionsFAB = ({ onQuickBreath }: QuickActionsFABProps) => {
           </div>
         </div>
       )}
+
+      {/* Help Drawer */}
+      <HelpDrawer
+        open={showHelpDrawer}
+        onOpenChange={setShowHelpDrawer}
+        onReplayTour={() => {}}
+      />
     </>
   );
 };
