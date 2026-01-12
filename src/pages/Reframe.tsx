@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Shuffle, Save, History } from "lucide-react";
+import { useState, useRef } from "react";
+import { Shuffle, Save, History, Sparkles, Loader2 } from "lucide-react";
 import AppLayout from "@/components/AppLayout";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import SectionNavigator from "@/components/SectionNavigator";
 
 const reframes: Record<string, string[]> = {
   // Core Emotions
@@ -417,6 +418,30 @@ const reframes: Record<string, string[]> = {
   ],
 };
 
+// Full sentence limiting beliefs for reframing
+const sentenceBeliefs = [
+  "I always mess things up",
+  "Nobody really likes me",
+  "I'll never be truly happy",
+  "I'm not good enough for this",
+  "It's too late for me to change",
+  "I can't do anything right",
+  "Everyone is better than me",
+  "I don't deserve good things",
+  "I'm always going to be alone",
+  "Nothing ever works out for me",
+  "I'm a burden to everyone",
+  "I'll never achieve my dreams",
+  "I'm too broken to be fixed",
+  "I always let people down",
+  "I'm not smart enough",
+  "I can't handle this",
+  "I'm too old to start over",
+  "I always make the wrong choice",
+  "I'm not worthy of love",
+  "I'll always be stuck like this",
+];
+
 const triggerWords = [
   // Emotions
   "Failure", "Stuck", "Anxious", "Overwhelmed", "Afraid", "Lonely", "Angry", "Sad", "Lost", "Weak", "Rejected",
@@ -434,12 +459,23 @@ const triggerWords = [
   "I can't", "Too late", "My fault", "Give up", "Not good enough",
 ];
 
+const sections = [
+  { id: "input-section", label: "Enter Thought" },
+  { id: "result-section", label: "Reframe Result" },
+  { id: "words-section", label: "Quick Words" },
+  { id: "sentences-section", label: "Sentences" },
+  { id: "history-section", label: "Recent" },
+];
+
 const Reframe = () => {
   const { user } = useAuth();
   const [input, setInput] = useState("");
   const [reframedWord, setReframedWord] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [recentReframes, setRecentReframes] = useState<Array<{ original: string; reframed: string }>>([]);
+  const [isAILoading, setIsAILoading] = useState(false);
+  const [isAIGenerated, setIsAIGenerated] = useState(false);
+  const [recentReframes, setRecentReframes] = useState<Array<{ original: string; reframed: string; isAI?: boolean }>>([]);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const handleReframe = () => {
     const word = input.toLowerCase().trim();
@@ -477,9 +513,84 @@ const Reframe = () => {
       }
 
       setReframedWord(newReframe);
-      setRecentReframes((prev) => [{ original: input, reframed: newReframe }, ...prev.slice(0, 4)]);
+      setIsAIGenerated(false);
+      setRecentReframes((prev) => [{ original: input, reframed: newReframe, isAI: false }, ...prev.slice(0, 4)]);
       setIsAnimating(false);
     }, 600);
+  };
+
+  const handleAIReframe = async () => {
+    const thought = input.trim();
+    if (!thought) {
+      toast.error("Enter a limiting thought to reframe");
+      return;
+    }
+
+    setIsAILoading(true);
+    setReframedWord(null);
+    abortControllerRef.current = new AbortController();
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/reframe-ai`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ thought }),
+          signal: abortControllerRef.current.signal,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get AI reframe");
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
+
+      const decoder = new TextDecoder();
+      let fullContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                fullContent += content;
+                setReframedWord(fullContent);
+              }
+            } catch {
+              // Ignore parsing errors for incomplete JSON
+            }
+          }
+        }
+      }
+
+      if (fullContent) {
+        setIsAIGenerated(true);
+        setRecentReframes((prev) => [{ original: input, reframed: fullContent, isAI: true }, ...prev.slice(0, 4)]);
+      }
+    } catch (error) {
+      if ((error as Error).name === "AbortError") return;
+      console.error("AI reframe error:", error);
+      toast.error((error as Error).message || "Could not get AI reframe");
+    } finally {
+      setIsAILoading(false);
+    }
   };
 
   const handleSaveReframe = async () => {
@@ -512,6 +623,8 @@ const Reframe = () => {
 
   return (
     <AppLayout>
+      <SectionNavigator sections={sections} />
+      
       {/* Header */}
       <div className="text-center mt-4 mb-10">
         <h1 className="font-serif italic text-3xl md:text-4xl text-foreground mb-2">
@@ -521,60 +634,88 @@ const Reframe = () => {
       </div>
 
       {/* Input section */}
-      <div className="card-embrace">
+      <div id="input-section" className="card-embrace">
         <label className="text-label block mb-4">LIMITING THOUGHT</label>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="e.g. Failure, Stuck, Not enough, Anxious..."
+          placeholder="e.g. Failure, Stuck, Not enough, Anxious, or a full sentence..."
           className="input-embrace min-h-[100px] resize-none"
         />
       </div>
 
-      {/* Shuffle button */}
-      <div className="flex justify-center my-10">
+      {/* Action buttons */}
+      <div className="flex justify-center gap-4 my-10">
         <button
           onClick={handleReframe}
-          disabled={isAnimating}
+          disabled={isAnimating || isAILoading}
           className={cn(
-            "w-20 h-20 rounded-full bg-primary flex items-center justify-center",
+            "w-16 h-16 rounded-full bg-primary flex items-center justify-center",
             "transition-all duration-300 hover:scale-105 active:scale-95",
             "shadow-elevated disabled:opacity-50",
             isAnimating && "animate-spin"
           )}
+          title="Quick Reframe"
         >
-          <Shuffle className="w-8 h-8 text-primary-foreground" />
+          <Shuffle className="w-6 h-6 text-primary-foreground" />
+        </button>
+        <button
+          onClick={handleAIReframe}
+          disabled={isAnimating || isAILoading}
+          className={cn(
+            "w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center",
+            "transition-all duration-300 hover:scale-105 active:scale-95",
+            "shadow-elevated disabled:opacity-50"
+          )}
+          title="AI Reframe"
+        >
+          {isAILoading ? (
+            <Loader2 className="w-6 h-6 text-white animate-spin" />
+          ) : (
+            <Sparkles className="w-6 h-6 text-white" />
+          )}
         </button>
       </div>
 
       {/* Reframed result */}
-      {reframedWord && !isAnimating && (
-        <div className="insight-card-accent text-center animate-scale-in">
-          <p className="text-label text-success-foreground mb-4">REFRAMED AS</p>
-          <p className="font-serif italic text-2xl text-success-foreground mb-6">
-            "{reframedWord}"
-          </p>
-          <div className="flex justify-center gap-3">
-            <button
-              onClick={handleTryAnother}
-              className="btn-embrace-outline text-xs flex items-center gap-2"
-            >
-              <Shuffle className="w-4 h-4" />
-              TRY ANOTHER
-            </button>
-            <button
-              onClick={handleSaveReframe}
-              className="btn-embrace bg-success-foreground text-background text-xs flex items-center gap-2"
-            >
-              <Save className="w-4 h-4" />
-              SAVE
-            </button>
+      <div id="result-section">
+        {(reframedWord || isAILoading) && !isAnimating && (
+          <div className="insight-card-accent text-center animate-scale-in">
+            {isAIGenerated && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full mb-3">
+                <Sparkles className="w-3 h-3" />
+                AI GENERATED
+              </span>
+            )}
+            <p className="text-label text-success-foreground mb-4">REFRAMED AS</p>
+            <p className="font-serif italic text-2xl text-success-foreground mb-6">
+              "{reframedWord}"
+              {isAILoading && <span className="inline-block w-2 h-5 ml-1 bg-success-foreground animate-pulse" />}
+            </p>
+            {!isAILoading && (
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={handleTryAnother}
+                  className="btn-embrace-outline text-xs flex items-center gap-2"
+                >
+                  <Shuffle className="w-4 h-4" />
+                  TRY ANOTHER
+                </button>
+                <button
+                  onClick={handleSaveReframe}
+                  className="btn-embrace bg-success-foreground text-background text-xs flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  SAVE
+                </button>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Quick suggestions */}
-      <section className="mt-10">
+      <section id="words-section" className="mt-10">
         <h2 className="text-label mb-4">TRY THESE WORDS</h2>
         <div className="flex flex-wrap gap-2">
           {triggerWords.map((word) => (
@@ -589,9 +730,25 @@ const Reframe = () => {
         </div>
       </section>
 
+      {/* Full sentence beliefs */}
+      <section id="sentences-section" className="mt-10">
+        <h2 className="text-label mb-4">OR TRY THESE SENTENCES</h2>
+        <div className="space-y-2">
+          {sentenceBeliefs.map((sentence) => (
+            <button
+              key={sentence}
+              onClick={() => setInput(sentence)}
+              className="w-full text-left px-4 py-3 rounded-xl bg-card border border-border hover:bg-secondary/50 transition-colors text-sm"
+            >
+              "{sentence}"
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* Recent reframes */}
       {recentReframes.length > 0 && (
-        <section className="mt-10 pb-8">
+        <section id="history-section" className="mt-10 pb-8">
           <div className="flex items-center gap-2 mb-4">
             <History className="w-4 h-4 text-muted-foreground" />
             <h2 className="text-label">RECENT REFRAMES</h2>
@@ -599,12 +756,22 @@ const Reframe = () => {
           <div className="space-y-3">
             {recentReframes.map((item, i) => (
               <div key={i} className="card-embrace py-4">
-                <p className="text-muted-foreground text-sm mb-1">
-                  "{item.original}"
-                </p>
-                <p className="font-serif italic text-foreground">
-                  → "{item.reframed}"
-                </p>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <p className="text-muted-foreground text-sm mb-1">
+                      "{item.original}"
+                    </p>
+                    <p className="font-serif italic text-foreground">
+                      → "{item.reframed}"
+                    </p>
+                  </div>
+                  {item.isAI && (
+                    <span className="flex-shrink-0 inline-flex items-center gap-1 text-[8px] font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white px-1.5 py-0.5 rounded-full">
+                      <Sparkles className="w-2 h-2" />
+                      AI
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>

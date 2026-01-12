@@ -16,6 +16,7 @@ import {
   MessageCircle,
   Zap,
   BookOpen,
+  LayoutDashboard,
 } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
 import thriveMtIcon from "@/assets/thrive-mt-icon.png";
@@ -39,6 +40,7 @@ interface NavItem {
 
 const navSlides: NavItem[][] = [
   [
+    { path: "/dashboard", label: "Home", icon: LayoutDashboard },
     { path: "/daily", label: "Daily", icon: Check },
     { path: "/breath", label: "Breath", icon: Wind },
     { path: "/reframe", label: "Reframe", icon: RefreshCw },
@@ -71,12 +73,14 @@ const BottomNav = () => {
 
   // Determine which slide the current route belongs to
   const getSlideForRoute = useCallback((pathname: string) => {
+    const slide1Paths = ["/dashboard", "/daily", "/breath", "/reframe", "/explore"];
     const slide2Paths = ["/gratitude", "/rituals", "/challenge", "/progress"];
     const slide3Paths = ["/duo", "/coach", "/memory-lane", "/quick-rituals"];
     const slide4Paths = ["/profile", "/pro", "/about"];
     if (slide4Paths.includes(pathname)) return 3;
     if (slide3Paths.includes(pathname)) return 2;
     if (slide2Paths.includes(pathname)) return 1;
+    if (slide1Paths.includes(pathname)) return 0;
     return 0;
   }, []);
 
