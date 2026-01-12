@@ -9,7 +9,7 @@ const corsHeaders = {
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CREATE-LIFETIME-CHECKOUT] ${step}${detailsStr}`);
+  console.log(`[CREATE-YEARLY-CHECKOUT] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
@@ -53,23 +53,23 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://pigavlxphdpjsjiwohok.lovableproject.com";
     
-    // Create a one-time payment session for lifetime access ($99.99)
+    // Yearly subscription - $49.99/year
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1SotMuDrG8e7x5d4HF2hZYNZ", // EmbraceU Pro Lifetime $99.99 one-time
+          price: "price_1SotMtDrG8e7x5d4cG1ndXTE", // EmbraceU Pro Yearly $49.99/year
           quantity: 1,
         },
       ],
-      mode: "payment", // One-time payment, not subscription
-      success_url: `${origin}/daily?checkout=success&type=lifetime`,
+      mode: "subscription",
+      success_url: `${origin}/daily?checkout=success&type=yearly`,
       cancel_url: `${origin}/pro?checkout=cancelled`,
-      allow_promotion_codes: true, // Enable promo code input on Stripe checkout
+      allow_promotion_codes: true,
     });
 
-    logStep("Lifetime checkout session created", { sessionId: session.id, url: session.url });
+    logStep("Yearly checkout session created", { sessionId: session.id, url: session.url });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

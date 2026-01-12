@@ -53,13 +53,13 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://pigavlxphdpjsjiwohok.lovableproject.com";
     
-    // 3-Month Bundle - one-time payment
+    // Quarterly Bundle - one-time payment ($12.99)
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: "price_1SkEcjDrG8e7x5d4G5RbHChY", // EmbraceU Pro 3-Month Bundle $8.25
+          price: "price_1SotMrDrG8e7x5d461Skok75", // EmbraceU Pro Quarterly $12.99
           quantity: 1,
         },
       ],

@@ -31,6 +31,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [referralCode, setReferralCode] = useState(searchParams.get("ref") || "");
   const [isLoading, setIsLoading] = useState(false);
 
   const isLogin = mode === "login";
@@ -172,6 +173,22 @@ const Auth = () => {
 
         toast.success("Welcome back!");
       } else {
+        // For signup, we need to look up the referrer's user_id if a code is provided
+        let referredBy: string | undefined;
+        
+        if (referralCode.trim()) {
+          // Look up the referrer by their referral code
+          const { data: referrerProfile } = await supabase
+            .from('profiles')
+            .select('user_id')
+            .eq('referral_code', referralCode.toLowerCase().trim())
+            .single();
+          
+          if (referrerProfile) {
+            referredBy = referrerProfile.user_id;
+          }
+        }
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -179,6 +196,7 @@ const Auth = () => {
             emailRedirectTo: `${window.location.origin}/daily`,
             data: {
               nickname: nickname || "Friend",
+              referred_by: referredBy,
             },
           },
         });
@@ -362,6 +380,20 @@ const Auth = () => {
                 placeholder="How shall we call you?"
                 className="input-embrace"
                 autoComplete="name"
+              />
+            </div>
+          )}
+
+          {!isLogin && (
+            <div>
+              <label className="text-label block mb-2">REFERRAL CODE <span className="text-muted-foreground font-normal">(optional)</span></label>
+              <input
+                type="text"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
+                placeholder="Friend's referral code"
+                className="input-embrace"
+                autoComplete="off"
               />
             </div>
           )}

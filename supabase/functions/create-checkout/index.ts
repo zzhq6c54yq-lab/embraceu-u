@@ -12,10 +12,11 @@ const PROMO_CODES: Record<string, string> = {
   "MTSTRONG100": "vCMxaodP", // 100% off first week
 };
 
-// Price IDs for different plans
+// Price IDs for different plans (NEW PRICING 2026)
 const PRICE_IDS = {
-  weekly: "price_1SlvctDrG8e7x5d4iXYt5qEt", // $0.99/week
-  monthly: "price_1SkEFlDrG8e7x5d4tSl1RllF", // $3.49/month
+  weekly: "price_1SotMHDrG8e7x5d4THNoMluc", // $1.99/week
+  monthly: "price_1SotMlDrG8e7x5d4GqcF5Kj2", // $4.99/month
+  yearly: "price_1SotMtDrG8e7x5d4cG1ndXTE", // $49.99/year
 };
 
 const logStep = (step: string, details?: any) => {
@@ -71,7 +72,9 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://pigavlxphdpjsjiwohok.lovableproject.com";
     
     // Determine the correct price based on plan type
-    const priceId = planType === 'monthly' ? PRICE_IDS.monthly : PRICE_IDS.weekly;
+    let priceId = PRICE_IDS.weekly;
+    if (planType === 'monthly') priceId = PRICE_IDS.monthly;
+    else if (planType === 'yearly') priceId = PRICE_IDS.yearly;
     logStep("Selected price", { priceId, planType });
 
     // Check for valid promo code

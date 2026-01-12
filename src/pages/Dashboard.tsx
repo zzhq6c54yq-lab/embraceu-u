@@ -14,6 +14,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import SEOHead from "@/components/SEOHead";
+import ReferralShareCard from "@/components/ReferralShareCard";
 
 interface Profile {
   nickname: string;
@@ -288,6 +289,9 @@ const Dashboard = () => {
             <p className="text-2xl font-bold text-foreground">{profile?.longest_streak || 0} days</p>
           </Card>
         </div>
+
+        {/* Referral Share Card */}
+        <ReferralShareCard />
 
         {/* Explore More */}
         <Card className="p-5 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
