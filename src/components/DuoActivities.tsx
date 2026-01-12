@@ -93,6 +93,72 @@ const activityDefinitions: DuoActivity[] = [
     icon: <Gift className="w-5 h-5" />,
     prompt: 'Write an encouraging message for your partner',
   },
+  {
+    id: 'sync_breathwork',
+    type: 'sync_breathwork',
+    title: 'Sync Breathwork',
+    description: 'Do a breathing exercise together',
+    icon: <Wind className="w-5 h-5" />,
+    options: [
+      'Box Breathing (4-4-4-4)',
+      '4-7-8 Relaxation',
+      'Calm Breath',
+      'Heart Coherence'
+    ],
+  },
+  {
+    id: 'memory_share',
+    type: 'memory_share',
+    title: 'Memory Share',
+    description: 'Share a favorite memory together',
+    icon: <Heart className="w-5 h-5" />,
+    prompt: 'Share a favorite memory you have with your partner',
+  },
+  {
+    id: 'dream_share',
+    type: 'dream_share',
+    title: 'Dream Share',
+    description: 'Share a dream or aspiration',
+    icon: <Sparkles className="w-5 h-5" />,
+    prompt: "What's one dream or goal you're working towards?",
+  },
+  {
+    id: 'affirmation_exchange',
+    type: 'affirmation_exchange',
+    title: 'Affirmation Exchange',
+    description: 'Send a positive affirmation',
+    icon: <MessageCircle className="w-5 h-5" />,
+    options: [
+      'You are capable of amazing things',
+      'Your strength inspires me',
+      'I believe in you',
+      'You make the world better',
+      'You are loved and appreciated'
+    ],
+  },
+  {
+    id: 'wellness_challenge',
+    type: 'wellness_challenge',
+    title: 'Wellness Challenge',
+    description: 'Pick a wellness activity to do together',
+    icon: <Target className="w-5 h-5" />,
+    options: [
+      '10-minute walk',
+      'Drink 8 glasses of water',
+      'No screens for 1 hour',
+      'Try a new healthy recipe',
+      'Stretch for 5 minutes',
+      'Meditate together'
+    ],
+  },
+  {
+    id: 'highlight_share',
+    type: 'highlight_share',
+    title: 'Daily Highlight',
+    description: 'Share the best part of your day',
+    icon: <Gift className="w-5 h-5" />,
+    prompt: "What was the best part of your day today?",
+  },
 ];
 
 const DuoActivities = ({ sharedStreakId, partnerId, partnerName, isPartner1 }: DuoActivitiesProps) => {
