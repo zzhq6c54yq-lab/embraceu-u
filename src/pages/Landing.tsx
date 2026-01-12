@@ -114,10 +114,10 @@ const Landing = () => {
           <p className="text-sm text-muted-foreground mb-6">Start free, unlock Pro features anytime</p>
           <div className="flex justify-center gap-3 text-sm">
             <div className="px-4 py-2 rounded-xl bg-card/50 border border-border/50">
-              <span className="text-muted-foreground">From </span><span className="font-bold text-foreground">$3.49</span><span className="text-muted-foreground">/mo</span>
+              <span className="text-muted-foreground">From </span><span className="font-bold text-foreground">$4.99</span><span className="text-muted-foreground">/mo</span>
             </div>
             <div className="px-4 py-2 rounded-xl bg-accent/10 border border-accent/30">
-              <span className="font-bold text-foreground">$24.99</span><span className="text-muted-foreground"> lifetime</span>
+              <span className="font-bold text-foreground">$99.99</span><span className="text-muted-foreground"> lifetime</span>
             </div>
           </div>
         </div>

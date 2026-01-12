@@ -462,6 +462,9 @@ export type Database = {
           pwa_installed_at: string | null
           referral_code: string | null
           referral_count: number | null
+          referral_pro_expires_at: string | null
+          referral_pro_granted_at: string | null
+          referral_pro_type: string | null
           referred_by: string | null
           share_mood_with_partner: boolean | null
           theme_preference: string | null
@@ -489,6 +492,9 @@ export type Database = {
           pwa_installed_at?: string | null
           referral_code?: string | null
           referral_count?: number | null
+          referral_pro_expires_at?: string | null
+          referral_pro_granted_at?: string | null
+          referral_pro_type?: string | null
           referred_by?: string | null
           share_mood_with_partner?: boolean | null
           theme_preference?: string | null
@@ -516,6 +522,9 @@ export type Database = {
           pwa_installed_at?: string | null
           referral_code?: string | null
           referral_count?: number | null
+          referral_pro_expires_at?: string | null
+          referral_pro_granted_at?: string | null
+          referral_pro_type?: string | null
           referred_by?: string | null
           share_mood_with_partner?: boolean | null
           theme_preference?: string | null

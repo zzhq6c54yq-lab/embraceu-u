@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Crown, Check, Sparkles, Diamond, Loader2, RefreshCcw, Infinity, Zap, Calendar, Tag, Gift } from "lucide-react";
+import { Crown, Check, Sparkles, Diamond, Loader2, RefreshCcw, Infinity, Zap, Calendar, Tag, Gift, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,7 @@ const features = [
   "Unlimited gratitude entries",
 ];
 
-type PlanType = 'weekly' | 'monthly' | 'bundle' | 'lifetime';
+type PlanType = 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'lifetime';
 
 const VALID_PROMO_CODES = ['MTSTRONG100'];
 
@@ -99,7 +99,8 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
       const functionMap: Record<PlanType, string> = {
         weekly: 'create-checkout',
         monthly: 'create-checkout',
-        bundle: 'create-bundle-checkout',
+        quarterly: 'create-bundle-checkout',
+        yearly: 'create-yearly-checkout',
         lifetime: 'create-lifetime-checkout',
       };
       
@@ -143,28 +144,35 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
         return (
           <>
             <Infinity className="w-5 h-5 mr-2" />
-            Get Lifetime Access - $24.99
+            Get Lifetime Access - $99.99
           </>
         );
-      case 'bundle':
+      case 'yearly':
         return (
           <>
             <Calendar className="w-5 h-5 mr-2" />
-            Get 3-Month Bundle - $8.25
+            Subscribe - $49.99/year
+          </>
+        );
+      case 'quarterly':
+        return (
+          <>
+            <Calendar className="w-5 h-5 mr-2" />
+            Get 3-Month Access - $12.99
           </>
         );
       case 'monthly':
         return (
           <>
             <Crown className="w-5 h-5 mr-2" />
-            Subscribe - $3.49/month
+            Subscribe - $4.99/month
           </>
         );
       default:
         return (
           <>
             <Crown className="w-5 h-5 mr-2" />
-            {isValidPromo ? 'Get 1 Week FREE!' : 'Subscribe - $0.99/week'}
+            {isValidPromo ? 'Get 1 Week FREE!' : 'Subscribe - $1.99/week'}
           </>
         );
     }
@@ -203,9 +211,9 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
           {/* Premium separator */}
           <div className="premium-separator my-6" />
 
-          {/* Plan Selection - 4 tiers */}
+          {/* Plan Selection - 5 tiers */}
           <div className="relative z-10 space-y-3 mb-6">
-            {/* Weekly Plan - NEW */}
+            {/* Weekly Plan */}
             <button
               onClick={() => setSelectedPlan('weekly')}
               className={cn(
@@ -215,7 +223,6 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                   : "border-border/50 bg-card/50 hover:border-border"
               )}
             >
-              {/* Try It Badge */}
               <div className="absolute -top-2 right-4 px-2 py-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full">
                 <span className="text-[10px] font-bold text-white uppercase tracking-wide">Try It</span>
               </div>
@@ -230,7 +237,7 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-xl font-bold text-foreground">$0.99</span>
+                <span className="text-xl font-bold text-foreground">$1.99</span>
                 <span className="text-xs text-muted-foreground">/week</span>
               </div>
             </button>
@@ -255,24 +262,23 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-xl font-bold text-foreground">$3.49</span>
+                <span className="text-xl font-bold text-foreground">$4.99</span>
                 <span className="text-xs text-muted-foreground">/mo</span>
               </div>
             </button>
 
-            {/* 3-Month Bundle */}
+            {/* Quarterly Bundle */}
             <button
-              onClick={() => setSelectedPlan('bundle')}
+              onClick={() => setSelectedPlan('quarterly')}
               className={cn(
                 "w-full relative p-4 rounded-2xl border-2 transition-all duration-300 text-left flex items-center justify-between",
-                selectedPlan === 'bundle'
+                selectedPlan === 'quarterly'
                   ? "border-accent bg-accent/10"
                   : "border-border/50 bg-card/50 hover:border-border"
               )}
             >
-              {/* Save Badge */}
               <div className="absolute -top-2 right-4 px-2 py-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full">
-                <span className="text-[10px] font-bold text-white uppercase tracking-wide">Save 21%</span>
+                <span className="text-[10px] font-bold text-white uppercase tracking-wide">Save 13%</span>
               </div>
               
               <div className="flex items-center gap-3">
@@ -280,13 +286,42 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                   <Calendar className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <span className="text-sm font-semibold text-foreground block">3-Month Bundle</span>
-                  <span className="text-xs text-muted-foreground">~$2.75/month</span>
+                  <span className="text-sm font-semibold text-foreground block">Quarterly</span>
+                  <span className="text-xs text-muted-foreground">~$4.33/month</span>
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-xl font-bold text-foreground">$8.25</span>
+                <span className="text-xl font-bold text-foreground">$12.99</span>
                 <span className="text-xs text-muted-foreground"> once</span>
+              </div>
+            </button>
+
+            {/* Yearly Plan */}
+            <button
+              onClick={() => setSelectedPlan('yearly')}
+              className={cn(
+                "w-full relative p-4 rounded-2xl border-2 transition-all duration-300 text-left flex items-center justify-between",
+                selectedPlan === 'yearly'
+                  ? "border-accent bg-accent/10"
+                  : "border-border/50 bg-card/50 hover:border-border"
+              )}
+            >
+              <div className="absolute -top-2 right-4 px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full">
+                <span className="text-[10px] font-bold text-white uppercase tracking-wide">Save 17%</span>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-accent" />
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-foreground block">Yearly</span>
+                  <span className="text-xs text-muted-foreground">~$4.17/month</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-bold text-foreground">$49.99</span>
+                <span className="text-xs text-muted-foreground">/year</span>
               </div>
             </button>
 
@@ -300,7 +335,6 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                   : "border-border/50 bg-card/50 hover:border-border"
               )}
             >
-              {/* Best Value Badge */}
               <div className="absolute -top-2 right-4 px-2 py-0.5 bg-gradient-to-r from-accent to-primary rounded-full">
                 <span className="text-[10px] font-bold text-accent-foreground uppercase tracking-wide">Best Value</span>
               </div>
@@ -315,7 +349,7 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-xl font-bold text-foreground">$24.99</span>
+                <span className="text-xl font-bold text-foreground">$99.99</span>
                 <span className="text-xs text-muted-foreground"> once</span>
               </div>
             </button>

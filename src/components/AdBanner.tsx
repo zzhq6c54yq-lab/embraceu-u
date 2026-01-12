@@ -43,7 +43,7 @@ const AdBanner = () => {
             
             {/* Right side - CTA Button */}
             <div className="relative z-10 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-accent to-accent/80 text-accent-foreground text-[10px] sm:text-xs font-semibold whitespace-nowrap shadow-md flex-shrink-0">
-              $0.99/week
+              $1.99/week
             </div>
           </button>
         </div>

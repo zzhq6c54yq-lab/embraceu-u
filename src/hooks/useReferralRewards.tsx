@@ -24,10 +24,11 @@ export interface RewardMilestone {
 }
 
 export const REWARD_MILESTONES: RewardMilestone[] = [
-  { count: 1, type: 'streak_bonus', title: '+3 Day Streak Boost', description: 'Add 3 days to your streak', icon: '🔥' },
-  { count: 3, type: 'exclusive_theme', title: 'Exclusive Theme', description: 'Unlock the Aurora theme', icon: '🎨' },
-  { count: 5, type: 'pro_trial', title: '7-Day Pro Trial', description: 'Experience all Pro features', icon: '👑' },
-  { count: 10, type: 'advocate_badge', title: 'Advocate Badge', description: 'Special profile recognition', icon: '🏆' },
+  { count: 3, type: 'streak_bonus', title: '+3 Day Streak Boost', description: 'Add 3 days to your streak', icon: '🔥' },
+  { count: 5, type: 'exclusive_theme', title: 'Aurora Theme', description: 'Unlock the exclusive Aurora cosmic theme', icon: '🎨' },
+  { count: 10, type: 'pro_trial', title: '7-Day Pro Trial', description: 'Experience all Pro features free', icon: '👑' },
+  { count: 20, type: 'pro_month', title: '1 Month Pro', description: 'Full Pro access for 30 days', icon: '💎' },
+  { count: 50, type: 'pro_year', title: '1 Year Pro', description: 'Full Pro access for 365 days', icon: '🏆' },
 ];
 
 export const useReferralRewards = () => {

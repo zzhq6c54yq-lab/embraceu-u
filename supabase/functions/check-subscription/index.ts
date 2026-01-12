@@ -7,9 +7,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Product IDs from Stripe
-const LIFETIME_PRODUCT_ID = "prod_ThfBphrlNFCrAM";
-const BUNDLE_PRODUCT_ID = "prod_ThduP1oLhnt8Vz";
+// Product IDs from Stripe (NEW 2026)
+const LIFETIME_PRODUCT_ID = "prod_TmSHtt5f2r8e0f"; // $99.99 lifetime
+const BUNDLE_PRODUCT_ID = "prod_TmSHJusEB4Eg7U"; // $12.99 quarterly
+const YEARLY_PRODUCT_ID = "prod_TmSHs4Xfj0bqGy"; // $49.99/year
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -45,12 +46,43 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // FIRST: Check for active trial in database (no payment required)
+    // FIRST: Check for referral-granted Pro access
     const { data: profile } = await supabaseClient
       .from("profiles")
-      .select("trial_start_date, trial_end_date, trial_promo_code")
+      .select("trial_start_date, trial_end_date, trial_promo_code, referral_pro_type, referral_pro_expires_at")
       .eq("user_id", user.id)
       .single();
+
+    // Check for referral Pro access
+    if (profile?.referral_pro_expires_at) {
+      const referralProEnd = new Date(profile.referral_pro_expires_at);
+      const now = new Date();
+      
+      if (referralProEnd > now) {
+        const diffTime = referralProEnd.getTime() - now.getTime();
+        const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        logStep("Active referral Pro access found", { 
+          referralProEnd: profile.referral_pro_expires_at, 
+          daysRemaining,
+          proType: profile.referral_pro_type 
+        });
+        
+        return new Response(JSON.stringify({
+          subscribed: true,
+          isLifetime: false,
+          isReferralPro: true,
+          referralProType: profile.referral_pro_type,
+          referralDaysRemaining: daysRemaining,
+          subscription_end: profile.referral_pro_expires_at
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+    }
+
+    // SECOND: Check for active trial in database (no payment required)
 
     if (profile?.trial_end_date) {
       const trialEnd = new Date(profile.trial_end_date);

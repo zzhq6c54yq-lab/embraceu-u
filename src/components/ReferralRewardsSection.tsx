@@ -147,13 +147,13 @@ const ReferralRewardsSection = () => {
       </div>
 
       {/* Completed all milestones message */}
-      {!nextMilestone && referralCount >= 10 && (
+      {!nextMilestone && referralCount >= 50 && (
         <div className="mt-4 p-4 rounded-xl bg-accent/10 border border-accent/30 text-center">
           <p className="text-sm text-accent font-medium">
             🎉 You've unlocked all referral rewards!
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Thank you for spreading the word about ThriveMT
+            Thank you for spreading the word about EmbraceU
           </p>
         </div>
       )}
