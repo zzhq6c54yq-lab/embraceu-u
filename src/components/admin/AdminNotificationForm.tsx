@@ -23,21 +23,21 @@ const AdminNotificationForm = () => {
 
     setIsSending(true);
     try {
+      // Get passcodes from session storage
       const passcode1 = sessionStorage.getItem('admin_passcode_1');
       const passcode2 = sessionStorage.getItem('admin_passcode_2');
       const passcode3 = sessionStorage.getItem('admin_passcode_3');
 
+      // Pass passcodes in body (more reliable with Supabase client)
       const { data, error } = await supabase.functions.invoke('send-push-notification', {
         body: {
           title: title.trim(),
           body: body.trim(),
           pro_only: target === "pro",
-          data: { type: 'admin_announcement' }
-        },
-        headers: {
-          'x-admin-passcode-1': passcode1 || '',
-          'x-admin-passcode-2': passcode2 || '',
-          'x-admin-passcode-3': passcode3 || ''
+          data: { type: 'admin_announcement' },
+          passcode1: passcode1 || '',
+          passcode2: passcode2 || '',
+          passcode3: passcode3 || ''
         }
       });
 
