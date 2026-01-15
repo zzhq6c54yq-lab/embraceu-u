@@ -12,17 +12,39 @@ interface PushPayload {
   data?: Record<string, string>;
   user_ids?: string[]; // Send to specific users, or omit for broadcast
   pro_only?: boolean; // Send only to pro subscribers
+  passcode1?: string;
+  passcode2?: string;
+  passcode3?: string;
 }
 
-// Verify admin access via passcode headers using environment secrets
-function verifyAdminAccess(req: Request): boolean {
-  const passcode1 = req.headers.get('x-admin-passcode-1');
-  const passcode2 = req.headers.get('x-admin-passcode-2');
-  const passcode3 = req.headers.get('x-admin-passcode-3');
+// Verify admin access via passcode (check both headers and body)
+function verifyAdminAccess(req: Request, payload: PushPayload): boolean {
+  // Check headers first
+  const headerPasscode1 = req.headers.get('x-admin-passcode-1');
+  const headerPasscode2 = req.headers.get('x-admin-passcode-2');
+  const headerPasscode3 = req.headers.get('x-admin-passcode-3');
+  
+  // Also check body for passcodes (more reliable with Supabase client)
+  const bodyPasscode1 = payload.passcode1;
+  const bodyPasscode2 = payload.passcode2;
+  const bodyPasscode3 = payload.passcode3;
+  
+  const passcode1 = headerPasscode1 || bodyPasscode1;
+  const passcode2 = headerPasscode2 || bodyPasscode2;
+  const passcode3 = headerPasscode3 || bodyPasscode3;
   
   const adminCode1 = Deno.env.get('ADMIN_CODE_1');
   const adminCode2 = Deno.env.get('ADMIN_CODE_2');
   const adminCode3 = Deno.env.get('ADMIN_CODE_3');
+  
+  console.log('Admin verification:', { 
+    hasPasscode1: !!passcode1, 
+    hasPasscode2: !!passcode2, 
+    hasPasscode3: !!passcode3,
+    matches1: passcode1 === adminCode1,
+    matches2: passcode2 === adminCode2,
+    matches3: passcode3 === adminCode3
+  });
   
   return passcode1 === adminCode1 && 
          passcode2 === adminCode2 && 
@@ -36,22 +58,18 @@ serve(async (req) => {
   }
 
   try {
-    // Check admin authorization for broadcast notifications
-    const isAdminRequest = verifyAdminAccess(req);
-    
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Optional: FCM Server Key for Android (add later)
     const fcmServerKey = Deno.env.get('FCM_SERVER_KEY');
-    
-    // Optional: APNs credentials for iOS (add later)
-    // const apnsKeyId = Deno.env.get('APNS_KEY_ID');
-    // const apnsTeamId = Deno.env.get('APNS_TEAM_ID');
 
     const payload: PushPayload = await req.json();
     const { title, body, data, user_ids, pro_only } = payload;
+
+    // Check admin authorization AFTER parsing body (so we can check body passcodes)
+    const isAdminRequest = verifyAdminAccess(req, payload);
 
     if (!title || !body) {
       return new Response(
@@ -63,7 +81,7 @@ serve(async (req) => {
     // For broadcast notifications (no specific user_ids), require admin auth
     const isBroadcast = !user_ids || user_ids.length === 0;
     if (isBroadcast && !isAdminRequest) {
-      console.log('Unauthorized broadcast attempt');
+      console.log('Unauthorized broadcast attempt - admin auth failed');
       return new Response(
         JSON.stringify({ error: 'Admin authorization required for broadcast notifications' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -148,9 +166,6 @@ serve(async (req) => {
 
     // Send to iOS devices via APNs
     if (iosTokens.length > 0) {
-      // APNs implementation placeholder
-      // When ready, add APNS_KEY_ID, APNS_TEAM_ID, APNS_PRIVATE_KEY secrets
-      // and implement JWT-based APNs authentication
       console.log('APNs not configured - skipping iOS push');
       console.log(`Would send to ${iosTokens.length} iOS devices`);
       results.ios.failed = iosTokens.length;

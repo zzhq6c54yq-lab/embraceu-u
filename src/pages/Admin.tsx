@@ -20,7 +20,8 @@ import {
   AdminActivityItem,
   AdminProSubscriberCard,
   AdminNotificationForm,
-  AdminExportButton
+  AdminExportButton,
+  AdminVisitorCounter
 } from "@/components/admin";
 
 import type { StatCardConfig, UserInfo, ProSubscriber } from "@/types/admin";
@@ -172,6 +173,11 @@ const Admin = () => {
           </div>
         ) : (
           <>
+            {/* Visitor Counter - Live Traffic */}
+            <section className="mb-8">
+              <AdminVisitorCounter />
+            </section>
+
             {/* Stats Grid */}
             <section className="mb-8">
               <h2 className="text-label mb-4">OVERVIEW</h2>
