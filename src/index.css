@@ -430,6 +430,46 @@
 }
 
 /* Smooth page transitions */
+@keyframes page-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes page-fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes stagger-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: page-slide-up 0.4s ease-out;
+}
+
+.animate-section-enter {
+  animation: stagger-fade-in 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
 .page-enter {
   opacity: 0;
   transform: translateY(10px);

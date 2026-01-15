@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import ActionFeedback from "./ActionFeedback";
 
 interface MoodCheckModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ const MoodCheckModal = ({ isOpen, onClose }: MoodCheckModalProps) => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   if (!isOpen) return null;
 
@@ -59,22 +61,33 @@ const MoodCheckModal = ({ isOpen, onClose }: MoodCheckModalProps) => {
       return;
     }
 
-    toast.success("Mood captured", {
-      description: `Feeling ${selectedMood.toLowerCase()} today`,
-    });
+    setShowFeedback(true);
+  };
 
+  const handleFeedbackComplete = () => {
+    setShowFeedback(false);
+    toast.success("Mood captured", {
+      description: `Feeling ${selectedMood?.toLowerCase()} today`,
+    });
     setSelectedMood(null);
     setNote("");
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-        onClick={onClose}
+    <>
+      <ActionFeedback
+        type="love"
+        isVisible={showFeedback}
+        onComplete={handleFeedbackComplete}
+        message="Mood Captured!"
       />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+          onClick={onClose}
+        />
       
       {/* Modal */}
       <div className="relative bg-card border border-border rounded-2xl shadow-elevated w-full max-w-md p-6 animate-scale-in">
@@ -140,8 +153,9 @@ const MoodCheckModal = ({ isOpen, onClose }: MoodCheckModalProps) => {
             {isSaving ? "SAVING..." : "SAVE MOOD"}
           </button>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
