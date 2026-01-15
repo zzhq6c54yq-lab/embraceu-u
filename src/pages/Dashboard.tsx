@@ -15,6 +15,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import SEOHead from "@/components/SEOHead";
 import ReferralShareCard from "@/components/ReferralShareCard";
+import ProgressInsightsCard from "@/components/ProgressInsightsCard";
+import PageSection from "@/components/PageSection";
+import SectionDivider from "@/components/SectionDivider";
 
 interface Profile {
   nickname: string;
@@ -239,15 +242,21 @@ const Dashboard = () => {
           </div>
         </Card>
 
+        <SectionDivider variant="gradient" />
+
+        {/* Progress Insights Card */}
+        <ProgressInsightsCard />
+
+        <SectionDivider variant="gradient" />
+
         {/* Quick Actions Grid */}
-        <div>
-          <h2 className="text-label mb-3">QUICK ACTIONS</h2>
+        <PageSection title="Quick Actions" icon={Sparkles}>
           <div className="grid grid-cols-3 gap-3">
             {quickActions.map((action) => (
               <button
                 key={action.label}
                 onClick={() => navigate(action.path)}
-                className="flex flex-col items-center p-4 rounded-2xl bg-card/50 border border-border/50 hover:border-accent/30 transition-all hover:scale-[1.02]"
+                className="flex flex-col items-center p-4 rounded-2xl bg-card/50 border border-border/50 hover:border-accent/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-2", action.color)}>
                   <action.icon className="w-6 h-6" />
@@ -256,39 +265,45 @@ const Dashboard = () => {
               </button>
             ))}
           </div>
-        </div>
+        </PageSection>
+
+        <SectionDivider variant="subtle" />
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-2 gap-3">
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
-            <div className="flex items-center gap-2 mb-2">
-              <Heart className="w-4 h-4 text-pink-500" />
-              <span className="text-xs text-muted-foreground">Moods Logged</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">{profile?.total_moods_logged || 0}</p>
-          </Card>
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-purple-500" />
-              <span className="text-xs text-muted-foreground">Insights Saved</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">{profile?.total_insights_saved || 0}</p>
-          </Card>
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="w-4 h-4 text-green-500" />
-              <span className="text-xs text-muted-foreground">Rituals Done</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">{profile?.total_rituals_completed || 0}</p>
-          </Card>
-          <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
-            <div className="flex items-center gap-2 mb-2">
-              <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-xs text-muted-foreground">Best Streak</span>
-            </div>
-            <p className="text-2xl font-bold text-foreground">{profile?.longest_streak || 0} days</p>
-          </Card>
-        </div>
+        <PageSection title="Your Stats" icon={TrendingUp}>
+          <div className="grid grid-cols-2 gap-3">
+            <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Heart className="w-4 h-4 text-pink-500" />
+                <span className="text-xs text-muted-foreground">Moods Logged</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{profile?.total_moods_logged || 0}</p>
+            </Card>
+            <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-purple-500" />
+                <span className="text-xs text-muted-foreground">Insights Saved</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{profile?.total_insights_saved || 0}</p>
+            </Card>
+            <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="w-4 h-4 text-green-500" />
+                <span className="text-xs text-muted-foreground">Rituals Done</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{profile?.total_rituals_completed || 0}</p>
+            </Card>
+            <Card className="p-4 bg-card/50 backdrop-blur-sm border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Flame className="w-4 h-4 text-orange-500" />
+                <span className="text-xs text-muted-foreground">Best Streak</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{profile?.longest_streak || 0} days</p>
+            </Card>
+          </div>
+        </PageSection>
+
+        <SectionDivider variant="gradient" />
 
         {/* Referral Share Card */}
         <ReferralShareCard />

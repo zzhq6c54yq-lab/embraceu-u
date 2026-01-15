@@ -1,10 +1,12 @@
 import { ReactNode, useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import BottomNav from "./BottomNav";
 import AppHeader from "./AppHeader";
 import AdBanner from "./AdBanner";
 import HelpButton from "./HelpButton";
 import QuickActionsFAB from "./QuickActionsFAB";
 import StreakCelebration from "./StreakCelebration";
+import PageTransition from "./PageTransition";
 import { cn } from "@/lib/utils";
 import { usePremium } from "@/hooks/usePremium";
 import { useStreakMilestones } from "@/hooks/useStreakMilestones";
@@ -51,15 +53,17 @@ const AppLayout = ({
       {showHeader && <AppHeader />}
       <main 
         className={cn(
-          "flex-1 px-3 sm:px-4 animate-fade-in relative z-10",
+          "flex-1 px-3 sm:px-4 relative z-10",
           !showHeader && "pt-4",
           bottomPadding,
           className
         )}
       >
-        <div className="max-w-lg mx-auto w-full">
-          {children}
-        </div>
+        <PageTransition>
+          <div className="max-w-lg mx-auto w-full">
+            {children}
+          </div>
+        </PageTransition>
       </main>
       <AdBanner />
       <QuickActionsFAB />

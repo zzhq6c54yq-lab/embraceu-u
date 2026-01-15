@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Heart, Wind, Sparkles, Mic, Plus, X, HelpCircle } from "lucide-react";
+import { Heart, Wind, Sparkles, Mic, Plus, X, HelpCircle, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import MoodCheckModal from "./MoodCheckModal";
 import QuickGratitudeModal from "./QuickGratitudeModal";
 import VoiceJournal from "./VoiceJournal";
 import HelpDrawer from "./HelpDrawer";
+import QuickSettingsSheet from "./QuickSettingsSheet";
 import { getHelpContentForRoute } from "@/lib/helpContent";
 
 interface QuickActionsFABProps {
@@ -23,6 +24,7 @@ const QuickActionsFAB = ({ onQuickBreath }: QuickActionsFABProps) => {
   const [showVoiceJournal, setShowVoiceJournal] = useState(false);
   const [showQuickBreath, setShowQuickBreath] = useState(false);
   const [showHelpDrawer, setShowHelpDrawer] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [breathCount, setBreathCount] = useState(0);
 
   const helpContent = getHelpContentForRoute(location.pathname);
@@ -32,6 +34,11 @@ const QuickActionsFAB = ({ onQuickBreath }: QuickActionsFABProps) => {
     
     if (action === "help") {
       setShowHelpDrawer(true);
+      return;
+    }
+
+    if (action === "settings") {
+      setShowSettings(true);
       return;
     }
 
@@ -73,6 +80,7 @@ const QuickActionsFAB = ({ onQuickBreath }: QuickActionsFABProps) => {
     { id: "breath", icon: Wind, label: "Breath", color: "text-blue-500" },
     { id: "gratitude", icon: Sparkles, label: "Gratitude", color: "text-yellow-500" },
     { id: "voice", icon: Mic, label: "Voice", color: "text-green-500" },
+    { id: "settings", icon: Settings, label: "Settings", color: "text-slate-500" },
     ...(helpContent ? [{ id: "help", icon: HelpCircle, label: "Help", color: "text-cyan-500" }] : []),
   ];
 
@@ -174,6 +182,12 @@ const QuickActionsFAB = ({ onQuickBreath }: QuickActionsFABProps) => {
         open={showHelpDrawer}
         onOpenChange={setShowHelpDrawer}
         onReplayTour={() => {}}
+      />
+
+      {/* Quick Settings Sheet */}
+      <QuickSettingsSheet
+        open={showSettings}
+        onOpenChange={setShowSettings}
       />
     </>
   );
