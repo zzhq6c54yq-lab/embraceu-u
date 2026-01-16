@@ -10,6 +10,7 @@ import NotificationSettings from "@/components/NotificationSettings";
 import AvatarSelector from "@/components/AvatarSelector";
 import { AvatarDisplay } from "@/components/avatar";
 import { AchievementBadges } from "@/components/AchievementBadges";
+import ReferralRewardsSection from "@/components/ReferralRewardsSection";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -102,6 +103,11 @@ const Profile = () => {
         <div className="card-embrace">
           <AchievementBadges />
         </div>
+      </section>
+
+      {/* Referral Rewards Section */}
+      <section className="mb-8">
+        <ReferralRewardsSection />
       </section>
 
       {/* Avatar Section */}
