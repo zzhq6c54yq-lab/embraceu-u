@@ -23,10 +23,29 @@ const AdminNotificationForm = () => {
 
     setIsSending(true);
     try {
-      // Get passcodes from session storage
-      const passcode1 = sessionStorage.getItem('admin_passcode_1');
-      const passcode2 = sessionStorage.getItem('admin_passcode_2');
-      const passcode3 = sessionStorage.getItem('admin_passcode_3');
+      // Get passcodes from session storage (stored as JSON object by useAdminAuth)
+      const adminCodes = sessionStorage.getItem('admin_codes');
+      let passcode1 = '';
+      let passcode2 = '';
+      let passcode3 = '';
+
+      if (adminCodes) {
+        try {
+          const codes = JSON.parse(adminCodes);
+          passcode1 = codes.code1 || '';
+          passcode2 = codes.code2 || '';
+          passcode3 = codes.code3 || '';
+        } catch (e) {
+          console.error('Failed to parse admin codes:', e);
+          toast.error("Admin session invalid", { description: "Please re-authenticate" });
+          setIsSending(false);
+          return;
+        }
+      } else {
+        toast.error("Admin session expired", { description: "Please re-authenticate" });
+        setIsSending(false);
+        return;
+      }
 
       // Pass passcodes in body (more reliable with Supabase client)
       const { data, error } = await supabase.functions.invoke('send-push-notification', {
