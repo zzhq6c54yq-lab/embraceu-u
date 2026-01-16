@@ -63,9 +63,16 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
         });
         onOpenChange(false);
       } else {
+        // Check for specific error messages from the API
+        const errorMessage = result.error || "Please try again.";
+        const isAlreadyUsed = errorMessage.toLowerCase().includes('already used') || 
+                              errorMessage.toLowerCase().includes('already have');
+        
         toast({
-          title: "Could not activate trial",
-          description: result.error || "Please try again.",
+          title: isAlreadyUsed ? "Trial Already Used" : "Could not activate trial",
+          description: isAlreadyUsed 
+            ? "You've already used a free trial. Upgrade to Pro to continue!" 
+            : errorMessage,
           variant: "destructive",
         });
       }
