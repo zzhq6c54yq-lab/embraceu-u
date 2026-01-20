@@ -114,8 +114,17 @@ serve(async (req) => {
     // Fetch all data using service role (bypasses RLS)
     const today = new Date().toISOString().split("T")[0];
 
+    // Get admin user IDs to exclude from stats
+    const { data: adminRoles } = await supabaseAdmin
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "admin");
+    
+    const adminUserIds = new Set((adminRoles || []).map(r => r.user_id));
+    logStep("Admin users to exclude", { count: adminUserIds.size });
+
     // Get all profiles with new tracking fields
-    const { data: profiles, error: profilesError } = await supabaseAdmin
+    const { data: allProfiles, error: profilesError } = await supabaseAdmin
       .from("profiles")
       .select("user_id, nickname, current_streak, longest_streak, created_at, theme_preference, referral_count, pwa_installed, pwa_installed_at, total_time_spent_seconds, last_session_duration_seconds")
       .order("created_at", { ascending: false });
@@ -123,6 +132,9 @@ serve(async (req) => {
     if (profilesError) {
       logStep("Error fetching profiles", { error: profilesError.message });
     }
+
+    // Filter out admin users from the profiles list
+    const profiles = (allProfiles || []).filter(p => !adminUserIds.has(p.user_id));
 
     // Get counts in parallel
     const [moodsRes, ritualsRes, patternsRes, insightsRes, activeTodayRes, gratitudeRes] = await Promise.all([
@@ -146,19 +158,23 @@ serve(async (req) => {
     // Get recent activity (last 24 hours)
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     
-    const { data: recentMoods } = await supabaseAdmin
+    const { data: allRecentMoods } = await supabaseAdmin
       .from("mood_entries")
       .select("id, mood, created_at, user_id")
       .gte("created_at", yesterday)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(30);
 
-    const { data: recentRituals } = await supabaseAdmin
+    const { data: allRecentRituals } = await supabaseAdmin
       .from("rituals_completed")
       .select("id, ritual_type, created_at, user_id")
       .gte("created_at", yesterday)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(30);
+
+    // Filter out admin activities
+    const recentMoods = (allRecentMoods || []).filter(m => !adminUserIds.has(m.user_id)).slice(0, 20);
+    const recentRituals = (allRecentRituals || []).filter(r => !adminUserIds.has(r.user_id)).slice(0, 20);
 
     // ===== CHART DATA: Get daily signups for last 14 days =====
     const fourteenDaysAgo = new Date();
