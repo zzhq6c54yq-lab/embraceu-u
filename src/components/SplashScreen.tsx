@@ -40,7 +40,9 @@ const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
       aria-label="Tap to continue"
     >
       {/* Logo */}
-      <div className="w-[70vw] max-w-[400px] mb-8">
+      <div 
+        className="w-[70vw] max-w-[400px] mb-8 opacity-0 animate-[fade-in_0.8s_ease-out_0.2s_forwards]"
+      >
         <img
           src={logoImage}
           alt="EmbraceU logo - hands embracing a heart"
@@ -49,13 +51,15 @@ const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
       </div>
 
       {/* Tagline */}
-      <p className="text-lg md:text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium text-center mb-4">
+      <p 
+        className="text-lg md:text-xl tracking-[0.2em] uppercase text-muted-foreground font-medium text-center mb-4 opacity-0 animate-[fade-in_0.8s_ease-out_0.6s_forwards]"
+      >
         THE POWER OF PRESENCE
       </p>
 
       {/* By Thrive MT */}
       <p 
-        className="text-sm md:text-base text-muted-foreground/80 flex items-center gap-2" 
+        className="text-sm md:text-base text-muted-foreground/80 flex items-center gap-2 opacity-0 animate-[fade-in_0.8s_ease-out_1s_forwards]" 
         style={{ 
           fontFamily: "'DM Sans', sans-serif",
           textShadow: "0 1px 8px hsl(210 30% 50% / 0.25)"
@@ -70,7 +74,7 @@ const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
       </p>
 
       {/* Subtle tap hint */}
-      <p className="absolute bottom-8 text-xs text-muted-foreground/50 uppercase tracking-wider">
+      <p className="absolute bottom-8 text-xs text-muted-foreground/50 uppercase tracking-wider opacity-0 animate-[fade-in_0.6s_ease-out_1.5s_forwards]">
         Tap anywhere to continue
       </p>
     </div>
