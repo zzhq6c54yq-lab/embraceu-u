@@ -58,12 +58,13 @@ const PageLoader = () => (
 
 const App = () => {
   const [showSplash, setShowSplash] = useState(() => {
-    // Check if splash was already shown this session
-    return sessionStorage.getItem('splashShown') !== 'true';
+    // Show splash on every session until dismissed
+    const alreadyShownThisSession = sessionStorage.getItem('splashShownThisSession') === 'true';
+    return !alreadyShownThisSession;
   });
 
   const handleDismissSplash = () => {
-    sessionStorage.setItem('splashShown', 'true');
+    sessionStorage.setItem('splashShownThisSession', 'true');
     setShowSplash(false);
   };
 
