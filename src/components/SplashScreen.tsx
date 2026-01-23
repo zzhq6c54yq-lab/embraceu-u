@@ -28,7 +28,7 @@ const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
 
   return (
     <div 
-      className="fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center cursor-pointer transition-opacity duration-300"
+      className="fixed inset-0 z-[9999] bg-gradient-to-b from-white to-gray-100 flex flex-col items-center justify-center cursor-pointer transition-opacity duration-300"
       onClick={handleDismiss}
       role="button"
       tabIndex={0}
