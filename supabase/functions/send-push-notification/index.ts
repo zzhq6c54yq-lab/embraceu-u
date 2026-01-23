@@ -18,7 +18,7 @@ interface PushPayload {
 }
 
 // Verify admin access via passcode (check both headers and body)
-function verifyAdminAccess(req: Request, payload: PushPayload): boolean {
+function verifyPasscodeAccess(req: Request, payload: PushPayload): boolean {
   // Check headers first
   const headerPasscode1 = req.headers.get('x-admin-passcode-1');
   const headerPasscode2 = req.headers.get('x-admin-passcode-2');
@@ -37,18 +37,37 @@ function verifyAdminAccess(req: Request, payload: PushPayload): boolean {
   const adminCode2 = Deno.env.get('ADMIN_CODE_2');
   const adminCode3 = Deno.env.get('ADMIN_CODE_3');
   
-  console.log('Admin verification:', { 
-    hasPasscode1: !!passcode1, 
-    hasPasscode2: !!passcode2, 
-    hasPasscode3: !!passcode3,
-    matches1: passcode1 === adminCode1,
-    matches2: passcode2 === adminCode2,
-    matches3: passcode3 === adminCode3
-  });
-  
   return passcode1 === adminCode1 && 
          passcode2 === adminCode2 && 
          passcode3 === adminCode3;
+}
+
+// Verify admin access via JWT (user has admin role)
+async function verifyJwtAdminAccess(req: Request, supabaseClient: any): Promise<boolean> {
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader) return false;
+  
+  try {
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error } = await supabaseClient.auth.getUser(token);
+    
+    if (error || !user) return false;
+    
+    // Check if user has admin role using raw query (avoiding typing issues)
+    const { data: roleData, error: roleError } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+    
+    const hasAdminRole = !!roleData;
+    console.log('[SEND-PUSH] JWT admin check:', { userId: user.id, hasAdminRole });
+    return hasAdminRole;
+  } catch (err) {
+    console.error('[SEND-PUSH] JWT verification error:', err);
+    return false;
+  }
 }
 
 serve(async (req) => {
@@ -68,8 +87,12 @@ serve(async (req) => {
     const payload: PushPayload = await req.json();
     const { title, body, data, user_ids, pro_only } = payload;
 
-    // Check admin authorization AFTER parsing body (so we can check body passcodes)
-    const isAdminRequest = verifyAdminAccess(req, payload);
+    // Check admin authorization: first via passcodes, then via JWT
+    const passcodeValid = verifyPasscodeAccess(req, payload);
+    const jwtValid = await verifyJwtAdminAccess(req, supabase);
+    const isAdminRequest = passcodeValid || jwtValid;
+    
+    console.log('[SEND-PUSH] Auth check:', { passcodeValid, jwtValid, isAdminRequest });
 
     if (!title || !body) {
       return new Response(
@@ -81,7 +104,7 @@ serve(async (req) => {
     // For broadcast notifications (no specific user_ids), require admin auth
     const isBroadcast = !user_ids || user_ids.length === 0;
     if (isBroadcast && !isAdminRequest) {
-      console.log('Unauthorized broadcast attempt - admin auth failed');
+      console.log('[SEND-PUSH] Unauthorized broadcast attempt - admin auth failed');
       return new Response(
         JSON.stringify({ error: 'Admin authorization required for broadcast notifications' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
