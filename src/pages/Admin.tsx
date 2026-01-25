@@ -21,7 +21,8 @@ import {
   AdminProSubscriberCard,
   AdminNotificationForm,
   AdminExportButton,
-  AdminVisitorCounter
+  AdminVisitorCounter,
+  AdminBetaCodesCard
 } from "@/components/admin";
 
 import type { StatCardConfig, UserInfo, ProSubscriber } from "@/types/admin";
@@ -280,6 +281,11 @@ const Admin = () => {
                 </div>
               </section>
             </div>
+
+            {/* Beta Promo Codes Tracking */}
+            <section className="mt-8">
+              <AdminBetaCodesCard />
+            </section>
 
             {/* Send Announcement */}
             <AdminNotificationForm />

@@ -74,6 +74,71 @@ export type Database = {
         }
         Relationships: []
       }
+      beta_code_redemptions: {
+        Row: {
+          code_id: string
+          expires_at: string
+          id: string
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          code_id: string
+          expires_at: string
+          id?: string
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string
+          expires_at?: string
+          id?: string
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beta_code_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "beta_promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beta_promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          current_uses: number
+          description: string | null
+          id: string
+          is_active: boolean
+          max_uses: number
+          trial_days: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          trial_days?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          trial_days?: number
+        }
+        Relationships: []
+      }
       challenge_participants: {
         Row: {
           challenge_id: string
