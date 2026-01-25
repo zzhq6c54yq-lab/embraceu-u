@@ -9,3 +9,4 @@ export { default as AdminProSubscriberCard } from './AdminProSubscriberCard';
 export { default as AdminCharts } from './AdminCharts';
 export { default as AdminHeader } from './AdminHeader';
 export { default as AdminVisitorCounter } from './AdminVisitorCounter';
+export { AdminBetaCodesCard } from './AdminBetaCodesCard';

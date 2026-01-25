@@ -24,7 +24,10 @@ const features = [
 
 type PlanType = 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'lifetime';
 
-const VALID_PROMO_CODES = ['MTSTRONG100'];
+// Legacy 7-day trial codes
+const LEGACY_PROMO_CODES = ['MTSTRONG100'];
+// Beta tester 14-day codes (these are validated server-side)
+const BETA_CODE_PREFIXES = ['EMBRACE14', 'BETAJOIN', 'STEPHINSPIRESMT'];
 
 const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const { session } = useAuth();
@@ -37,7 +40,10 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const [promoCode, setPromoCode] = useState('');
   const [showPromoInput, setShowPromoInput] = useState(false);
 
-  const isValidPromo = VALID_PROMO_CODES.includes(promoCode.toUpperCase().trim());
+  const normalizedCode = promoCode.toUpperCase().trim();
+  const isLegacyPromo = LEGACY_PROMO_CODES.includes(normalizedCode);
+  const isBetaCode = BETA_CODE_PREFIXES.some(prefix => normalizedCode.startsWith(prefix) || normalizedCode === prefix);
+  const isValidPromo = isLegacyPromo || isBetaCode;
 
   const handleActivateTrial = async () => {
     setIsActivatingTrial(true);
@@ -54,27 +60,60 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
         return;
       }
 
-      const result = await activateTrial(promoCode.toUpperCase().trim());
-      
-      if (result.success) {
-        toast({
-          title: "Welcome to Pro! 🎉",
-          description: "Your 7-day free trial is now active. Enjoy all Pro features!",
+      // Determine which endpoint to use based on code type
+      if (isBetaCode) {
+        // Use beta code activation endpoint
+        const { data, error } = await supabase.functions.invoke('activate-beta-code', {
+          body: { promoCode: normalizedCode }
         });
-        onOpenChange(false);
-      } else {
-        // Check for specific error messages from the API
-        const errorMessage = result.error || "Please try again.";
-        const isAlreadyUsed = errorMessage.toLowerCase().includes('already used') || 
-                              errorMessage.toLowerCase().includes('already have');
         
-        toast({
-          title: isAlreadyUsed ? "Trial Already Used" : "Could not activate trial",
-          description: isAlreadyUsed 
-            ? "You've already used a free trial. Upgrade to Pro to continue!" 
-            : errorMessage,
-          variant: "destructive",
-        });
+        if (error) throw error;
+        
+        if (data?.success) {
+          toast({
+            title: "Welcome to the Beta! 🎉",
+            description: data.message || `Your ${data.trialDays}-day Pro trial is now active!`,
+          });
+          await checkSubscription();
+          onOpenChange(false);
+        } else {
+          const errorMessage = data?.error || "Please try again.";
+          const isAlreadyUsed = data?.alreadyRedeemed || data?.activeTrial;
+          const isExhausted = data?.exhausted;
+          
+          toast({
+            title: isExhausted ? "Code Limit Reached" : isAlreadyUsed ? "Already Activated" : "Could not activate",
+            description: isExhausted 
+              ? "This promo code has reached its usage limit."
+              : isAlreadyUsed 
+                ? "You've already redeemed this code or have an active trial." 
+                : errorMessage,
+            variant: "destructive",
+          });
+        }
+      } else {
+        // Use legacy trial activation
+        const result = await activateTrial(normalizedCode);
+        
+        if (result.success) {
+          toast({
+            title: "Welcome to Pro! 🎉",
+            description: "Your 7-day free trial is now active. Enjoy all Pro features!",
+          });
+          onOpenChange(false);
+        } else {
+          const errorMessage = result.error || "Please try again.";
+          const isAlreadyUsed = errorMessage.toLowerCase().includes('already used') || 
+                                errorMessage.toLowerCase().includes('already have');
+          
+          toast({
+            title: isAlreadyUsed ? "Trial Already Used" : "Could not activate trial",
+            description: isAlreadyUsed 
+              ? "You've already used a free trial. Upgrade to Pro to continue!" 
+              : errorMessage,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error: any) {
       console.error('Error activating trial:', error);
@@ -387,7 +426,7 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                   {isValidPromo && (
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-green-500">
                       <Gift className="w-4 h-4" />
-                      <span className="text-xs font-semibold">7 Days FREE!</span>
+                      <span className="text-xs font-semibold">{isBetaCode ? '14 Days FREE!' : '7 Days FREE!'}</span>
                     </div>
                   )}
                 </div>
@@ -406,7 +445,7 @@ const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                     ) : (
                       <>
                         <Gift className="w-4 h-4 mr-2" />
-                        Start 7-Day Free Trial - No Card Required
+                        Start {isBetaCode ? '14' : '7'}-Day Free Trial - No Card Required
                       </>
                     )}
                   </Button>
