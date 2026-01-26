@@ -27,7 +27,7 @@ type PlanType = 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'lifetime';
 // Legacy 7-day trial codes
 const LEGACY_PROMO_CODES = ['MTSTRONG100'];
 // Beta tester 14-day codes (these are validated server-side)
-const BETA_CODE_PREFIXES = ['STEPHINSPIRESMT', 'CAMTHRIVES2', 'FIELDOFDREAMS2', 'SERENITYMT2'];
+const BETA_CODE_PREFIXES = ['STEPHINSPIRESMT', 'CAMTHRIVES2', 'FIELDOFDREAMS2', 'SERENITYMT2', 'JAYTHRIVES2'];
 
 const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const { session } = useAuth();
